@@ -2546,9 +2546,6 @@ body {{
   min-height: 100vh;
   background: #eef3f9;
 }}
-.hero-main::before,
-.hero-main::after,
-.hero-logo::before,
 .content {{ padding: 16px; }}
 .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }}
 .card {{

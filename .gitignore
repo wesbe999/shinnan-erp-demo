@@ -30,6 +30,7 @@ check_*.ps1
 cleanup_backups.ps1
 sync_backups_to_onedrive.ps1
 start_erp_8050.bat
+tools/maintenance/*.ps1
 
 .env
 

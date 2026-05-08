@@ -809,12 +809,6 @@ def billing_mobile_app_page(request: _EmpRequest):
       background: #eef4fb;
       padding-bottom: 70px;
     }
-
-
-
-    .hero-logo,
-
-
     .sub {
       margin-top: 5px;
       color: rgba(255,255,255,.88);
