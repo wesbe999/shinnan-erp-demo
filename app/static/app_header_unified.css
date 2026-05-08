@@ -1,0 +1,167 @@
+/* XN_APP_HEADER_STANDARD_V2 */
+
+.hero,
+.hero.app-standard-hero {
+  position: relative !important;
+  margin: 0 !important;
+  padding: 6px 14px 6px !important;
+  min-height: 82px !important;
+  color: #ffffff !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  border: 1px solid rgba(220, 252, 231, .32) !important;
+  border-radius: 12px !important;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(120, 255, 180, .20) 0%, rgba(120, 255, 180, .08) 28%, transparent 60%),
+    linear-gradient(90deg, #184d3b 0%, #2c7a57 38%, #3f9968 52%, #2b7f5d 68%, #184d3b 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .20),
+    inset 0 -12px 28px rgba(24, 77, 59, .18),
+    0 8px 22px rgba(15, 23, 42, .14) !important;
+}
+
+.hero::before,
+.hero.app-standard-hero::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+  opacity: .76 !important;
+  filter: blur(.15px) !important;
+  background-image:
+    radial-gradient(circle at 23% 43%, rgba(226, 238, 96, .36) 0 1px, rgba(226, 238, 96, .13) 2px, transparent 5px),
+    radial-gradient(circle at 55% 54%, rgba(226, 238, 96, .30) 0 1px, rgba(226, 238, 96, .10) 2px, transparent 5px),
+    radial-gradient(circle at 67% 72%, rgba(226, 238, 96, .24) 0 1px, rgba(226, 238, 96, .08) 2px, transparent 5px),
+    radial-gradient(circle at 10% 76%, rgba(210, 240, 150, .24) 0 1px, rgba(210, 240, 150, .08) 2px, transparent 5px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 140' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%23eaffef' stroke-linecap='round'%3E%3Cpath d='M-80 92 C120 122 260 142 430 138 C570 134 720 122 1280 86' stroke-opacity='0.30' stroke-width='1.10'/%3E%3Cpath d='M-80 108 C160 132 350 148 530 142 C690 136 860 122 1280 98' stroke-opacity='0.24' stroke-width='0.92'/%3E%3Cpath d='M-80 122 C190 144 420 154 630 146 C780 138 930 130 1280 110' stroke-opacity='0.18' stroke-width='0.78'/%3E%3Cpath d='M160 140 C330 116 500 122 660 136 C790 148 920 138 1100 110' stroke-opacity='0.16' stroke-width='0.62'/%3E%3C/g%3E%3Cg fill='%23f8fafc' fill-opacity='0.52'%3E%3Ccircle cx='70' cy='116' r='1.1'/%3E%3Ccircle cx='145' cy='126' r='1.2'/%3E%3Ccircle cx='250' cy='136' r='1.15'/%3E%3Ccircle cx='590' cy='136' r='1.3'/%3E%3Ccircle cx='910' cy='126' r='1.15'/%3E%3Ccircle cx='1040' cy='112' r='1.2'/%3E%3C/g%3E%3C/svg%3E") !important;
+  background-size: auto, auto, auto, auto, 100% 100% !important;
+  background-repeat: no-repeat !important;
+}
+
+.hero::after,
+.hero.app-standard-hero::after {
+  content: "" !important;
+  position: absolute !important;
+  right: -8px !important;
+  top: -8px !important;
+  width: 235px !important;
+  height: 118px !important;
+  background-image: url("/static/shinnan_logo_outline_white.png?v=20260508_final") !important;
+  background-repeat: no-repeat !important;
+  background-position: center right !important;
+  background-size: contain !important;
+  opacity: .42 !important;
+  filter: drop-shadow(0 0 8px rgba(255,255,255,.16)) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.hero-main,
+.hero-title,
+.hero-logo,
+.hero-sub {
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+.hero-main {
+  display: block !important;
+  width: 100% !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+.hero-title {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: max-content !important;
+  max-width: calc(100% - 118px) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: center !important;
+  font-size: clamp(20px, 5.4vw, 23px) !important;
+  line-height: 1.05 !important;
+  font-weight: 820 !important;
+  letter-spacing: .035em !important;
+  white-space: nowrap !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 6px rgba(15, 23, 42, .20) !important;
+}
+
+.hero-logo {
+  position: absolute !important;
+  right: calc(50% + 76px) !important;
+  top: 56% !important;
+  transform: translateY(-50%) !important;
+  width: 86px !important;
+  height: 86px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.hero-logo img,
+.hero-logo-img {
+  width: 86px !important;
+  height: 86px !important;
+  max-width: 86px !important;
+  max-height: 86px !important;
+  object-fit: contain !important;
+  display: block !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+.hero-sub {
+  margin-top: -4px !important;
+  text-align: center !important;
+  color: #facc15 !important;
+  font-size: 17px !important;
+  line-height: 1.05 !important;
+  font-weight: 780 !important;
+  text-shadow: 0 2px 6px rgba(15,23,42,.26) !important;
+}
+
+@media (max-width: 390px) {
+  .hero,
+  .hero.app-standard-hero {
+    min-height: 80px !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+
+  .hero-main {
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+
+  .hero-title {
+    font-size: clamp(18px, 5.7vw, 22px) !important;
+  }
+
+  .hero-logo {
+    right: calc(50% + 72px) !important;
+    width: 82px !important;
+    height: 82px !important;
+  }
+
+  .hero-logo img,
+  .hero-logo-img {
+    width: 82px !important;
+    height: 82px !important;
+    max-width: 82px !important;
+    max-height: 82px !important;
+  }
+}

@@ -1,0 +1,17 @@
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #eef3f9;
+      color: #102348;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      padding-bottom: 106px;
+      overflow-x: hidden;
+    }
+
+    .app-shell {
+      max-width: 520px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #eef3f9;
+    }
