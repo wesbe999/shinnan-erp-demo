@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter
 from pydantic import BaseModel
+from app.config import DATA_DIR
 
 router = APIRouter(tags=["通知"])
 
-DATA_DIR = Path("data")
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 NOTICE_FILE = DATA_DIR / "emergency_notices.json"

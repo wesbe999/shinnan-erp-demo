@@ -1,18 +1,18 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
+from app.config import data_file
 from app.services.demo_data import generate_billing_records
 from app.routes.employee_auth import _employee_current_user_from_request
 
 router = APIRouter(tags=["帳務系統"])
 
 
-_BILLING_NOTICES_FILE = Path("data") / "billing_notices.json"
+_BILLING_NOTICES_FILE = data_file("billing_notices.json")
 
 
 def _load_billing_notices() -> list[dict]:
@@ -2993,8 +2993,6 @@ def billing_page(request: Request):
 </html>
 """
     return html.replace("__RECORDS_JSON__", records_json)
-
-
 
 
 

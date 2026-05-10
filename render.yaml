@@ -5,3 +5,8 @@ services:
     plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: XUNNAN_DB_PATH
+        value: /var/data/xunnan_dispatch.db
+      - key: XUNNAN_DATA_DIR
+        value: /var/data/data

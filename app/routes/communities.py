@@ -1,10 +1,10 @@
 ﻿from pathlib import Path
 from fastapi import APIRouter
 from pydantic import BaseModel
+from app.config import DATA_DIR
 
 router = APIRouter(prefix="/api/communities", tags=["社區資料"])
 
-DATA_DIR = Path("data")
 COMMUNITY_FILE = DATA_DIR / "communities.json"
 
 

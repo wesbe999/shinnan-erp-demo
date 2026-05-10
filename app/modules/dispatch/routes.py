@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json as _json
-from pathlib import Path as _Path
 
 from fastapi import APIRouter
 from fastapi import Request as _Request
@@ -365,7 +364,9 @@ def api_app_dispatch_emergency_notices(request: _Request):
     if not user:
         return _json_response({"ok": False, "error": "login required"}, status_code=401)
 
-    notice_file = _Path("data") / "emergency_notices.json"
+    from app.config import data_file as _xunnan_data_file
+
+    notice_file = _xunnan_data_file("emergency_notices.json")
     notices = []
 
     if notice_file.exists():

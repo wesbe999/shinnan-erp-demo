@@ -1,11 +1,17 @@
 ﻿from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
-DATABASE_URL = "sqlite:///./xunnan_dispatch.db"
+from app.config import database_url
+
+DATABASE_URL = database_url()
+
+connect_args = {}
+if DATABASE_URL.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False},
+    connect_args=connect_args,
 )
 
 SessionLocal = sessionmaker(
