@@ -590,7 +590,7 @@ def sales_mobile_app_page():
 
 
 
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260508_final">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
 </head>
 
 <body>
@@ -677,7 +677,9 @@ def sales_mobile_app_page():
     }
 
     function isEventActive(item) {
-      return item.event_type && item.event_type !== "無" && ["待處理", "處理中", "已回覆"].includes(item.event_status || "");
+      const eventType = String((item && item.event_type) || "").trim();
+      const eventStatus = String((item && item.event_status) || "").trim();
+      return eventType && eventType !== "無" && !["", "無", "已完成", "完成"].includes(eventStatus);
     }
 
     function isToday(item) {
@@ -686,7 +688,8 @@ def sales_mobile_app_page():
     }
 
     function isContract(item) {
-      return item.contract_status === "即將到期" || item.contract_status === "洽談中";
+      const status = String((item && item.contract_status) || "").trim();
+      return ["即將到期", "洽談中", "續約中", "待客戶回覆"].includes(status);
     }
 
     function buildActionText(item) {

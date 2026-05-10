@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>閮?撌乩?蝞∠?蝟餌絞</title>
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+  <link rel="stylesheet" href="/static/mobile_app_home.css?v=20260509_v2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="app">
+    <section class="hero app-standard-hero">
+
+
+
+
+      <div class="hero-main">
+        <span class="hero-logo">
+          <img class="hero-logo-img" src="/static/shinnan_home_logo.png" alt="Logo">
+        </span>
+        <h1 class="hero-title">閮?撌乩?蝞∠?蝟餌絞</h1>
+      </div>
+      <div class="hero-sub">{{ user_line }}</div>
+    </section>
+
+
+
+
+
+    <main class="content">
+      <div class="section-title"><span class="section-mark"></span><span>銝?砍???/span></div>
+
+
+
+
+      <section class="dash-grid">
+        <a class="dash-card" href="/app/employee/security">
+          <div class="dash-icon green icon-lock"></div>
+          <div class="dash-body">
+            <div class="dash-title">撣唾?摰</div>
+            <div class="dash-desc">PIN嚗?蝣潸身摰?br>靽風撣唾?摰</div>
+          </div>
+          <div class="dash-arrow">&rsaquo;</div>
+        </a>
+
+        <a class="dash-card" href="/app/employee/leave">
+          <div class="dash-icon blue icon-doc"></div>
+          <div class="dash-body">
+            <div class="dash-title">隢??唾?</div>
+            <div class="dash-desc">?隢??唾?<br>撱箇?隢???/div>
+          </div>
+          <div class="dash-arrow">&rsaquo;</div>
+        </a>
+
+        <a class="dash-card" href="/app/employee/leave-query">
+          <div class="dash-icon amber icon-cal"></div>
+          <div class="dash-body">
+            <div class="dash-title">???</div>
+            <div class="dash-desc">?亥岷隢?蝝??br>?撖拇???/div>
+          </div>
+          <div class="dash-arrow">&rsaquo;</div>
+        </a>
+
+        <a class="dash-card" href="/app/employee/rest">
+          <div class="dash-icon green icon-rest"></div>
+          <div class="dash-body">
+            <div class="dash-title">??閮剖?</div>
+            <div class="dash-desc">閮剖????交?<br>?蜓蝞∪祟??/div>
+          </div>
+          <div class="dash-arrow">&rsaquo;</div>
+        </a>
+
+        <a class="dash-card" href="/app/employee/proxy">
+          <div class="dash-icon purple icon-user"></div>
+          <div class="dash-body">
+            <div class="dash-title">隞??鈭?/div>
+            <div class="dash-desc">閮剖?隞??鈭?br>隞??甈?蝞∠?</div>
+          </div>
+          <div class="dash-arrow">&rsaquo;</div>
+        </a>
+
+        <a class="dash-card" href="/app/tools/calculator">
+          <div class="dash-icon cyan icon-tool"></div>
+          <div class="dash-body">
+            <div class="dash-title">撌亙蝞?/div>
+            <div class="dash-desc">撖衣撠極??br>??撌乩???</div>
+          </div>
+          <div class="dash-arrow">&rsaquo;</div>
+        </a>
+      </section>
+
+      <div class="section-title"><span class="section-mark stack"></span><span>撌乩?璅∠?</span></div>
+
+      <section class="dash-grid">
+        {% if modules %}
+          {% for m in modules %}
+          <a class="dash-card" href="{{ m.href }}">
+            <div class="dash-icon module-icon icon-module-{{ m.key }}"></div>
+            <div class="dash-body">
+              <div class="dash-title">{{ m.title }}</div>
+              <div class="dash-desc">{{ m.desc }}</div>
+            </div>
+            <div class="dash-arrow">&rsaquo;</div>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div class="dash-card disabled">
+            <div class="dash-icon gray">---</div>
+            <div class="dash-body">
+              <div class="dash-title">撠?甈?璅∠?</div>
+              <div class="dash-desc">?桀?撣唾??芷??曆??砍??賬?/div>
+            </div>
+          </div>
+        {% endif %}
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active" onclick="location.href='/app'"><span class="nav-dot">H</span><span>擐?</span></button>
+      <button class="nav-item" onclick="location.href='/app'"><span class="nav-dot">N</span><span>?</span></button>
+      <button class="nav-item" onclick="location.href='/app'"><span class="nav-dot">T</span><span>敺齒</span></button>
+      <button class="nav-item" onclick="location.href='/app'"><span class="nav-dot">M</span><span>閮</span></button>
+      <button class="nav-item" onclick="location.href='/app/employee/settings?return_to=/app'"><span class="nav-dot">U</span><span>??</span></button>
+    </nav>
+  </div>
+
+
+
+
+<!-- XN_APP_HOME_LOGOUT_V17_START -->
+<script>
+(function () {
+  function installLogoutButtonV17() {
+    var titleText = "\u4e00\u822c\u529f\u80fd";
+    var logoutText = "\u767b\u51fa";
+    var logoutHref = "/employee/logout?next=/employee/login%3Fnext%3D/app";
+
+    Array.from(document.querySelectorAll(".app-home-general-logout")).forEach(function (el) {
+      el.remove();
+    });
+
+    var nodes = Array.from(document.querySelectorAll("h1,h2,h3,h4,div,section"));
+    var titleEl = null;
+
+    for (var i = 0; i < nodes.length; i++) {
+      var t = (nodes[i].textContent || "").trim();
+      if (t === titleText || (t.indexOf(titleText) >= 0 && t.length <= 12)) {
+        titleEl = nodes[i];
+        break;
+      }
+    }
+
+    if (!titleEl) return;
+
+    titleEl.style.display = "flex";
+    titleEl.style.alignItems = "center";
+    titleEl.style.width = "100%";
+    titleEl.style.gap = "12px";
+
+    var btn = document.createElement("a");
+    btn.className = "app-home-general-logout";
+    btn.href = logoutHref;
+    btn.textContent = logoutText;
+    btn.setAttribute("aria-label", "logout");
+
+    titleEl.appendChild(btn);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installLogoutButtonV17);
+  } else {
+    installLogoutButtonV17();
+  }
+})();
+</script>
+<!-- XN_APP_HOME_LOGOUT_V17_END -->
+
+<!-- XN_APP_HOME_LOGOUT_STYLE_V17_START -->
+<style>
+.app-home-general-logout {
+  margin-left: auto !important;
+  margin-right: 24px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 62px !important;
+  height: 30px !important;
+  border-radius: 999px !important;
+  background: #ffd6e7 !important;
+  color: #8a2f55 !important;
+  text-decoration: none !important;
+  font-size: 13px !important;
+  font-weight: 1000 !important;
+  letter-spacing: .06em !important;
+  border: 1px solid rgba(255,182,213,.95) !important;
+  box-shadow: 0 6px 14px rgba(180,80,120,.14) !important;
+  flex: 0 0 auto !important;
+}
+.app-home-general-logout:active {
+  transform: scale(.97);
+}
+@media (max-width: 430px) {
+  .app-home-general-logout {
+    width: 58px !important;
+    height: 28px !important;
+    margin-right: 18px !important;
+    font-size: 12px !important;
+  }
+}
+</style>
+<!-- XN_APP_HOME_LOGOUT_STYLE_V17_END -->
+
+</body>
+</html>

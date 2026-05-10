@@ -1194,7 +1194,11 @@ function zh(hexText) {
 
   function appointmentText(item) { const d = item.appointment_date || ""; const t = item.appointment_time || ""; if (!d && !t) return "-"; return [d, t].filter(Boolean).join(" "); }
   function engineerText(item) { return item.assigned_engineer || "未指派"; }
-  function statusClass(status) { if (status === "待派工" || status === "未派工") return "pill pill-wait"; if (status === "已領取") return "pill pill-claim"; if (status === "已完工") return "pill pill-done"; return "pill pill-default"; }
+  function normalizedStatus(status) { return String(status || "").trim(); }
+  function isDoneStatus(status) { return ["已完工", "已完成", "完成"].includes(normalizedStatus(status)); }
+  function isWaitingStatus(status) { return ["", "待派工", "未派工", "已建立", "已指派"].includes(normalizedStatus(status)); }
+  function isClaimedStatus(status) { return ["已領取", "施工中", "處理中", "待處理", "待老闆判斷"].includes(normalizedStatus(status)); }
+  function statusClass(status) { if (isWaitingStatus(status)) return "pill pill-wait"; if (isClaimedStatus(status)) return "pill pill-claim"; if (isDoneStatus(status)) return "pill pill-done"; return "pill pill-default"; }
 function amountText(item) {
     if (item.install_detail && Number(item.install_detail.total_amount || 0) > 0) {
       return "\u88dd\u6a5f " + money(item.install_detail.total_amount);
@@ -1225,9 +1229,9 @@ function amountText(item) {
     return allTickets.filter(function (item) {
       if (area !== "全部" && String(item.dispatch_area || "") !== area) return false;
       if (statFilter === "today") { const created = String(item.created_at || "").slice(0, 10); const appt = String(item.appointment_date || "").slice(0, 10); if (created !== todayKey() && appt !== todayKey()) return false; }
-      if (statFilter === "unclaimed" && !(item.status === "待派工" || item.status === "未派工")) return false;
-      if (statFilter === "claimed" && item.status !== "已領取") return false;
-      if (statFilter === "done" && item.status !== "已完工") return false;
+      if (statFilter === "unclaimed" && !isWaitingStatus(item.status)) return false;
+      if (statFilter === "claimed" && !isClaimedStatus(item.status)) return false;
+      if (statFilter === "done" && !isDoneStatus(item.status)) return false;
       if (engineerState === "未派工") { if (item.assigned_engineer) return false; } else if (engineerState === "已派工") { if (!item.assigned_engineer) return false; } else if (engineerState !== "全部") { if (String(item.assigned_engineer || "") !== engineerState) return false; }
       if (keyword) { const hay = [item.customer_name,item.contact_name,item.contact_phone,item.customer_phone,item.service_address,mergedAddressText(item),item.ticket_no].join(" ").toLowerCase(); if (!hay.includes(keyword)) return false; }
       return true;
@@ -1242,9 +1246,9 @@ function amountText(item) {
     const area = val("top_filter_area") || "全部";
     const scoped = allTickets.filter(item => area === "全部" || String(item.dispatch_area || "") === area);
     byId("stat_today").textContent = scoped.filter(function (item) { const created = String(item.created_at || "").slice(0, 10); const appt = String(item.appointment_date || "").slice(0, 10); return created === todayKey() || appt === todayKey(); }).length;
-    byId("stat_unclaimed").textContent = scoped.filter(item => item.status === "待派工" || item.status === "未派工").length;
-    byId("stat_claimed").textContent = scoped.filter(item => item.status === "已領取").length;
-    byId("stat_done").textContent = scoped.filter(item => item.status === "已完工").length;
+    byId("stat_unclaimed").textContent = scoped.filter(item => isWaitingStatus(item.status)).length;
+    byId("stat_claimed").textContent = scoped.filter(item => isClaimedStatus(item.status)).length;
+    byId("stat_done").textContent = scoped.filter(item => isDoneStatus(item.status)).length;
   }
 
   function updateEngineerBoard() {
@@ -1256,13 +1260,12 @@ function amountText(item) {
     let engineers = engineerDirectory.filter(function (e) {
       if (!e.name) return false;
       if (!ENGINEER_DEPARTMENTS.includes(e.department)) return false;
-      if (area === "全部") return true;
-      return e.department === area;
+      return true;
     });
     function activeCount(name) {
       return scopedTickets.filter(function (item) {
         if (String(item.assigned_engineer || "") !== name) return false;
-        if (item.status === "已完工" || item.status === "待派工" || item.status === "未派工") return false;
+        if (isDoneStatus(item.status) || isWaitingStatus(item.status)) return false;
         return true;
       }).length;
     }

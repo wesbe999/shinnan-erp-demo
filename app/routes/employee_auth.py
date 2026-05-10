@@ -317,9 +317,14 @@ async def employee_login_submit(request: _EmpRequest):
 
 
 @router.get("/employee/logout")
-def employee_logout(next: str = "/"):
-    if not next.startswith("/"):
-        next = "/"
+def employee_logout(next: str = "/employee/login?next=/app"):
+    default_next = "/employee/login?next=/app"
+
+    if not next or not next.startswith("/") or next.startswith("//"):
+        next = default_next
+
+    if next == "/":
+        next = default_next
 
     resp = _EmpRedirectResponse(next, status_code=303)
     resp.delete_cookie(_EMP_COOKIE_NAME, path="/")

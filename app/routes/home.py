@@ -411,7 +411,7 @@ def erp_home_page():
             <div class="module-desc">費用、押金、月租、材料與財務同步管理。</div>
           </a>
 
-          <a class="module m-customer" href="/admin?module=customers">
+          <a class="module m-customer" href="/admin/customers">
             <div class="module-name">客戶資料</div>
             <div class="module-desc">住戶、聯絡人、服務地址與裝退機紀錄。</div>
           </a>
@@ -421,7 +421,7 @@ def erp_home_page():
             <div class="module-desc">社區大樓、設備 IP、管理公司與住戶數據。</div>
           </a>
 
-          <a class="module m-sales" href="/admin?module=sales">
+          <a class="module m-sales" href="/admin/sales">
             <div class="module-name">業務系統</div>
             <div class="module-desc">新戶開發、合約追蹤與社區合作狀態。</div>
           </a>

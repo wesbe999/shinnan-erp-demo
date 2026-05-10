@@ -5,7 +5,7 @@ DATABASE_URL = "sqlite:///./xunnan_dispatch.db"
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False, "isolation_level": None},
+    connect_args={"check_same_thread": False},
 )
 
 SessionLocal = sessionmaker(

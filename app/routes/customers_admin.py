@@ -729,10 +729,10 @@ def admin_customers_page():
 
       <select id="status_filter">
         <option value="全部">全部狀態</option>
-        <option value="啟用中">啟用中</option>
-        <option value="待裝機">待裝機</option>
-        <option value="暫停">暫停</option>
-        <option value="已退租">已退租</option>
+        <option value="正常">正常</option>
+        <option value="IP限制">IP限制</option>
+        <option value="停用">停用</option>
+        <option value="退租">退租</option>
       </select>
 
       <select id="limit_filter">
@@ -1342,6 +1342,21 @@ def _customer_billing_tables_init():
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
         """))
+        plan_columns = {row[1] for row in conn.execute(_customers_sql_text("PRAGMA table_info(billing_service_plans)")).fetchall()}
+        billing_plan_required = {
+            "plan_code": "TEXT DEFAULT ''",
+            "plan_name": "TEXT DEFAULT ''",
+            "plan_label": "TEXT DEFAULT ''",
+            "monthly_fee": "INTEGER DEFAULT 0",
+            "billing_category": "TEXT DEFAULT ''",
+            "enabled": "INTEGER DEFAULT 1",
+            "created_at": "TEXT DEFAULT ''",
+            "updated_at": "TEXT DEFAULT ''",
+        }
+
+        for column, definition in billing_plan_required.items():
+            if column not in plan_columns:
+                conn.execute(_customers_sql_text(f"ALTER TABLE billing_service_plans ADD COLUMN {column} {definition}"))
 
         conn.execute(_customers_sql_text("""
             CREATE TABLE IF NOT EXISTS customer_service_items (
@@ -1353,10 +1368,86 @@ def _customer_billing_tables_init():
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
         """))
+        item_columns = {row[1] for row in conn.execute(_customers_sql_text("PRAGMA table_info(customer_service_items)")).fetchall()}
+        service_item_required = {
+            "customer_no": "TEXT DEFAULT ''",
+            "plan_code": "TEXT DEFAULT ''",
+            "enabled": "INTEGER DEFAULT 1",
+            "created_at": "TEXT DEFAULT ''",
+            "updated_at": "TEXT DEFAULT ''",
+        }
+
+        for column, definition in service_item_required.items():
+            if column not in item_columns:
+                conn.execute(_customers_sql_text(f"ALTER TABLE customer_service_items ADD COLUMN {column} {definition}"))
 # SHINNAN_CUSTOMER_BILLING_TABLES_HELPER_END
 
 
 # SHINNAN_CUSTOMER_ACCOUNTS_API_START
+def _ensure_customer_accounts_columns(conn):
+    existing = {row[1] for row in conn.execute(_customers_sql_text("PRAGMA table_info(customer_accounts)")).fetchall()}
+    required = {
+        "customer_phone": "TEXT DEFAULT ''",
+        "customer_type": "TEXT DEFAULT ''",
+        "floor_text": "TEXT DEFAULT ''",
+        "room_no": "TEXT DEFAULT ''",
+        "service_address": "TEXT DEFAULT ''",
+        "service_type": "TEXT DEFAULT ''",
+        "package_name": "TEXT DEFAULT ''",
+        "monthly_fee": "INTEGER DEFAULT 0",
+        "install_date": "TEXT DEFAULT ''",
+        "contract_status": "TEXT DEFAULT ''",
+        "account_status": "TEXT DEFAULT ''",
+        "payment_method": "TEXT DEFAULT ''",
+        "billing_day": "INTEGER DEFAULT 0",
+        "arrears_status": "TEXT DEFAULT ''",
+        "equipment_no": "TEXT DEFAULT ''",
+        "cm_mac": "TEXT DEFAULT ''",
+        "ip_address": "TEXT DEFAULT ''",
+        "signal_note": "TEXT DEFAULT ''",
+        "billing_note": "TEXT DEFAULT ''",
+        "service_note": "TEXT DEFAULT ''",
+        "created_at": "TEXT DEFAULT ''",
+        "updated_at": "TEXT DEFAULT ''",
+    }
+
+    for column, definition in required.items():
+        if column not in existing:
+            conn.execute(_customers_sql_text(f"ALTER TABLE customer_accounts ADD COLUMN {column} {definition}"))
+
+    refreshed = existing | required.keys()
+    if "phone" in refreshed:
+        conn.execute(_customers_sql_text("""
+            UPDATE customer_accounts
+            SET customer_phone = COALESCE(NULLIF(customer_phone, ''), phone, '')
+            WHERE COALESCE(customer_phone, '') = ''
+        """))
+    if "address" in refreshed:
+        conn.execute(_customers_sql_text("""
+            UPDATE customer_accounts
+            SET service_address = COALESCE(NULLIF(service_address, ''), address, '')
+            WHERE COALESCE(service_address, '') = ''
+        """))
+    if "service_status" in refreshed:
+        conn.execute(_customers_sql_text("""
+            UPDATE customer_accounts
+            SET account_status = COALESCE(NULLIF(account_status, ''), service_status, '')
+            WHERE COALESCE(account_status, '') = ''
+        """))
+    if "payment_status" in refreshed:
+        conn.execute(_customers_sql_text("""
+            UPDATE customer_accounts
+            SET arrears_status = COALESCE(NULLIF(arrears_status, ''), payment_status, '')
+            WHERE COALESCE(arrears_status, '') = ''
+        """))
+    if "plan_name" in refreshed:
+        conn.execute(_customers_sql_text("""
+            UPDATE customer_accounts
+            SET package_name = COALESCE(NULLIF(package_name, ''), plan_name, '')
+            WHERE COALESCE(package_name, '') = ''
+        """))
+
+
 def _customer_accounts_db_init():
     with _customers_engine.begin() as conn:
         conn.execute(_customers_sql_text("""
@@ -1389,6 +1480,7 @@ def _customer_accounts_db_init():
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
         """))
+        _ensure_customer_accounts_columns(conn)
 
 
 @router.get("/api/admin/customers", summary="讀取客人名冊")
@@ -1402,6 +1494,7 @@ def api_admin_customers(
 ):
     _customer_accounts_db_init()
     _buildings_db_init()
+    _customer_billing_tables_init()
 
     limit = max(1, min(int(limit or 300), 1000))
     offset = max(0, int(offset or 0))
@@ -1433,8 +1526,14 @@ def api_admin_customers(
         params["building_no"] = building_no
 
     if status and status != "全部":
+        status_aliases = {
+            "啟用中": "正常",
+            "暫停": "停用",
+            "已退租": "退租",
+        }
+        normalized_status = status_aliases.get(status, status)
         where.append("c.account_status = :status")
-        params["status"] = status
+        params["status"] = normalized_status
 
     where_sql = ""
     if where:

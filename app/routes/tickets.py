@@ -2,6 +2,7 @@ from datetime import datetime
 import json
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import text
 from sqlalchemy.orm import Session, joinedload
 
 from app.db import get_db
@@ -10,6 +11,62 @@ from app.schemas import TicketCreate, TicketOut, TicketStatusUpdate, TicketClaim
 
 
 router = APIRouter(prefix="/api/tickets", tags=["案件管理"])
+
+
+CASE_TYPE_INSTALL = "\u88dd\u6a5f"
+CASE_TYPE_REPAIR = "\u7dad\u4fee"
+CASE_TYPE_RETURN = "\u9000\u6a5f"
+CASE_TYPE_INSPECTION = "\u5de1\u6aa2"
+CASE_TYPE_OTHER = "\u5176\u4ed6"
+STATUS_UNASSIGNED = "\u5f85\u6d3e\u5de5"
+STATUS_CLAIMED = "\u5df2\u9818\u53d6"
+STATUS_ARRIVED = "\u5df2\u5230\u5834"
+STATUS_DONE = "\u5df2\u5b8c\u6210"
+
+
+def resolve_staff_code_by_name(db: Session, display_name: str | None) -> str:
+    name = str(display_name or "").strip()
+    if not name:
+        return ""
+
+    row = db.execute(
+        text("""
+        SELECT staff_code
+        FROM employee_accounts
+        WHERE display_name = :display_name
+        LIMIT 1
+        """),
+        {"display_name": name},
+    ).mappings().first()
+
+    if row:
+        return str(row.get("staff_code") or "").strip()
+
+    row = db.execute(
+        text("""
+        SELECT staff_code
+        FROM employee_profiles
+        WHERE display_name = :display_name
+        LIMIT 1
+        """),
+        {"display_name": name},
+    ).mappings().first()
+
+    return str(row.get("staff_code") or "").strip() if row else ""
+
+
+def normalize_ticket_datetime_columns(db: Session) -> None:
+    db.execute(text("""
+        UPDATE tickets
+        SET
+            arrived_at = NULLIF(arrived_at, ''),
+            completed_at = NULLIF(completed_at, ''),
+            customer_signature_signed_at = NULLIF(customer_signature_signed_at, '')
+        WHERE arrived_at = ''
+           OR completed_at = ''
+           OR customer_signature_signed_at = ''
+    """))
+    db.commit()
 
 
 def generate_ticket_no(db: Session) -> str:
@@ -182,19 +239,28 @@ def clear_test_tickets(db: Session = Depends(get_db)):
 
 @router.post("", response_model=TicketOut, summary="建立派工案件")
 def create_ticket(payload: TicketCreate, db: Session = Depends(get_db)):
-    allowed_case_types = ["裝機", "退機", "維修", "巡檢", "其他"]
+    allowed_case_types = [
+        CASE_TYPE_INSTALL,
+        CASE_TYPE_RETURN,
+        CASE_TYPE_REPAIR,
+        CASE_TYPE_INSPECTION,
+        CASE_TYPE_OTHER,
+    ]
 
     original_case_type = payload.case_type
     case_type = original_case_type
 
     if case_type not in allowed_case_types:
-        case_type = "其他"
+        case_type = CASE_TYPE_OTHER
 
-    if original_case_type == "裝機" and payload.install_detail is None:
+    if original_case_type == CASE_TYPE_INSTALL and payload.install_detail is None:
         raise HTTPException(status_code=400, detail="裝機案件必須提供 install_detail")
 
-    if original_case_type == "退機" and payload.return_detail is None:
+    if original_case_type == CASE_TYPE_RETURN and payload.return_detail is None:
         raise HTTPException(status_code=400, detail="退機案件必須提供 return_detail")
+
+    assigned_engineer = (payload.assigned_engineer or "").strip() or None
+    assigned_engineer_staff_code = resolve_staff_code_by_name(db, assigned_engineer)
 
     ticket = Ticket(
         ticket_no=generate_ticket_no(db),
@@ -206,7 +272,8 @@ def create_ticket(payload: TicketCreate, db: Session = Depends(get_db)):
         service_address=payload.service_address,
         appointment_date=payload.appointment_date,
         appointment_time=payload.appointment_time,
-        assigned_engineer=payload.assigned_engineer,
+        assigned_engineer=assigned_engineer,
+        assigned_engineer_staff_code=assigned_engineer_staff_code,
         description=payload.description,
         internal_note=payload.internal_note,
         customer_no=payload.customer_no or "",
@@ -217,7 +284,7 @@ def create_ticket(payload: TicketCreate, db: Session = Depends(get_db)):
     db.add(ticket)
     db.flush()
 
-    if original_case_type == "裝機" and payload.install_detail:
+    if original_case_type == CASE_TYPE_INSTALL and payload.install_detail:
         detail = TicketInstallDetail(
             ticket_id=ticket.id,
             **payload.install_detail.model_dump(),
@@ -225,7 +292,7 @@ def create_ticket(payload: TicketCreate, db: Session = Depends(get_db)):
         calculate_install_total(detail)
         db.add(detail)
 
-    if original_case_type == "退機" and payload.return_detail:
+    if original_case_type == CASE_TYPE_RETURN and payload.return_detail:
         detail = TicketReturnDetail(
             ticket_id=ticket.id,
             **payload.return_detail.model_dump(),
@@ -245,6 +312,8 @@ def create_ticket(payload: TicketCreate, db: Session = Depends(get_db)):
 
 @router.get("", summary="查詢案件列表")
 def list_tickets(db: Session = Depends(get_db)):
+    normalize_ticket_datetime_columns(db)
+
     tickets = (
         db.query(Ticket)
         .options(joinedload(Ticket.install_detail), joinedload(Ticket.return_detail))
@@ -352,12 +421,19 @@ def list_tickets(db: Session = Depends(get_db)):
     return items
 
 
+@router.get("/", include_in_schema=False)
+def list_tickets_with_trailing_slash(db: Session = Depends(get_db)):
+    return list_tickets(db)
+
+
 @router.patch("/{ticket_id}/claim", response_model=TicketOut, summary="工程師領取案件")
 def claim_ticket(
     ticket_id: int,
     payload: TicketClaimUpdate,
     db: Session = Depends(get_db),
 ):
+    normalize_ticket_datetime_columns(db)
+
     ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
 
     if ticket is None:
@@ -366,7 +442,9 @@ def claim_ticket(
     if not payload.assigned_engineer or not payload.assigned_engineer.strip():
         raise HTTPException(status_code=400, detail="領取工程師不可空白")
 
-    ticket.assigned_engineer = payload.assigned_engineer.strip()
+    assigned_engineer = payload.assigned_engineer.strip()
+    ticket.assigned_engineer = assigned_engineer
+    ticket.assigned_engineer_staff_code = resolve_staff_code_by_name(db, assigned_engineer)
     ticket.status = "已領取"
 
     db.commit()
@@ -385,6 +463,8 @@ def mobile_update_ticket(
     payload: dict,
     db: Session = Depends(get_db),
 ):
+    normalize_ticket_datetime_columns(db)
+
     ticket = (
         db.query(Ticket)
         .options(joinedload(Ticket.install_detail), joinedload(Ticket.return_detail))
@@ -493,6 +573,8 @@ def mobile_update_ticket(
 
 @router.get("/{ticket_id}", response_model=TicketOut, summary="查詢單一案件詳情")
 def get_ticket(ticket_id: int, db: Session = Depends(get_db)):
+    normalize_ticket_datetime_columns(db)
+
     ticket = (
         db.query(Ticket)
         .options(joinedload(Ticket.install_detail), joinedload(Ticket.return_detail))
@@ -510,6 +592,8 @@ def update_ticket_status(
     payload: TicketStatusUpdate,
     db: Session = Depends(get_db),
 ):
+    normalize_ticket_datetime_columns(db)
+
     ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
     if ticket is None:
         raise HTTPException(status_code=404, detail="找不到案件")
@@ -538,6 +622,8 @@ def update_ticket_status(
 
 @router.delete("/{ticket_id}", summary="刪除派工案件")
 def delete_ticket(ticket_id: int, db: Session = Depends(get_db)):
+    normalize_ticket_datetime_columns(db)
+
     ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
 
     if ticket is None:

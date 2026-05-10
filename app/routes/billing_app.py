@@ -344,6 +344,17 @@ def _billing_build_monthly_building_summary(user: dict) -> dict:
             ("c.tel" if "tel" in customer_cols else "''")))))
         )
         c_address = "c.install_address" if "install_address" in customer_cols else ("c.service_address" if "service_address" in customer_cols else "''")
+        c_billing_month = "c.billing_month" if "billing_month" in customer_cols else "''"
+        c_billing_due_date = "c.billing_due_date" if "billing_due_date" in customer_cols else "''"
+        c_billing_amount = "c.billing_amount" if "billing_amount" in customer_cols else ("c.monthly_fee" if "monthly_fee" in customer_cols else "0")
+        c_payment_status = "c.payment_status" if "payment_status" in customer_cols else ("c.arrears_status" if "arrears_status" in customer_cols else "''")
+        c_bill_delivery_status = "c.bill_delivery_status" if "bill_delivery_status" in customer_cols else "''"
+        c_bill_delivered = "c.bill_delivered" if "bill_delivered" in customer_cols else "0"
+
+        if "billing_due_date" not in customer_cols:
+            where_parts = ["1 = 1"]
+            if "payment_status" in customer_cols:
+                where_parts.append("COALESCE(c.payment_status, '') NOT LIKE '%停用%'")
 
         join_sql = ""
         b_name_expr = "''"
@@ -370,12 +381,12 @@ def _billing_build_monthly_building_summary(user: dict) -> dict:
                 {c_building_no} AS building_no,
                 COALESCE({b_name_expr}, {c_building_name}, {c_building_no}, '未命名大樓') AS building_name,
                 COALESCE({b_area_expr}, {c_area}, '') AS area,
-                COALESCE(c.billing_month, '') AS billing_month,
-                COALESCE(c.billing_due_date, '') AS billing_due_date,
-                COALESCE(c.billing_amount, 0) AS total_amount,
-                COALESCE(c.payment_status, '') AS payment_status,
-                COALESCE(c.bill_delivery_status, '') AS bill_delivery_status,
-                COALESCE(c.bill_delivered, 0) AS bill_delivered
+                COALESCE({c_billing_month}, '') AS billing_month,
+                COALESCE({c_billing_due_date}, '') AS billing_due_date,
+                COALESCE({c_billing_amount}, 0) AS total_amount,
+                COALESCE({c_payment_status}, '') AS payment_status,
+                COALESCE({c_bill_delivery_status}, '') AS bill_delivery_status,
+                COALESCE({c_bill_delivered}, 0) AS bill_delivered
             FROM customer_accounts c
             {join_sql}
             WHERE {" AND ".join(where_parts)}
@@ -477,11 +488,28 @@ def _billing_build_monthly_building_summary(user: dict) -> dict:
             _billing_sql_text("SELECT name FROM sqlite_master WHERE type='table' AND name='buildings'")
         ).fetchone() is not None
 
-        overdue_where_parts = [
-            "COALESCE(c.billing_due_date, '') <> ''",
-            "date(c.billing_due_date, '+20 day') <= date(:today)",
-            "COALESCE(c.payment_status, '') NOT LIKE '%已繳%'",
-        ]
+        if "billing_due_date" in customer_cols_for_overdue:
+            payment_status_expr_for_overdue = (
+                "c.payment_status"
+                if "payment_status" in customer_cols_for_overdue
+                else ("c.arrears_status" if "arrears_status" in customer_cols_for_overdue else "''")
+            )
+            overdue_where_parts = [
+                "COALESCE(c.billing_due_date, '') <> ''",
+                "date(c.billing_due_date, '+20 day') <= date(:today)",
+                f"COALESCE({payment_status_expr_for_overdue}, '') NOT LIKE '%已繳%'",
+            ]
+        else:
+            overdue_candidates = []
+            if "is_overdue" in customer_cols_for_overdue:
+                overdue_candidates.append("COALESCE(c.is_overdue, 0) = 1")
+            if "arrears_months" in customer_cols_for_overdue:
+                overdue_candidates.append("COALESCE(c.arrears_months, 0) > 0")
+            if "payment_status" in customer_cols_for_overdue:
+                overdue_candidates.append("COALESCE(c.payment_status, '') NOT LIKE '%已繳%'")
+            if "arrears_status" in customer_cols_for_overdue:
+                overdue_candidates.append("COALESCE(c.arrears_status, '') <> ''")
+            overdue_where_parts = ["(" + " OR ".join(overdue_candidates or ["1 = 0"]) + ")"]
 
         overdue_params = {
             "today": today_text,
@@ -528,7 +556,7 @@ def _billing_build_monthly_building_summary(user: dict) -> dict:
             GROUP BY
                 {c_building_no_for_overdue},
                 building_name,
-                area
+                COALESCE({b_area_expr_for_overdue}, {c_area_for_overdue}, '')
         """
 
         overdue_rows = conn.execute(
@@ -673,6 +701,23 @@ def api_app_billing_overdue_customers(request: _EmpRequest):
             ("c.tel" if "tel" in customer_cols else "''")))))
         )
         c_address = "c.install_address" if "install_address" in customer_cols else ("c.service_address" if "service_address" in customer_cols else "''")
+        c_billing_month = "c.billing_month" if "billing_month" in customer_cols else "''"
+        c_billing_due_date = "c.billing_due_date" if "billing_due_date" in customer_cols else "''"
+        c_billing_amount = "c.billing_amount" if "billing_amount" in customer_cols else ("c.monthly_fee" if "monthly_fee" in customer_cols else "0")
+        c_payment_status = "c.payment_status" if "payment_status" in customer_cols else ("c.arrears_status" if "arrears_status" in customer_cols else "''")
+        c_bill_delivery_status = "c.bill_delivery_status" if "bill_delivery_status" in customer_cols else "''"
+        c_bill_delivered = "c.bill_delivered" if "bill_delivered" in customer_cols else "0"
+
+        if "billing_due_date" not in customer_cols:
+            where_parts = []
+            overdue_candidates = []
+            if "is_overdue" in customer_cols:
+                overdue_candidates.append("COALESCE(c.is_overdue, 0) = 1")
+            if "arrears_months" in customer_cols:
+                overdue_candidates.append("COALESCE(c.arrears_months, 0) > 0")
+            if "payment_status" in customer_cols:
+                overdue_candidates.append("COALESCE(c.payment_status, '') NOT LIKE '%已繳%'")
+            where_parts.append("(" + " OR ".join(overdue_candidates or ["1 = 0"]) + ")")
 
         join_sql = ""
         b_name_expr = "''"
@@ -699,17 +744,17 @@ def api_app_billing_overdue_customers(request: _EmpRequest):
                 {c_building_no} AS building_no,
                 COALESCE({b_name_expr}, {c_building_name}, {c_building_no}, '未命名大樓') AS building_name,
                 COALESCE({b_area_expr}, {c_area}, '') AS area,
-                COALESCE(c.billing_month, '') AS billing_month,
-                COALESCE(c.billing_due_date, '') AS billing_due_date,
-                COALESCE(c.billing_amount, 0) AS billing_amount,
-                COALESCE(c.payment_status, '') AS payment_status,
-                COALESCE(c.bill_delivery_status, '') AS bill_delivery_status,
-                COALESCE(c.bill_delivered, 0) AS bill_delivered
+                COALESCE({c_billing_month}, '') AS billing_month,
+                COALESCE({c_billing_due_date}, '') AS billing_due_date,
+                COALESCE({c_billing_amount}, 0) AS billing_amount,
+                COALESCE({c_payment_status}, '') AS payment_status,
+                COALESCE({c_bill_delivery_status}, '') AS bill_delivery_status,
+                COALESCE({c_bill_delivered}, 0) AS bill_delivered
             FROM customer_accounts c
             {join_sql}
             WHERE {" AND ".join(where_parts)}
             ORDER BY
-                c.billing_due_date ASC,
+                billing_due_date ASC,
                 area ASC,
                 building_name ASC,
                 row_key ASC
@@ -1306,7 +1351,7 @@ def billing_mobile_app_page(request: _EmpRequest):
       color: #fff;
     }
   </style>
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260508_final">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
 </head>
 
 <body>

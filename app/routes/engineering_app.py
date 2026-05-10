@@ -513,7 +513,7 @@ def engineering_mobile_app_page(request: _EmpRequest):
     .bottom-nav button.orange { background:#f97316; color:#fff; }
     .bottom-nav button.danger { background:#cf3b2f; color:#fff; }
   </style>
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260508_final">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
 </head>
 
 <body>

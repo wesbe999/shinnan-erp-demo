@@ -11,6 +11,35 @@ router = APIRouter(tags=["buildings-admin"])
 
 
 # SHINNAN_BUILDINGS_DB_API_HELPER_START
+def _ensure_buildings_columns(conn):
+    existing = {row[1] for row in conn.execute(_buildings_sql_text("PRAGMA table_info(buildings)")).fetchall()}
+    required = {
+        "raw_address": "TEXT DEFAULT ''",
+        "display_address": "TEXT DEFAULT ''",
+        "management_company": "TEXT DEFAULT ''",
+        "management_phone": "TEXT DEFAULT ''",
+        "manager_name": "TEXT DEFAULT ''",
+        "manager_phone": "TEXT DEFAULT ''",
+        "manager_age": "TEXT DEFAULT ''",
+        "manager_experience": "TEXT DEFAULT ''",
+        "manager_interest": "TEXT DEFAULT ''",
+        "visit_time": "TEXT DEFAULT ''",
+        "committee_time": "TEXT DEFAULT ''",
+        "resident_meeting_time": "TEXT DEFAULT ''",
+        "active_users": "INTEGER DEFAULT 0",
+        "total_households": "INTEGER DEFAULT 0",
+        "ip": "TEXT DEFAULT ''",
+        "host": "TEXT DEFAULT ''",
+        "note": "TEXT DEFAULT ''",
+        "created_at": "TEXT DEFAULT ''",
+        "updated_at": "TEXT DEFAULT ''",
+    }
+
+    for column, definition in required.items():
+        if column not in existing:
+            conn.execute(_buildings_sql_text(f"ALTER TABLE buildings ADD COLUMN {column} {definition}"))
+
+
 def _buildings_db_init():
     with _buildings_engine.begin() as conn:
         conn.execute(_buildings_sql_text("""
@@ -41,6 +70,7 @@ def _buildings_db_init():
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
         """))
+        _ensure_buildings_columns(conn)
 
 
 def _fetch_buildings_from_db():

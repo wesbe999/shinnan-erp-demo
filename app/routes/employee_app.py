@@ -1796,7 +1796,7 @@ textarea{min-height:84px;padding:12px 14px}
 .bottom-nav button{height:54px;border:0;border-radius:18px;background:#fff;color:#102348;font-size:16px;font-weight:1000}
 .bottom-nav button.primary{background:#365ee8;color:#fff}
 </style>
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260508_final">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
 </head>
 <body>
 <div class="app-shell">
@@ -2278,7 +2278,7 @@ def unified_mobile_app_home(request: _EmpRequest):
       .grid {{ grid-template-columns: 1fr; }}
     }}
   </style>
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260508_final">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
 </head>
 <body>
   <div class="app">
@@ -2418,7 +2418,7 @@ def unified_mobile_app_calculator(request: _EmpRequest):
     }}
     .red {{ background:#dc2626 !important; color:#fff !important; }}
   </style>
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260508_final">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
 </head>
 <body>
   <div class="app">
@@ -2563,7 +2563,7 @@ body {{
 button {{ height: 50px; border: 0; border-radius: 16px; background: white; color: #102348; font-size: 17px; font-weight: 1000; }}
 .red {{ background: #dc2626; color: white; }}
 </style>
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260508_final">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
 </head>
 <body>
 <div class="app-shell">

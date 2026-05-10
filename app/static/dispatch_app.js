@@ -26,8 +26,8 @@
       return created;
     }
 
-    function isActive(item) {
-      return !["已完成", "已完工", "取消", "已取消"].includes(item.status || "");
+function isActive(item) {
+      return !xunnanIsDoneTicket(item) && !["取消", "已取消"].includes(String((item && item.status) || "").trim());
     }
 
     function appointmentText(item) {
@@ -41,10 +41,10 @@
     function statusTone(status) {
       const s = String(status || "").trim();
 
-      if (s === "待派工" || s === "未派工" || s === "已建立" || s === "已指派") return "state-wait";
+      if (xunnanIsUnclaimedTicket({status: s})) return "state-wait";
       if (s === "已領取") return "state-claim";
-      if (s === "施工中") return "state-work";
-      if (s === "已完工" || s === "已完成") return "state-done";
+      if (xunnanIsClaimedTicket({status: s})) return "state-work";
+      if (xunnanIsDoneTicket({status: s})) return "state-done";
 
       return "state-other";
     }
@@ -238,9 +238,10 @@ function filteredTickets() {
         if (selectedArea && selectedArea !== "\u5168\u90e8" && String(item.dispatch_area || "") !== selectedArea) return false;
 
         if (currentFilter === "\u4eca\u65e5" && ticketTodayValue(item) !== today) return false;
-        if (currentFilter === "\u672a\u5b8c\u6210" && !isActive(item)) return false;
-        if (currentFilter === "\u65bd\u5de5\u4e2d" && item.status !== "\u65bd\u5de5\u4e2d" && item.status !== "\u5df2\u9818\u53d6") return false;
-        if (currentFilter === "\u5df2\u5b8c\u6210" && item.status !== "\u5df2\u5b8c\u6210" && item.status !== "\u5df2\u5b8c\u5de5") return false;
+        if (currentFilter === "\u672a\u9818\u7528" && !xunnanIsUnclaimedTicket(item)) return false;
+        if (currentFilter === "\u5df2\u9818\u7528" && !xunnanIsClaimedTicket(item)) return false;
+        if (currentFilter === "\u672a\u5b8c\u6210" && !xunnanIsUnfinishedTicket(item)) return false;
+        if (currentFilter === "\u5df2\u5b8c\u6210" && !xunnanIsDoneTicket(item)) return false;
 
         if (keyword) {
           const hay = [
@@ -657,8 +658,84 @@ function updateClaimButtonState() {
       btn.disabled = !(d.value && t.value);
     }
 
-function claimTicketPreview() {
-      alert("\u4e0b\u4e00\u968e\u6bb5\u6703\u63a5\u4e0a\u9818\u53d6\u6848\u4ef6 API\uff0c\u76ee\u524d\u5148\u78ba\u8a8d\u756b\u9762\u6d41\u7a0b\u3002");
+async function claimTicketPreview() {
+      const item = currentTicket();
+      if (!item || !item.id) {
+        alert("\u627e\u4e0d\u5230\u76ee\u524d\u6848\u4ef6");
+        return;
+      }
+
+      const d = document.getElementById("work_date");
+      const t = document.getElementById("work_time");
+      const workDate = d ? String(d.value || "").trim() : "";
+      const workTime = t ? String(t.value || "").trim() : "";
+
+      if (!workDate || !workTime) {
+        alert("\u8acb\u5148\u586b\u5beb\u65bd\u5de5\u65e5\u671f\u8207\u6642\u9593");
+        return;
+      }
+
+      let engineerName = (
+        localStorage.getItem("xunnan_engineer_name") ||
+        localStorage.getItem("xunnan_employee_name") ||
+        localStorage.getItem("xunnan_display_name") ||
+        localStorage.getItem("xunnan_login_name") ||
+        ""
+      ).trim();
+
+      if (!engineerName) {
+        engineerName = "\u7cfb\u7d71\u7ba1\u7406\u54e1";
+      }
+
+      const btn = document.getElementById("claim_btn");
+      if (btn) btn.disabled = true;
+
+      try {
+        const res = await fetch("/api/app/dispatch/tickets/" + encodeURIComponent(item.id) + "/claim", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "same-origin",
+          body: JSON.stringify({
+            assigned_engineer: engineerName
+          })
+        });
+
+        let data = null;
+        let rawText = "";
+        try {
+          rawText = await res.text();
+          data = rawText ? JSON.parse(rawText) : null;
+        } catch (e) {
+          data = null;
+        }
+
+        if (!res.ok) {
+          const msg = data && data.detail ? data.detail : (rawText || ("HTTP " + res.status));
+          throw new Error(msg);
+        }
+
+        if (data && data.ok === false) {
+          throw new Error(data.detail || data.error || "\u9818\u53d6\u6848\u4ef6\u5931\u6557");
+        }
+
+        item.assigned_engineer = data && data.assigned_engineer ? data.assigned_engineer : engineerName;
+        item.status = data && data.status ? data.status : "\u5df2\u9818\u53d6";
+
+        if (typeof loadTickets === "function") {
+          await loadTickets();
+        }
+        const refreshed = allTickets.find(function (x) {
+          return Number(x.id || 0) === Number(item.id || 0);
+        });
+        renderDetailPage(refreshed || item);
+
+        alert("\u5df2\u9818\u53d6\u6848\u4ef6");
+      } catch (err) {
+        alert(err && err.message ? err.message : "\u9818\u53d6\u6848\u4ef6\u5931\u6557");
+        updateClaimButtonState();
+      }
     }
 
 function actualPriceDefaults(item) {
@@ -815,6 +892,72 @@ function renderFinishPage() {
         </details>
 
         <details class="workflow-section" open>
+          <summary>\u5de5\u52d9\u7dad\u4fee\u5206\u6790</summary>
+          <div class="workflow-section-body">
+            <div class="form-grid">
+              <div class="form-row">
+                <label>\u7dad\u4fee\u554f\u984c\u5206\u985e</label>
+                <select id="repair_category">
+                  <option value="">\u8acb\u9078\u64c7</option>
+                  <option value="\u6750\u6599">\u6750\u6599</option>
+                  <option value="\u8a2d\u5099">\u8a2d\u5099</option>
+                  <option value="\u7dda\u8def">\u7dda\u8def</option>
+                  <option value="\u5ba2\u6236">\u5ba2\u6236</option>
+                  <option value="\u516c\u8a2d">\u516c\u8a2d</option>
+                  <option value="\u5916\u90e8\u56e0\u7d20">\u5916\u90e8\u56e0\u7d20</option>
+                  <option value="\u5176\u4ed6">\u5176\u4ed6</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label>\u7dad\u4fee\u539f\u56e0\u8aaa\u660e</label>
+                <textarea id="repair_reason" placeholder="\u8acb\u8aaa\u660e\u73fe\u5834\u554f\u984c\u539f\u56e0\u3001\u5224\u65b7\u7d50\u679c\u6216\u5f8c\u7e8c\u5efa\u8b70"></textarea>
+              </div>
+              <label class="check-row"><input id="is_public_facility" type="checkbox">\u516c\u8a2d\u76f8\u95dc</label>
+              <label class="check-row"><input id="is_non_general_repair" type="checkbox">\u5404\u5340\u5de5\u52d9\u7121\u6cd5\u89e3\u6c7a / \u975e\u4e00\u822c\u7dad\u4fee\uff08\u9700\u9644\u9644\u4ef6\u7d66\u8001\u95c6\uff09</label>
+            </div>
+          </div>
+        </details>
+
+        <details class="workflow-section" open>
+          <summary>\u6750\u6599\u4f7f\u7528\u91cf</summary>
+          <div class="workflow-section-body">
+            <div class="material-grid">
+              <div class="material-head">\u6750\u6599</div>
+              <div class="material-head">\u6578\u91cf</div>
+              <div class="material-head">\u55ae\u4f4d</div>
+              <div class="material-head">\u55ae\u50f9</div>
+
+              <input id="material_name_1" placeholder="\u4f8b\uff1a\u7db2\u8def\u7dda">
+              <input id="material_qty_1" type="number" step="0.1" placeholder="0">
+              <input id="material_unit_1" placeholder="\u7c73/\u500b">
+              <input id="material_cost_1" type="number" step="1" placeholder="0">
+
+              <input id="material_name_2" placeholder="\u6750\u6599\u540d\u7a31">
+              <input id="material_qty_2" type="number" step="0.1" placeholder="0">
+              <input id="material_unit_2" placeholder="\u55ae\u4f4d">
+              <input id="material_cost_2" type="number" step="1" placeholder="0">
+
+              <input id="material_name_3" placeholder="\u6750\u6599\u540d\u7a31">
+              <input id="material_qty_3" type="number" step="0.1" placeholder="0">
+              <input id="material_unit_3" placeholder="\u55ae\u4f4d">
+              <input id="material_cost_3" type="number" step="1" placeholder="0">
+            </div>
+          </div>
+        </details>
+
+        <details class="workflow-section" open>
+          <summary>\u6e2c\u901f\u7167\u7247\uff08\u5fc5\u586b\uff09</summary>
+          <div class="workflow-section-body">
+            <div class="photo-input required">
+              <label>\u6e2c\u901f\u7167\u7247</label>
+              <input id="speedtest_photo" type="file" accept="image/*">
+              <div class="preview-text">\u6240\u6709\u5b8c\u5de5\u6848\u4ef6\u5747\u9808\u4e0a\u50b3\u6e2c\u901f\u7167\u7247\u3002</div>
+            </div>
+          </div>
+        </details>
+
+
+        <details class="workflow-section" open>
           <summary>\u65bd\u5de5\u7167\u7247</summary>
           <div class="workflow-section-body">
             <div class="form-grid">
@@ -926,9 +1069,131 @@ function confirmSignature() {
       alert("\u7c3d\u540d\u5df2\u78ba\u8a8d\u3002");
     }
 
-function submitFinishPreview() {
-      alert("\u4e0b\u4e00\u968e\u6bb5\u6703\u63a5\u4e0a\u4e00\u9375\u9001\u51fa API\uff0c\u9001\u51fa\u5f8c\u624d\u6703\u66f4\u65b0\u8cc7\u6599\u5eab\u3002");
+
+function finishVal(id) {
+      const el = document.getElementById(id);
+      return el ? String(el.value || "").trim() : "";
     }
+
+function finishChecked(id) {
+      const el = document.getElementById(id);
+      return !!(el && el.checked);
+    }
+
+function readFileAsDataUrl(file) {
+      return new Promise(function(resolve, reject) {
+        if (!file) {
+          resolve("");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function() { resolve(String(reader.result || "")); };
+        reader.onerror = function() { reject(reader.error || new Error("file read failed")); };
+        reader.readAsDataURL(file);
+      });
+    }
+
+async function readFileInputAsArray(id) {
+      const el = document.getElementById(id);
+      if (!el || !el.files || !el.files.length) return [];
+      const files = Array.from(el.files).slice(0, 4);
+      const out = [];
+      for (const file of files) {
+        out.push(await readFileAsDataUrl(file));
+      }
+      return out;
+    }
+
+function finishMaterials() {
+      const rows = [];
+      for (let i = 1; i <= 3; i++) {
+        const name = finishVal("material_name_" + i);
+        if (!name) continue;
+        rows.push({
+          material_name: name,
+          material_qty: Number(finishVal("material_qty_" + i) || 0),
+          material_unit: finishVal("material_unit_" + i),
+          material_unit_cost: Number(finishVal("material_cost_" + i) || 0)
+        });
+      }
+      return rows;
+    }
+
+
+async function submitFinishPreview() {
+      const item = currentTicket();
+      if (!item) {
+        alert("\u627e\u4e0d\u5230\u76ee\u524d\u6848\u4ef6");
+        return;
+      }
+
+      const speedInput = document.getElementById("speedtest_photo");
+      if (!speedInput || !speedInput.files || !speedInput.files.length) {
+        alert("\u6240\u6709\u5b8c\u5de5\u6848\u4ef6\u90fd\u5fc5\u9808\u4e0a\u50b3\u6e2c\u901f\u7167\u7247\u3002");
+        return;
+      }
+
+      const repairCategory = finishVal("repair_category");
+      const repairReason = finishVal("repair_reason");
+
+      if (!repairCategory) {
+        alert("\u8acb\u9078\u64c7\u7dad\u4fee\u554f\u984c\u5206\u985e\u3002");
+        return;
+      }
+
+      if (!repairReason) {
+        alert("\u8acb\u586b\u5beb\u7dad\u4fee\u539f\u56e0\u8aaa\u660e\u3002");
+        return;
+      }
+
+      const btns = document.querySelectorAll(".action-panel button");
+      btns.forEach(function(btn){ btn.disabled = true; });
+
+      try {
+        const speedtestPhoto = await readFileAsDataUrl(speedInput.files[0]);
+        const beforePhotos = await readFileInputAsArray("before_photos");
+        const afterPhotos = await readFileInputAsArray("after_photos");
+
+        const payload = {
+          completion_note: finishVal("completion_note"),
+          final_work_date: finishVal("final_work_date"),
+          final_work_time: finishVal("final_work_time"),
+          repair_category: repairCategory,
+          repair_reason: repairReason,
+          is_public_facility: finishChecked("is_public_facility"),
+          is_non_general_repair: finishChecked("is_non_general_repair"),
+          materials: finishMaterials(),
+          speedtest_photo_data: speedtestPhoto,
+          before_photos_data: beforePhotos,
+          after_photos_data: afterPhotos
+        };
+
+        const res = await fetch("/api/app/dispatch/tickets/" + encodeURIComponent(item.id) + "/finish", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {"Content-Type": "application/json; charset=utf-8"},
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json().catch(function(){ return {}; });
+
+        if (!res.ok || !data.ok) {
+          alert(data.error || "\u5b8c\u5de5\u56de\u5831\u9001\u51fa\u5931\u6557");
+          return;
+        }
+
+        alert(data.is_non_general_repair ? "\u5df2\u5b8c\u5de5\uff0c\u975e\u4e00\u822c\u7dad\u4fee\u5df2\u9001\u8001\u95c6\u8986\u6838\u3002" : "\u5df2\u5b8c\u5de5\u4e26\u9001\u51fa\u56de\u5831\u3002");
+
+        await loadTickets();
+        showListPage();
+      } catch (err) {
+        console.error(err);
+        alert("\u7167\u7247\u8b80\u53d6\u6216\u9001\u51fa\u5931\u6557\u3002");
+      } finally {
+        btns.forEach(function(btn){ btn.disabled = false; });
+      }
+    }
+
 
 /* XN_APP_WORKFLOW_PAGES_JS_V1_END */
 
@@ -1620,12 +1885,16 @@ function xunnanIsUnclaimedTicket(item) {
 
 function xunnanIsClaimedTicket(item) {
       const s = String((item && item.status) || "").trim();
-      return ["\u5df2\u9818\u53d6", "\u65bd\u5de5\u4e2d"].includes(s);
+      return ["\u5df2\u9818\u53d6", "\u65bd\u5de5\u4e2d", "\u8655\u7406\u4e2d", "\u5f85\u8655\u7406", "\u5f85\u8001\u95c6\u5224\u65b7"].includes(s);
+    }
+
+function xunnanIsDoneTicket(item) {
+      const s = String((item && item.status) || "").trim();
+      return ["\u5df2\u5b8c\u6210", "\u5df2\u5b8c\u5de5", "\u5b8c\u6210"].includes(s);
     }
 
 function xunnanIsUnfinishedTicket(item) {
-      const s = String((item && item.status) || "").trim();
-      return !["\u5df2\u5b8c\u6210", "\u5df2\u5b8c\u5de5", "\u5b8c\u6210"].includes(s);
+      return !xunnanIsDoneTicket(item);
     }
 
 function filteredTickets() {
@@ -1644,7 +1913,7 @@ function filteredTickets() {
         if (currentFilter === "\u672a\u9818\u7528" && !xunnanIsUnclaimedTicket(item)) return false;
         if (currentFilter === "\u5df2\u9818\u7528" && !xunnanIsClaimedTicket(item)) return false;
         if (currentFilter === "\u672a\u5b8c\u6210" && !xunnanIsUnfinishedTicket(item)) return false;
-        if (currentFilter === "\u5df2\u5b8c\u6210" && !["\u5df2\u5b8c\u6210", "\u5df2\u5b8c\u5de5", "\u5b8c\u6210"].includes(String(item.status || "").trim())) return false;
+        if (currentFilter === "\u5df2\u5b8c\u6210" && !xunnanIsDoneTicket(item)) return false;
 
         if (keyword) {
           const hay = [

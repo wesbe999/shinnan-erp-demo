@@ -12,30 +12,34 @@ router = APIRouter(tags=["employee-profiles-admin"])
 # SHINNAN_EMPLOYEE_PROFILES_API_START
 def _employee_profiles_db_init():
     with _employee_profile_engine.begin() as conn:
-        conn.execute(_employee_profile_sql_text("""
-            CREATE TABLE IF NOT EXISTS employee_profiles (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                staff_code TEXT UNIQUE NOT NULL,
-                display_name TEXT NOT NULL,
-                department TEXT DEFAULT '',
-                role TEXT DEFAULT '',
-                position_title TEXT DEFAULT '',
-                gender TEXT DEFAULT '',
-                phone TEXT DEFAULT '',
-                email TEXT DEFAULT '',
-                employment_status TEXT DEFAULT '在職',
-                hire_date TEXT DEFAULT '',
-                permission_scope TEXT DEFAULT '',
-                app_access INTEGER DEFAULT 1,
-                note TEXT DEFAULT '',
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        table_exists = conn.execute(
+            _employee_profile_sql_text(
+                "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'employee_profiles' LIMIT 1"
             )
-        """))
+        ).first()
 
-        cols = [row[1] for row in conn.execute(_employee_profile_sql_text("PRAGMA table_info(employee_profiles)")).fetchall()]
-        if "gender" not in cols:
-            conn.execute(_employee_profile_sql_text("ALTER TABLE employee_profiles ADD COLUMN gender TEXT DEFAULT ''"))
+        if not table_exists:
+            conn.execute(_employee_profile_sql_text("""
+                CREATE TABLE IF NOT EXISTS employee_profiles (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    staff_code TEXT UNIQUE NOT NULL,
+                    display_name TEXT NOT NULL,
+                    department TEXT DEFAULT '',
+                    role TEXT DEFAULT '',
+                    position_title TEXT DEFAULT '',
+                    gender TEXT DEFAULT '',
+                    phone TEXT DEFAULT '',
+                    email TEXT DEFAULT '',
+                    employment_status TEXT DEFAULT '在職',
+                    hire_date TEXT DEFAULT '',
+                    permission_scope TEXT DEFAULT '',
+                    app_access INTEGER DEFAULT 1,
+                    note TEXT DEFAULT '',
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+            """))
+
 
 
 @router.get("/api/admin/employees", summary="讀取員工主檔")
@@ -79,6 +83,9 @@ def api_admin_employees(
         where_sql = "WHERE " + " AND ".join(where)
 
     with _employee_profile_engine.begin() as conn:
+        cols = [row[1] for row in conn.execute(_employee_profile_sql_text("PRAGMA table_info(employee_profiles)")).fetchall()]
+        note_expr = "note" if "note" in cols else "'' AS note"
+
         rows = conn.execute(
             _employee_profile_sql_text(f"""
                 SELECT
@@ -94,7 +101,7 @@ def api_admin_employees(
                     hire_date,
                     permission_scope,
                     app_access,
-                    note,
+                    {note_expr},
                     created_at,
                     updated_at
                 FROM employee_profiles

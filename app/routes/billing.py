@@ -1,14 +1,79 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 from app.services.demo_data import generate_billing_records
 from app.routes.employee_auth import _employee_current_user_from_request
 
 router = APIRouter(tags=["帳務系統"])
+
+
+_BILLING_NOTICES_FILE = Path("data") / "billing_notices.json"
+
+
+def _load_billing_notices() -> list[dict]:
+    if not _BILLING_NOTICES_FILE.exists():
+        return []
+
+    try:
+        data = json.loads(_BILLING_NOTICES_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+    if isinstance(data, dict):
+        data = data.get("notices", [])
+
+    if not isinstance(data, list):
+        return []
+
+    notices = []
+    for item in data:
+        if isinstance(item, dict):
+            message = str(item.get("message") or "").strip()
+        else:
+            message = str(item or "").strip()
+        if message:
+            notices.append({"message": message})
+    return notices
+
+
+def _save_billing_notices(notices: list[dict]) -> None:
+    _BILLING_NOTICES_FILE.parent.mkdir(parents=True, exist_ok=True)
+    _BILLING_NOTICES_FILE.write_text(
+        json.dumps({"notices": notices}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+
+@router.get("/api/billing/notices")
+@router.get("/api/app/billing/notices")
+def api_billing_notices():
+    notices = _load_billing_notices()
+    return JSONResponse({"ok": True, "notices": notices, "items": notices})
+
+
+@router.post("/api/billing/notices")
+def api_billing_notices_save(payload: dict):
+    notices = _load_billing_notices()
+
+    if "delete_index" in payload:
+        try:
+            index = int(payload.get("delete_index"))
+        except Exception:
+            index = -1
+        if 0 <= index < len(notices):
+            notices.pop(index)
+    else:
+        message = str(payload.get("message") or "").strip()
+        if message:
+            notices.append({"message": message})
+
+    _save_billing_notices(notices)
+    return JSONResponse({"ok": True, "notices": notices, "items": notices})
 
 
 @router.get("/admin/billing", response_class=HTMLResponse, summary="帳務系統")
@@ -2928,7 +2993,6 @@ def billing_page(request: Request):
 </html>
 """
     return html.replace("__RECORDS_JSON__", records_json)
-
 
 
 

@@ -424,7 +424,7 @@ def dispatch_mobile_app_page(request: _Request):
   <link rel="stylesheet" href="/static/app_common.css">
   <link rel="stylesheet" href="/static/dispatch_app.css">
 
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260508_final">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
 </head>
 
 <body>

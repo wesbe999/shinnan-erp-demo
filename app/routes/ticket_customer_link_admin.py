@@ -8,6 +8,8 @@ from fastapi.responses import Response as _TicketLinkResponse
 from sqlalchemy import text as _ticket_link_sql_text
 
 from app.db import engine as _ticket_link_engine
+from app.routes.buildings_admin import _buildings_db_init
+from app.routes.customers_admin import _customer_accounts_db_init
 
 router = APIRouter(tags=["ticket-customer-link-admin"])
 
@@ -119,6 +121,8 @@ def api_admin_ticket_customer_candidates(status: str = "待人工確認", q: str
 @router.get("/api/admin/ticket-customer-candidates/search-customers", summary="搜尋客戶供派工關聯")
 def api_admin_ticket_customer_search_customers(q: str = "", limit: int = 30):
     _ticket_customer_link_db_init()
+    _customer_accounts_db_init()
+    _buildings_db_init()
 
     q = (q or "").strip()
     limit = max(1, min(int(limit or 30), 80))

@@ -85,9 +85,9 @@
   margin: 0 !important;
   padding: 0 !important;
   text-align: center !important;
-  font-size: clamp(20px, 5.4vw, 23px) !important;
+  font-size: 23px !important;
   line-height: 1.05 !important;
-  font-weight: 820 !important;
+  font-weight: 900 !important;
   letter-spacing: .035em !important;
   white-space: nowrap !important;
   color: #ffffff !important;
@@ -148,7 +148,7 @@
   }
 
   .hero-title {
-    font-size: clamp(18px, 5.7vw, 22px) !important;
+    font-size: 22px !important;
   }
 
   .hero-logo {

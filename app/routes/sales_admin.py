@@ -1493,6 +1493,12 @@ def shinnan_admin_sales_page():
       return diffDays <= 60;
     }
 
+    function hasOpenSalesEvent(item) {
+      const eventType = String((item && item.event_type) || "").trim();
+      const eventStatus = String((item && item.event_status) || "").trim();
+      return eventType && eventType !== "無" && !["", "無", "已完成", "完成"].includes(eventStatus);
+    }
+
     function isThisMonth(dateText) {
       if (!dateText) return false;
       const now = new Date();
@@ -1559,7 +1565,7 @@ def shinnan_admin_sales_page():
       byId("stat_contract_due").textContent = businessRecords.filter(isContractDueSoon).length;
 
       byId("stat_events").textContent = businessRecords.filter(function (item) {
-        return item.event_type !== "無" && ["待處理", "處理中"].includes(item.event_status);
+        return hasOpenSalesEvent(item);
       }).length;
 
       byId("stat_feedback").textContent = businessRecords.filter(function (item) {
@@ -1577,8 +1583,7 @@ def shinnan_admin_sales_page():
     }
 
     function hasActiveEvent(item) {
-      if (!item.event_type || item.event_type === "無") return false;
-      return ["待處理", "處理中", "已回覆"].includes(item.event_status || "");
+      return hasOpenSalesEvent(item);
     }
 
     function scheduleReason(item, today) {
@@ -1901,6 +1906,12 @@ def shinnan_admin_sales_page():
     return String(dateText).startsWith(ym);
   }
 
+  function hasOpenSalesEventLocal(item) {
+    const eventType = String((item && item.event_type) || "").trim();
+    const eventStatus = String((item && item.event_status) || "").trim();
+    return eventType && eventType !== "無" && !["", "無", "已完成", "完成"].includes(eventStatus);
+  }
+
   function matchQuickMode(item) {
     if (quickMode === "all") return true;
 
@@ -1917,7 +1928,7 @@ def shinnan_admin_sales_page():
     }
 
     if (quickMode === "events") {
-      return item.event_type !== "無" && ["待處理", "處理中"].includes(item.event_status);
+      return hasOpenSalesEventLocal(item);
     }
 
     if (quickMode === "feedback") {
@@ -2046,7 +2057,7 @@ def shinnan_admin_sales_page():
   }
 
   function eventActive(item) {
-    return item.event_type && item.event_type !== "無" && ["待處理", "處理中", "已回覆"].includes(item.event_status || "");
+    return hasOpenSalesEventLocal(item);
   }
 
   function buildActionText(item) {
