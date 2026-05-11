@@ -997,7 +997,7 @@ CLEAN_ADMIN_HTML = r'''
       <div class="stat-card" data-stat-filter="today"><div class="stat-label">今日新增</div><div id="stat_today" class="stat-number">0</div></div>
       <div class="stat-card" data-stat-filter="unclaimed"><div class="stat-label">未領取</div><div id="stat_unclaimed" class="stat-number">0</div></div>
       <div class="stat-card" data-stat-filter="claimed"><div class="stat-label">已領取</div><div id="stat_claimed" class="stat-number">0</div></div>
-      <div class="stat-card" data-stat-filter="done"><div class="stat-label">已完工</div><div id="stat_done" class="stat-number">0</div></div>
+      <div class="stat-card" data-stat-filter="unfinished"><div class="stat-label">本月未完工</div><div id="stat_done" class="stat-number">0</div></div>
       <div class="stat-card" onclick="loadBuildingStatus(true)"><div class="stat-label">大樓狀態</div><div id="stat_building" class="stat-number">檢查中</div></div>
     </section>
 
@@ -1170,7 +1170,10 @@ function zh(hexText) {
       el.innerHTML = "";
       AREAS.forEach(function (area) { if (el.id === "new_area" && area === "全部") return; const opt = document.createElement("option"); opt.value = area; opt.textContent = area; el.appendChild(opt); });
     });
-    if (byId("top_filter_engineer")) byId("top_filter_engineer").innerHTML = "<option value='全部'>全部</option><option value='已派工'>已派工</option><option value='未派工'>未派工</option>";
+    if (byId("top_filter_engineer")) {
+      byId("top_filter_engineer").innerHTML = "<option value='\u5168\u90e8'>\u5168\u90e8</option><option value='\u5df2\u6d3e\u5de5'>\u5df2\u6d3e\u5de5</option><option value='\u672a\u6d3e\u5de5'>\u672a\u6d3e\u5de5</option>";
+      byId("top_filter_engineer").value = "\u5168\u90e8";
+    }
     if (byId("new_engineer")) byId("new_engineer").innerHTML = "<option value=''>未指派</option>";
   }
 
@@ -1221,6 +1224,14 @@ function amountText(item) {
   }
 
   function todayKey() { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  function monthKey() { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); }
+  function ticketDateKey(item) {
+    const appt = String(item.appointment_date || "").slice(0, 10);
+    if (appt) return appt;
+    return String(item.created_at || "").slice(0, 10);
+  }
+  function isThisMonthTicket(item) { return ticketDateKey(item).slice(0, 7) === monthKey(); }
+  function isBoardVisibleTicket(item) { return isThisMonthTicket(item) && !isDoneStatus(item.status); }
 
   function baseFilteredTickets() {
     const area = val("top_filter_area") || "全部";
@@ -1228,10 +1239,11 @@ function amountText(item) {
     const keyword = val("keyword_filter").trim().toLowerCase();
     return allTickets.filter(function (item) {
       if (area !== "全部" && String(item.dispatch_area || "") !== area) return false;
+      if (!isBoardVisibleTicket(item)) return false;
       if (statFilter === "today") { const created = String(item.created_at || "").slice(0, 10); const appt = String(item.appointment_date || "").slice(0, 10); if (created !== todayKey() && appt !== todayKey()) return false; }
       if (statFilter === "unclaimed" && !isWaitingStatus(item.status)) return false;
       if (statFilter === "claimed" && !isClaimedStatus(item.status)) return false;
-      if (statFilter === "done" && !isDoneStatus(item.status)) return false;
+      if (statFilter === "done") return false;
       if (engineerState === "未派工") { if (item.assigned_engineer) return false; } else if (engineerState === "已派工") { if (!item.assigned_engineer) return false; } else if (engineerState !== "全部") { if (String(item.assigned_engineer || "") !== engineerState) return false; }
       if (keyword) { const hay = [item.customer_name,item.contact_name,item.contact_phone,item.customer_phone,item.service_address,mergedAddressText(item),item.ticket_no].join(" ").toLowerCase(); if (!hay.includes(keyword)) return false; }
       return true;
@@ -1244,11 +1256,11 @@ function amountText(item) {
 
   function updateStats() {
     const area = val("top_filter_area") || "全部";
-    const scoped = allTickets.filter(item => area === "全部" || String(item.dispatch_area || "") === area);
-    byId("stat_today").textContent = scoped.filter(function (item) { const created = String(item.created_at || "").slice(0, 10); const appt = String(item.appointment_date || "").slice(0, 10); return created === todayKey() || appt === todayKey(); }).length;
+    const scoped = allTickets.filter(item => (area === "全部" || String(item.dispatch_area || "") === area) && isBoardVisibleTicket(item));
+    byId("stat_today").textContent = scoped.filter(function (item) { return ticketDateKey(item) === todayKey(); }).length;
     byId("stat_unclaimed").textContent = scoped.filter(item => isWaitingStatus(item.status)).length;
     byId("stat_claimed").textContent = scoped.filter(item => isClaimedStatus(item.status)).length;
-    byId("stat_done").textContent = scoped.filter(item => isDoneStatus(item.status)).length;
+    byId("stat_done").textContent = scoped.length;
   }
 
   function updateEngineerBoard() {
@@ -1256,7 +1268,7 @@ function amountText(item) {
     if (!box) return;
     const area = val("top_filter_area") || "全部";
     const selected = val("top_filter_engineer") || "全部";
-    const scopedTickets = allTickets.filter(item => area === "全部" || String(item.dispatch_area || "") === area);
+    const scopedTickets = allTickets.filter(item => (area === "全部" || String(item.dispatch_area || "") === area) && isBoardVisibleTicket(item));
     let engineers = engineerDirectory.filter(function (e) {
       if (!e.name) return false;
       if (!ENGINEER_DEPARTMENTS.includes(e.department)) return false;

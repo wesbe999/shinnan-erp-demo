@@ -26,6 +26,28 @@
       return created;
     }
 
+    function currentMonthText() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      return y + "-" + m;
+    }
+
+    function xunnanTicketDateValue(item) {
+      const appointment = String((item && item.appointment_date) || "").slice(0, 10);
+      if (appointment) return appointment;
+
+      return String((item && item.created_at) || "").slice(0, 10);
+    }
+
+    function xunnanIsCurrentMonthTicket(item) {
+      return xunnanTicketDateValue(item).slice(0, 7) === currentMonthText();
+    }
+
+    function xunnanIsBoardVisibleTicket(item) {
+      return xunnanIsCurrentMonthTicket(item) && !xunnanIsDoneTicket(item);
+    }
+
 function isActive(item) {
       return !xunnanIsDoneTicket(item) && !["取消", "已取消"].includes(String((item && item.status) || "").trim());
     }
@@ -236,12 +258,13 @@ function filteredTickets() {
 
       return allTickets.filter(function (item) {
         if (selectedArea && selectedArea !== "\u5168\u90e8" && String(item.dispatch_area || "") !== selectedArea) return false;
+        if (!xunnanIsBoardVisibleTicket(item)) return false;
 
         if (currentFilter === "\u4eca\u65e5" && ticketTodayValue(item) !== today) return false;
         if (currentFilter === "\u672a\u9818\u7528" && !xunnanIsUnclaimedTicket(item)) return false;
         if (currentFilter === "\u5df2\u9818\u7528" && !xunnanIsClaimedTicket(item)) return false;
         if (currentFilter === "\u672a\u5b8c\u6210" && !xunnanIsUnfinishedTicket(item)) return false;
-        if (currentFilter === "\u5df2\u5b8c\u6210" && !xunnanIsDoneTicket(item)) return false;
+        if (currentFilter === "\u5df2\u5b8c\u6210") return false;
 
         if (keyword) {
           const hay = [
@@ -1908,12 +1931,13 @@ function filteredTickets() {
 
       return allTickets.filter(function (item) {
         if (selectedArea && selectedArea !== "\u5168\u90e8" && String(item.dispatch_area || "") !== selectedArea) return false;
+        if (!xunnanIsBoardVisibleTicket(item)) return false;
 
         if (currentFilter === "\u4eca\u65e5" && typeof ticketTodayValue === "function" && ticketTodayValue(item) !== today) return false;
         if (currentFilter === "\u672a\u9818\u7528" && !xunnanIsUnclaimedTicket(item)) return false;
         if (currentFilter === "\u5df2\u9818\u7528" && !xunnanIsClaimedTicket(item)) return false;
         if (currentFilter === "\u672a\u5b8c\u6210" && !xunnanIsUnfinishedTicket(item)) return false;
-        if (currentFilter === "\u5df2\u5b8c\u6210" && !xunnanIsDoneTicket(item)) return false;
+        if (currentFilter === "\u5df2\u5b8c\u6210") return false;
 
         if (keyword) {
           const hay = [
@@ -1970,12 +1994,14 @@ function xunnanPatchStatCards() {
 
       const today = typeof todayText === "function" ? todayText() : "";
 
-      const todayCount = allTickets.filter(function (item) {
+      const scopedTickets = allTickets.filter(xunnanIsBoardVisibleTicket);
+
+      const todayCount = scopedTickets.filter(function (item) {
         return typeof ticketTodayValue === "function" ? ticketTodayValue(item) === today : false;
       }).length;
 
-      const unclaimedCount = allTickets.filter(xunnanIsUnclaimedTicket).length;
-      const unfinishedCount = allTickets.filter(xunnanIsUnfinishedTicket).length;
+      const unclaimedCount = scopedTickets.filter(xunnanIsUnclaimedTicket).length;
+      const unfinishedCount = scopedTickets.length;
 
       const configs = [
         { label: "\u4eca\u65e5", count: todayCount, filter: "\u4eca\u65e5" },
