@@ -128,7 +128,18 @@ def shinnan_erp_root_page():
 <title>Shinnan ERP</title>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;min-height:100%}
+html,body{
+min-height:100vh;
+  font-family:"Microsoft JhengHei","Segoe UI",Arial,sans-serif;
+  color:#f4fff4;
+  background:
+    radial-gradient(circle at 14% 18%,rgba(128,255,74,.10),transparent 24%),
+    radial-gradient(circle at 22% 78%,rgba(116,255,58,.16),transparent 30%),
+    radial-gradient(circle at 62% 42%,rgba(58,180,76,.12),transparent 34%),
+    radial-gradient(circle at 88% 14%,rgba(40,120,62,.22),transparent 28%),
+    linear-gradient(135deg,#0a2015 0%,#143d24 28%,#1e5f31 52%,#102f1d 74%,#07160f 100%);
+  overflow:hidden;
+}
 body{
   min-height:100vh;
   font-family:"Microsoft JhengHei","Segoe UI",Arial,sans-serif;
@@ -140,30 +151,28 @@ body{
   overflow:hidden;
 }
 body:before{
-  content:"";
+content:"";
   position:fixed;
   inset:0;
   pointer-events:none;
   background-image:
-    linear-gradient(rgba(154,255,90,.045) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(154,255,90,.035) 1px,transparent 1px),
-    radial-gradient(circle at 1px 1px,rgba(166,255,92,.22) 1px,transparent 0);
+    linear-gradient(rgba(164,255,92,.040) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(164,255,92,.032) 1px,transparent 1px),
+    radial-gradient(circle at 1px 1px,rgba(166,255,92,.18) 1px,transparent 0);
   background-size:64px 64px,64px 64px,20px 20px;
-  opacity:.66;
+  opacity:.72;
 }
 body:after{
-  content:"";
+content:"";
   position:fixed;
-  left:0;
-  right:0;
-  bottom:0;
-  height:34vh;
+  inset:0;
   pointer-events:none;
   background:
-    radial-gradient(ellipse at 28% 100%,rgba(154,255,58,.13),transparent 44%),
-    linear-gradient(10deg,transparent 0 20%,rgba(160,255,85,.18) 20.2%,transparent 20.6% 100%),
-    linear-gradient(-7deg,transparent 0 42%,rgba(225,255,210,.12) 42.2%,transparent 42.6% 100%);
-  opacity:.72;
+    linear-gradient(90deg,rgba(0,0,0,.28),transparent 22%,transparent 72%,rgba(0,0,0,.26)),
+    linear-gradient(180deg,rgba(255,255,255,.035),transparent 22%,rgba(0,0,0,.16) 100%),
+    radial-gradient(ellipse at 30% 105%,rgba(158,255,68,.16),transparent 42%),
+    radial-gradient(ellipse at 78% 0%,rgba(70,255,100,.07),transparent 36%);
+  opacity:.95;
 }
 .shell{
 position:relative;
@@ -183,12 +192,15 @@ position:relative;
   border:1px solid rgba(143,255,73,.78);
   border-radius:24px;
   background:
-    radial-gradient(circle at 24% 82%,rgba(150,255,70,.08),transparent 34%),
-    linear-gradient(90deg,rgba(8,39,24,.78),rgba(15,62,32,.60)),
-    radial-gradient(circle at 43% 76%,rgba(152,255,67,.08),transparent 30%);
+    radial-gradient(circle at 18% 20%,rgba(255,255,255,.045),transparent 22%),
+    radial-gradient(circle at 24% 82%,rgba(150,255,70,.085),transparent 34%),
+    radial-gradient(circle at 60% 18%,rgba(100,255,90,.055),transparent 38%),
+    linear-gradient(90deg,rgba(5,24,15,.82),rgba(16,62,32,.62) 46%,rgba(7,28,18,.76)),
+    linear-gradient(180deg,rgba(255,255,255,.035),transparent 34%,rgba(0,0,0,.18));
   box-shadow:
-    0 22px 64px rgba(0,0,0,.32),
-    inset 0 0 70px rgba(143,255,73,.05),
+    0 22px 64px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(225,255,210,.08),
+    inset 0 0 90px rgba(143,255,73,.055),
     0 0 24px rgba(143,255,73,.14);
   overflow:hidden;
 }
@@ -468,11 +480,26 @@ position:absolute;
   text-shadow:0 0 10px rgba(255,210,92,.22);
 }
 @media(max-width:1380px){
-  .headline{font-size:58px}
-  .headline-sub{font-size:44px}
-  .module{grid-template-columns:48px 1fr 24px;min-height:132px;padding:18px}
-  .module-name{font-size:22px}
-  .module-desc{font-size:14px}
+  .shell{padding:10px 16px}
+  .portal{gap:24px;padding:20px 28px}
+  .hero{padding:0 26px 54px 20px}
+  .brand{margin-bottom:32px}
+  .logo-img{width:118px}
+  .brand-zh{font-size:29px}
+  .brand-en{font-size:13px}
+  .headline{font-size:43px}
+  .headline-sub{font-size:31px}
+  .desc{font-size:15px;line-height:1.58;margin-top:22px}
+  .status{font-size:12px;margin-top:20px}
+  .world-img{left:-92px;bottom:9px;width:238%;height:560px}
+  .panel{padding:0 0 34px 0}
+  .panel-title{font-size:21px;margin-bottom:12px}
+  .grid{gap:10px}
+  .module{min-height:106px;padding:13px 36px 11px 18px}
+  .mi{width:32px;height:28px;margin-bottom:5px}
+  .mi svg{width:28px;height:28px}
+  .module-name{font-size:18px}
+  .module-desc{font-size:11.5px;line-height:1.34}
 }
 </style>
 </head>
