@@ -2,9 +2,10 @@
 import sqlite3
 import json
 from datetime import datetime
+from tools.db_path import current_sqlite_path
 
-ROOT = Path(r"D:\Shinnan ERP")
-DB = ROOT / "xunnan_dispatch.db"
+ROOT = Path(__file__).resolve().parents[1]
+DB = current_sqlite_path()
 REPORT_DIR = ROOT / "reports"
 REPORT_DIR.mkdir(exist_ok=True)
 

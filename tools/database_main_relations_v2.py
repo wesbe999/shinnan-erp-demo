@@ -2,9 +2,10 @@
 import sqlite3
 import json
 from datetime import datetime
+from tools.db_path import current_sqlite_path
 
-ROOT = Path(r"D:\Shinnan ERP")
-DB = ROOT / "xunnan_dispatch.db"
+ROOT = Path(__file__).resolve().parents[1]
+DB = current_sqlite_path()
 REPORT_DIR = ROOT / "reports"
 REPORT_DIR.mkdir(exist_ok=True)
 
@@ -218,7 +219,7 @@ for r in rows:
     lines.append("  " + json.dumps(dict(r), ensure_ascii=False))
 
 section("七、目前建議整理方向")
-lines.append("1. 暫定主資料庫為 xunnan_dispatch.db。")
+lines.append(f"1. 主資料庫由 XUNNAN_DB_PATH/DATABASE_URL 決定，目前為：{DB}")
 lines.append("2. 先不要刪除其他 .db，全部視為備份。")
 lines.append("3. 員工主資料建議以 employee_profiles 為人事主檔，employee_accounts 為登入帳號。")
 lines.append("4. 業務 owner 目前用姓名，建議下一階段新增 owner_staff_code。")
