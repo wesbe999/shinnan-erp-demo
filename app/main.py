@@ -120,870 +120,425 @@ app.include_router(tickets_router)
 def shinnan_erp_root_page():
 
     return """
-
 <!doctype html>
-
 <html lang="zh-Hant">
-
 <head>
-
 <meta charset="utf-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Shinnan ERP｜訊南ERP系統</title>
-
+<title>Shinnan ERP</title>
 <style>
-
 *{box-sizing:border-box}
-
+html,body{margin:0;width:100%;min-height:100%}
 body{
-
-  margin:0;
-
   min-height:100vh;
-
   font-family:"Microsoft JhengHei","Segoe UI",Arial,sans-serif;
-
-  color:white;
-
+  color:#f4fff4;
   background:
-
-    radial-gradient(circle at 15% 10%,rgba(0,255,255,.28),transparent 30%),
-
-    radial-gradient(circle at 85% 20%,rgba(98,0,255,.30),transparent 34%),
-
-    linear-gradient(135deg,#06111f,#0f3158 55%,#111827);
-
+    radial-gradient(circle at 32% 80%,rgba(126,255,61,.16),transparent 26%),
+    radial-gradient(circle at 72% 18%,rgba(115,255,66,.12),transparent 28%),
+    linear-gradient(135deg,#102e1d 0%,#1b5a2e 46%,#0b1f15 100%);
+  overflow:hidden;
 }
-
 body:before{
-
   content:"";
-
   position:fixed;
-
   inset:0;
-
-  background-image:
-
-    linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
-
-    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
-
-  background-size:42px 42px;
-
   pointer-events:none;
-
+  background-image:
+    linear-gradient(rgba(154,255,90,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(154,255,90,.035) 1px,transparent 1px),
+    radial-gradient(circle at 1px 1px,rgba(166,255,92,.22) 1px,transparent 0);
+  background-size:64px 64px,64px 64px,20px 20px;
+  opacity:.66;
 }
-
-.wrap{
-
-  position:relative;
-
-  z-index:1;
-
-  width:min(1180px,calc(100% - 40px));
-
-  min-height:100vh;
-
-  margin:auto;
-
-  display:grid;
-
-  grid-template-columns:1.05fr .95fr;
-
-  gap:34px;
-
-  align-items:center;
-
-  padding:48px 0;
-
-}
-
-.card,.panel{
-
-  border:1px solid rgba(255,255,255,.2);
-
-  background:rgba(255,255,255,.1);
-
-  backdrop-filter:blur(18px);
-
-  border-radius:34px;
-
-  box-shadow:0 28px 80px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.28);
-
-}
-
-.card{padding:40px}
-
-.panel{padding:28px}
-
-.brand{
-
-  display:flex;
-
-  align-items:center;
-
-  gap:22px;
-
-  margin-bottom:30px;
-
-}
-
-
-
-.logo{
-
-  width:150px;
-
-  height:92px;
-
-  border-radius:0;
-
-  background:transparent;
-
-  box-shadow:none;
-
-  overflow:visible;
-
-  flex:0 0 auto;
-
-}
-
-.logo-img{
-
-  width:150px;
-
-  height:auto;
-
-  display:block;
-
-  object-fit:contain;
-
-}
-
-
-
-.zh{
-
-  font-size:46px;
-
-  font-weight:1000;
-
-  letter-spacing:2px;
-
-}
-
-.en{
-
-  margin-top:8px;
-
-  font-size:22px;
-
-  font-weight:900;
-
-  letter-spacing:6px;
-
-  color:#38e8ff;
-
-}
-
-.headline{
-
-  font-size:56px;
-
-  line-height:1.12;
-
-  font-weight:1000;
-
-  margin:20px 0;
-
-}
-
-.headline span{
-
-  color:#38e8ff;
-
-  text-shadow:0 0 26px rgba(56,232,255,.45);
-
-}
-
-.desc{
-
-  color:#b7d7f7;
-
-  font-size:20px;
-
-  line-height:1.8;
-
-  font-weight:700;
-
-}
-
-.status{
-
-  margin-top:30px;
-
-  font-size:15px;
-
-  font-weight:900;
-
-  color:#dcfce7;
-
-}
-
-.status:before{
-
+body:after{
   content:"";
-
-  display:inline-block;
-
-  width:12px;
-
-  height:12px;
-
-  margin-right:10px;
-
-  border-radius:50%;
-
-  background:#22c55e;
-
-  box-shadow:0 0 18px #22c55e;
-
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  height:34vh;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 28% 100%,rgba(154,255,58,.13),transparent 44%),
+    linear-gradient(10deg,transparent 0 20%,rgba(160,255,85,.18) 20.2%,transparent 20.6% 100%),
+    linear-gradient(-7deg,transparent 0 42%,rgba(225,255,210,.12) 42.2%,transparent 42.6% 100%);
+  opacity:.72;
 }
-
-.panel-title{
-
-  font-size:25px;
-
-  font-weight:1000;
-
-  margin-bottom:18px;
-
+.shell{
+position:relative;
+  z-index:1;
+  width:100vw;
+  height:100vh;
+  padding:16px 24px;
 }
-
-.grid{
-
+.portal{
+position:relative;
+  width:100%;
+  height:100%;
   display:grid;
-
-  grid-template-columns:1fr 1fr;
-
-  gap:16px;
-
-}
-
-.module{
-
-  min-height:116px;
-
-  text-decoration:none;
-
-  color:white;
-
+  grid-template-columns:48% 52%;
+  gap:28px;
+  padding:24px 34px;
+  border:1px solid rgba(143,255,73,.78);
   border-radius:24px;
-
-  padding:20px;
-
-  border:1px solid rgba(255,255,255,.18);
-
-  background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.06));
-
-  box-shadow:0 18px 28px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.25);
-
-  transition:.16s;
-
+  background:
+    radial-gradient(circle at 24% 82%,rgba(150,255,70,.08),transparent 34%),
+    linear-gradient(90deg,rgba(8,39,24,.78),rgba(15,62,32,.60)),
+    radial-gradient(circle at 43% 76%,rgba(152,255,67,.08),transparent 30%);
+  box-shadow:
+    0 22px 64px rgba(0,0,0,.32),
+    inset 0 0 70px rgba(143,255,73,.05),
+    0 0 24px rgba(143,255,73,.14);
+  overflow:hidden;
 }
-
-.module:hover{
-
-  transform:translateY(-5px);
-
-  border-color:#38e8ff;
-
-  box-shadow:0 26px 42px rgba(0,0,0,.36),0 0 28px rgba(56,232,255,.18);
-
+.portal:before{
+content:"";
+  display:none;
 }
-
-.module-name{
-
-  font-size:24px;
-
-  font-weight:1000;
-
-  margin-bottom:10px;
-
+.portal:after{
+content:"";
+  display:none;
 }
-
-.module-desc{
-
-  color:#cde5ff;
-
-  font-size:14px;
-
-  font-weight:700;
-
-  line-height:1.55;
-
+.hero{
+position:relative;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:0 34px 72px 24px;
 }
-
-.footer{
-
-  grid-column:1/-1;
-
-  text-align:center;
-
-  color:rgba(220,240,255,.7);
-
-  font-size:13px;
-
-  font-weight:700;
-
-}
-
-@media(max-width:900px){
-
-  .wrap{grid-template-columns:1fr}
-
-  .headline{font-size:42px}
-
-  .zh{font-size:36px}
-
-}
-
-@media(max-width:560px){
-
-  .wrap{width:calc(100% - 24px);padding:28px 0}
-
-  .card,.panel{padding:22px;border-radius:26px}
-
-  .grid{grid-template-columns:1fr}
-
-  .logo{width:76px;height:76px}
-
-  .zh{font-size:30px}
-
-  .en{font-size:16px;letter-spacing:4px}
-
-  .headline{font-size:34px}
-
-}
-
-/* shinnan-home-compact-v1 */
-
-.wrap{
-
-  min-height: 100vh !important;
-
-  padding: 24px 0 !important;
-
-  gap: 42px !important;
-
-  align-items: center !important;
-
-}
-
-
-
-.card,
-
-.panel{
-
-  border-radius: 26px !important;
-
-}
-
-
-
-.card{
-
-  padding: 26px !important;
-
-}
-
-
-
-.panel{
-
-  padding: 20px !important;
-
-}
-
-
-
 .brand{
-
-  gap: 16px !important;
-
-  margin-bottom: 16px !important;
-
+display:flex;
+  align-items:center;
+  gap:4px;
+  margin-bottom:40px;
 }
-
-
-
-.logo{
-
-  width: 72px !important;
-
-  height: 72px !important;
-
-  border-radius: 22px !important;
-
-}
-
-
-
-
-
-
-
-
-
-
-
-.zh{
-
-  font-size: 34px !important;
-
-}
-
-
-
-.en{
-
-  margin-top: 5px !important;
-
-  font-size: 15px !important;
-
-  letter-spacing: 4px !important;
-
-}
-
-
-
-.headline{
-
-  font-size: 40px !important;
-
-  line-height: 1.08 !important;
-
-  margin: 12px 0 12px !important;
-
-}
-
-
-
-.desc{
-
-  font-size: 16px !important;
-
-  line-height: 1.55 !important;
-
-}
-
-
-
-.status{
-
-  margin-top: 16px !important;
-
-  font-size: 12px !important;
-
-}
-
-
-
-.panel-title{
-
-  font-size: 21px !important;
-
-  margin-bottom: 12px !important;
-
-}
-
-
-
-.grid{
-
-  gap: 11px !important;
-
-}
-
-
-
-.module{
-
-  min-height: 86px !important;
-
-  border-radius: 18px !important;
-
-  padding: 14px !important;
-
-}
-
-
-
-.module-name{
-
-  font-size: 20px !important;
-
-  margin-bottom: 6px !important;
-
-}
-
-
-
-.module-desc{
-
-  font-size: 12px !important;
-
-  line-height: 1.38 !important;
-
-}
-
-
-
-.footer{
-
-  margin-top: -10px !important;
-
-  font-size: 11px !important;
-
-}
-
-/* shinnan-home-compact-v1-end */
-
-/* shinnan-home-equal-height-only-v1 */
-
-.wrap {
-
-  align-items: stretch !important;
-
-}
-
-
-
-.card,
-
-.panel {
-
-  min-height: 520px !important;
-
-  height: 520px !important;
-
-}
-
-
-
-.card {
-
-  display: flex !important;
-
-  flex-direction: column !important;
-
-  justify-content: center !important;
-
-}
-
-
-
-.panel {
-
-  display: flex !important;
-
-  flex-direction: column !important;
-
-}
-
-
-
-.grid {
-
-  flex: 1 !important;
-
-  align-content: start !important;
-
-}
-
-
-
-@media(max-width:900px){
-
-  .card,
-
-  .panel {
-
-    height: auto !important;
-
-    min-height: auto !important;
-
-  }
-
-}
-
-/* shinnan-home-equal-height-only-v1-end */
-
-
-
-
-
-/* SHINNAN_HOME_LOGO_SIZE_START */
-.logo{
-  width: 78px !important;
-  height: 58px !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  overflow: visible !important;
-  flex: 0 0 auto !important;
-}
-
-.logo:before,
-.logo:after{
-  display: none !important;
-  content: none !important;
-}
-
 .logo-img{
-  width: 78px !important;
-  height: auto !important;
-  display: block !important;
-  object-fit: contain !important;
-  background: transparent !important;
-}
-/* SHINNAN_HOME_LOGO_SIZE_END */
-
-
-
-
-
-/* SHINNAN_HOME_LOGO_LAYOUT_FIX_V2 */
-.erp-home-logo {
-  width: 124px !important;
-  height: 94px !important;
-  object-fit: contain !important;
-  flex: 0 0 auto !important;
-  margin: 0 !important;
-  transform: translate(18px, -28px) !important;
-  filter: drop-shadow(0 5px 9px rgba(0,0,0,.18)) !important;
+width:132px;
+  height:auto;
+  object-fit:contain;
+  display:block;
+  filter:drop-shadow(0 7px 12px rgba(0,0,0,.24));
 }
 
-.brand,
-.brand-row,
-.hero-brand,
-.logo-row,
-.hero-title-row,
-.left-brand,
-.erp-brand {
-  display: flex !important;
-  align-items: center !important;
-  gap: 22px !important;
-  column-gap: 42px !important;
+.brand > div{
+  transform:translateX(-24px);
 }
 
-.erp-home-logo img,
-img.erp-home-logo {
-  max-width: 124px !important;
-  max-height: 94px !important;
+.brand-zh{
+color:#fff;
+  font-size:32px;
+  font-weight:1000;
+  letter-spacing:5px;
+  white-space:nowrap;
 }
-/* SHINNAN_HOME_LOGO_LAYOUT_FIX_V2_END */
-
-
-/* SHINNAN_HOME_LOGO_ALIGN_UP_V3 */
-.erp-home-logo {
-  transform: translateY(-16px) !important;
+.brand-en{
+margin-top:8px;
+  color:#a4ff43;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:10px;
+  white-space:nowrap;
 }
-/* SHINNAN_HOME_LOGO_ALIGN_UP_V3_END */
-
-
-
-
-
-
-
-
-/* SHINNAN_HOME_LOGO_POSITION_ONLY_V6 */
-img.erp-home-logo,
-.erp-home-logo {
-  width: 124px !important;
-  height: 94px !important;
-  transform: translate(18px, -28px) !important;
+.headline{
+color:#fff;
+  font-size:46px;
+  line-height:1.04;
+  font-weight:1000;
+  letter-spacing:5px;
+  text-shadow:0 0 18px rgba(255,255,255,.12);
+  white-space:nowrap;
 }
-/* SHINNAN_HOME_LOGO_POSITION_ONLY_V6_END */
+.headline-sub{
+margin-top:12px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  color:#a4ff43;
+  font-size:34px;
+  font-weight:1000;
+  letter-spacing:6px;
+  text-shadow:0 0 16px rgba(164,255,67,.24);
+  white-space:nowrap;
+}
+.headline-sub:before,
+.headline-sub:after{
+  content:"";
+  width:74px;
+  height:3px;
+  background:linear-gradient(90deg,transparent,#a4ff43,transparent);
+  box-shadow:0 0 14px rgba(164,255,67,.34);
+}
+.desc{
+margin-top:26px;
+  max-width:680px;
+  color:#e9f8e9;
+  font-size:16px;
+  line-height:1.72;
+  font-weight:750;
+  letter-spacing:1px;
+}
+.status{
+margin-top:24px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  color:#f8fff7;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.7px;
+}
+.status:before{
+  content:"";
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:#91ff3e;
+  box-shadow:0 0 18px rgba(145,255,62,.7);
+}
+.world{
+display:none;
+}
 
+.world:before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:18px;
+  height:150px;
+  background:
+    radial-gradient(ellipse at 31% 110%,transparent 0 42%,rgba(160,255,80,.34) 42.2%,transparent 42.7% 100%),
+    radial-gradient(ellipse at 31% 110%,transparent 0 55%,rgba(160,255,80,.24) 55.2%,transparent 55.7% 100%),
+    radial-gradient(ellipse at 31% 110%,transparent 0 69%,rgba(160,255,80,.16) 69.2%,transparent 69.7% 100%);
+  opacity:.78;
+}
+.world:after{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:28px;
+  bottom:54px;
+  height:95px;
+  background:
+    linear-gradient(8deg,transparent 0 22%,rgba(206,255,188,.16) 22.1%,transparent 22.45% 100%),
+    linear-gradient(-10deg,transparent 0 48%,rgba(150,255,76,.18) 48.1%,transparent 48.45% 100%),
+    linear-gradient(18deg,transparent 0 64%,rgba(150,255,76,.13) 64.1%,transparent 64.42% 100%);
+  opacity:.82;
+}
+
+
+
+
+
+.world-img{
+  position:absolute;
+  left:-114px;
+  right:auto;
+  top:auto;
+  bottom:13px;
+  width:255%;
+  height:648px;
+  object-fit:fill;
+  pointer-events:none;
+  opacity:.82;
+  mix-blend-mode:screen;
+  filter:drop-shadow(0 0 16px rgba(255,255,255,.14));
+  z-index:1;
+}
+
+
+.panel{
+min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:0 0 46px 0;
+}
+.panel-title{
+display:flex;
+  align-items:center;
+  gap:15px;
+  margin:0 0 14px;
+  color:#a4ff43;
+  font-size:23px;
+  font-weight:1000;
+  letter-spacing:5px;
+  white-space:nowrap;
+}
+.panel-title:before{
+  content:"";
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#91ff3e;
+  box-shadow:0 0 18px rgba(145,255,62,.75);
+}
+.panel-title:after{
+  content:"";
+  flex:1;
+  height:2px;
+  background:linear-gradient(90deg,rgba(164,255,67,.72),rgba(164,255,67,.16),transparent);
+}
+.grid{
+display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.module{
+position:relative;
+  min-height:98px;
+  display:block;
+  padding:14px 40px 12px 20px;
+  text-decoration:none;
+  color:#fff;
+  border:1px solid rgba(152,255,77,.55);
+  border-radius:14px;
+  background:
+    linear-gradient(135deg,rgba(24,96,42,.40),rgba(8,34,20,.58)),
+    radial-gradient(circle at 18% 20%,rgba(164,255,67,.09),transparent 28%);
+  box-shadow:
+    inset 0 1px 0 rgba(235,255,225,.10),
+    0 10px 20px rgba(0,0,0,.20);
+  overflow:hidden;
+  transition:.16s ease;
+}
+.module:hover{
+  transform:translateY(-3px);
+  border-color:#b0ff48;
+  box-shadow:
+    0 20px 36px rgba(0,0,0,.30),
+    0 0 24px rgba(152,255,77,.18),
+    inset 0 0 18px rgba(152,255,77,.07);
+}
+.mi{
+width:36px;
+  height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  color:#a4ff43;
+  margin-bottom:6px;
+}
+.mi svg{
+width:31px;
+  height:31px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.module-name{
+font-size:18px;
+  font-weight:1000;
+  letter-spacing:2px;
+  margin-bottom:4px;
+  white-space:nowrap;
+}
+.module-desc{
+color:#e3f7e0;
+  font-size:11.5px;
+  font-weight:760;
+  line-height:1.38;
+  word-break:keep-all;
+  overflow-wrap:normal;
+}
+.arrow{
+position:absolute;
+  right:16px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#a4ff43;
+  font-size:26px;
+  font-weight:700;
+  line-height:1;
+}
+.footer{
+  position:absolute;
+  left:50px;
+  right:50px;
+  bottom:2px;
+  text-align:center;
+  color:rgba(255,210,92,.72);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:8px;
+  text-shadow:0 0 10px rgba(255,210,92,.22);
+}
+@media(max-width:1380px){
+  .headline{font-size:58px}
+  .headline-sub{font-size:44px}
+  .module{grid-template-columns:48px 1fr 24px;min-height:132px;padding:18px}
+  .module-name{font-size:22px}
+  .module-desc{font-size:14px}
+}
 </style>
-
 </head>
-
 <body>
-
-<div class="wrap">
-
-  <section class="card">
-
-    <div class="brand">
-
-      <div class="logo"><img class="logo-img erp-home-logo" src="/erp-static/shinnan_home_logo.png" alt="ShinNan Logo"></div>
-
-      <div>
-
-        <div class="zh">訊南ERP系統</div>
-
-        <div class="en">SHINNAN ERP</div>
-
+<div class="shell">
+  <main class="portal">
+    <section class="hero">
+      <div class="brand">
+        <img class="logo-img" src="/erp-static/shinnan_home_logo.png" alt="ShinNan Logo">
+        <div>
+          <div class="brand-zh">\u8a0a\u5357 ERP \u7cfb\u7d71</div>
+          <div class="brand-en">SHINNAN ERP</div>
+        </div>
       </div>
+      <div class="headline">\u96fb\u4fe1\u71df\u904b\u7ba1\u7406</div>
+      <div class="headline-sub">\u4e00\u7ad9\u5f0f\u4e2d\u6a1e</div>
+      <div class="desc">\u6574\u5408\u6d3e\u5de5\u3001\u5e33\u52d9\u3001\u5ba2\u6236\u3001\u5927\u6a13\u3001\u696d\u52d9\u8207\u5de5\u7a0b\u8cc7\u6599\uff0c\u8b93\u516c\u53f8\u7ba1\u7406\u8207\u73fe\u5834\u4f5c\u696d\u80fd\u5728\u540c\u4e00\u5957\u5e73\u53f0\u5feb\u901f\u8854\u63a5\u3002</div>
+      <div class="status">SHINNAN TELECOM OPERATION PLATFORM ONLINE</div>
 
-    </div>
+      <img class="world-img" src="/erp-static/home_globe_wire_transparent_stronger.png?v=35" alt="">
 
+    </section>
 
-
-    <div class="headline">電信營運管理<br><span>一站式中樞</span></div>
-
-    <div class="desc">
-
-      整合派工、帳務、客戶、大樓、業務與工程資料，讓公司管理與現場作業能在同一套平台快速銜接。
-
-    </div>
-
-    <div class="status">SHINNAN TELECOM OPERATION PLATFORM ONLINE</div>
-
-  </section>
-
-
-
-  <section class="panel">
-
-    <div class="panel-title">請選擇系統入口</div>
-
-    <div class="grid">
-
-      <a class="module" href="/admin">
-
-        <div class="module-name">派工系統</div>
-
-        <div class="module-desc">案件建立、工程師指派、派工管理、完工追蹤與公司端後台。</div>
-
-      </a>
-
-      <a class="module" href="/admin/sales">
-        <div class="module-name">業務系統</div>
-        <div class="module-desc">大樓接觸、合約、拜訪、事件與回饋管理。</div>
-      </a>
-
-<a class="module" href="/admin/billing">
-
-          <div class="module-name">帳務系統</div>
-
-          <div class="module-desc">費用、押金、月租、材料與財務同步管理。</div>
-
-        </a>
-
-<a class="module" href="#" onclick="return openAdminModule('/admin?module=engineering')">
-
-          <div class="module-name">工程系統</div>
-
-          <div class="module-desc">拉線施工、線路建設、工程進度與施工紀錄管理。</div>
-
-        </a>
-
-<a class="module" href="/admin/hr">
-
-          <div class="module-name">人事系統</div>
-
-          <div class="module-desc">員工名冊、帳號、部門、職稱、休假與代理人設定。</div>
-
-        </a>
-
-
-
-<a class="module" href="#" onclick="return openAdminModule('/admin/buildings')">
-
-          <div class="module-name">大樓資料</div>
-
-          <div class="module-desc">社區大樓、設備 IP、管理公司、住戶數與大樓資料管理。</div>
-
-        </a>
-
-<a class="module" href="/admin/customers">
-        <div class="module-name">客戶資料</div>
-        <div class="module-desc">客戶資料、服務方案、帳務狀態、設備資訊與住戶名冊。</div>
-      </a>
-
-<a class="module" href="#" onclick="return openAdminModule('/admin/import')">
-
-          <div class="module-name">匯入資料</div>
-
-          <div class="module-desc">Excel、CSV、JSON、DB / SQL 資料匯入與預覽。</div>
-
-        </a>
-
-    </div>
-
-  </section>
-
-
-
-  <div class="footer">© Shinnan ERP System｜訊南科技內部管理平台</div>
-
+    <section class="panel">
+      <div class="panel-title">\u8acb\u9078\u64c7\u7cfb\u7d71\u5165\u53e3</div>
+      <div class="grid">
+        <a class="module" href="/admin"><div class="mi"><svg viewBox="0 0 24 24"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="6" cy="17" r="2"/><circle cx="18" cy="17" r="2"/></svg></div><div><div class="module-name">\u6d3e\u5de5\u7cfb\u7d71</div><div class="module-desc">\u6848\u4ef6\u5efa\u7acb\u3001\u5de5\u7a0b\u5e2b\u6307\u6d3e\u3001\u6d3e\u5de5\u7ba1\u7406\u8207\u5b8c\u5de5\u8ffd\u8e64\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+        <a class="module" href="/admin/sales"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M3 19h18"/><path d="M7 9l3-4 4 7 5-8"/></svg></div><div><div class="module-name">\u696d\u52d9\u7cfb\u7d71</div><div class="module-desc">\u5927\u6a13\u63a5\u89f8\u3001\u5408\u7d04\u3001\u62dc\u8a2a\u3001\u4e8b\u4ef6\u8207\u56de\u994b\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+        <a class="module" href="/admin/billing"><div class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M15 9.5c-.8-.8-4-.9-4 1 0 2 4 1 4 3 0 2-3.2 1.8-4.4.8"/></svg></div><div><div class="module-name">\u5e33\u52d9\u7cfb\u7d71</div><div class="module-desc">\u8cbb\u7528\u3001\u62bc\u91d1\u3001\u6708\u79df\u3001\u6750\u6599\u8207\u8ca1\u52d9\u540c\u6b65\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+        <a class="module" href="#" onclick="return openAdminModule('/admin?module=engineering')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M14 7l3-3 3 3-3 3z"/><path d="M5 20l8-8"/><path d="M6 6l12 12"/><path d="M4 8l4-4"/></svg></div><div><div class="module-name">\u5de5\u7a0b\u7cfb\u7d71</div><div class="module-desc">\u62c9\u7dda\u65bd\u5de5\u3001\u7dda\u8def\u5efa\u8a2d\u3001\u5de5\u7a0b\u9032\u5ea6\u8207\u7d00\u9304\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+        <a class="module" href="/admin/hr"><div class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 14.5-4 16 0"/></svg></div><div><div class="module-name">\u4eba\u4e8b\u7cfb\u7d71</div><div class="module-desc">\u54e1\u5de5\u540d\u518a\u3001\u5e33\u865f\u3001\u90e8\u9580\u3001\u8077\u7a31\u3001\u4f11\u5047\u8207\u4ee3\u7406\u8a2d\u5b9a\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+        <a class="module" href="#" onclick="return openAdminModule('/admin/buildings')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M5 21V5h8v16"/><path d="M13 9h6v12"/><path d="M8 8h2M8 12h2M8 16h2M16 13h1M16 17h1"/></svg></div><div><div class="module-name">\u5927\u6a13\u8cc7\u6599</div><div class="module-desc">\u793e\u5340\u5927\u6a13\u3001\u8a2d\u5099IP\u3001\u7ba1\u7406\u516c\u53f8\u8207\u4f4f\u6236\u8cc7\u6599\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+        <a class="module" href="/admin/customers"><div class="mi"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c1-4 11-4 12 0"/><circle cx="17" cy="10" r="2.5"/><path d="M15 20c.7-2.6 5.4-2.6 6 0"/></svg></div><div><div class="module-name">\u5ba2\u6236\u8cc7\u6599</div><div class="module-desc">\u5ba2\u6236\u8cc7\u6599\u3001\u670d\u52d9\u65b9\u6848\u3001\u5e33\u52d9\u72c0\u614b\u8207\u8a2d\u5099\u8cc7\u8a0a\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+        <a class="module" href="#" onclick="return openAdminModule('/admin/import')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div><div><div class="module-name">\u8cc7\u6599\u5f59\u6574</div><div class="module-desc">Excel\u3001CSV\u3001JSON\u3001DB / SQL \u8cc7\u6599\u532f\u5165\u3001\u6e05\u7406\u8207\u9810\u89bd\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+        <a class="module" href="#" onclick="return openAdminModule('/admin/import')"><div class="mi"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div><div class="module-name">\u532f\u5165\u8cc7\u6599</div><div class="module-desc">Excel\u3001CSV\u3001JSON\u3001DB / SQL \u8cc7\u6599\u532f\u5165\u8207\u9810\u89bd\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+      </div>
+    </section>
+    <div class="footer">SHINNAN ERP SYSTEM</div>
+  </main>
 </div>
 
 <script>
-
-// shinnan-entry-auth-router-v1
-
 function isAdminLoggedIn() {
-
   const adminToken = localStorage.getItem("xunnan_admin_token") || "";
-
   const adminRole = localStorage.getItem("xunnan_admin_role") || "";
-
   const authToken = localStorage.getItem("xunnan_auth_token") || "";
-
   const loginRole = localStorage.getItem("xunnan_login_role") || "";
-
-
-
   if (adminToken && adminRole === "admin") return true;
-
   if (authToken && loginRole === "admin") {
-
     localStorage.setItem("xunnan_admin_token", authToken);
-
     localStorage.setItem("xunnan_admin_role", "admin");
-
     return true;
-
   }
-
-
-
   return false;
-
 }
-
-
-
 function openAdminModule(path) {
-
   if (isAdminLoggedIn()) {
-
     window.location.href = path;
-
   } else {
-
     window.location.href = "/employee/login?next=" + encodeURIComponent(path);
-
   }
-
   return false;
-
 }
-
 </script>
 </body>
-
 </html>
-
 """
 
 
