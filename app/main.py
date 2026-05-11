@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.routes.home import router as home_router
 
-from app.db import Base, engine
+from app.db import Base, engine, seed_demo_database_if_needed
 
 from app.routes.auth import router as auth_router
 
@@ -46,6 +46,8 @@ from app.routes.pages import router as pages_router
 from app.routes.tickets import router as tickets_router
 
 
+
+seed_demo_database_if_needed()
 
 Base.metadata.create_all(bind=engine)
 

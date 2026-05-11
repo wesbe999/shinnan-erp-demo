@@ -25,6 +25,16 @@ Server recommendation:
 
 On Render or another container host, mount `/var/data` as persistent storage before treating the server as production.
 
+## Demo Data on Free Hosts
+
+The repository includes `app/seed/demo_seed.sql` for demo-only deployments. When the configured SQLite database is empty, the app automatically imports this seed on startup.
+
+- Disable this with `XUNNAN_AUTO_SEED_DEMO=0`.
+- The seed is only used for empty SQLite databases.
+- Existing databases with ticket data are not overwritten.
+
+This is useful for Render free services because their local filesystem is not durable. It is not a replacement for production persistence.
+
 ## Before First Production Use
 
 1. Upload or seed the intended `xunnan_dispatch.db`.
