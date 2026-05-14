@@ -41,6 +41,7 @@ from app.routes.customers_admin import router as customers_admin_router
 from app.routes.sales_managers_admin import router as sales_managers_admin_router
 from app.routes.ticket_customer_link_admin import router as ticket_customer_link_admin_router
 from app.routes.employee_profiles_admin import router as employee_profiles_admin_router
+from app.routes.stats_admin import router as stats_admin_router
 from app.routes.pages import router as pages_router
 
 from app.routes.tickets import router as tickets_router
@@ -109,6 +110,7 @@ app.include_router(customers_admin_router)
 app.include_router(sales_managers_admin_router)
 app.include_router(ticket_customer_link_admin_router)
 app.include_router(employee_profiles_admin_router)
+app.include_router(stats_admin_router)
 app.include_router(pages_router)
 
 app.include_router(tickets_router)
@@ -349,7 +351,7 @@ display:none;
   left:-114px;
   right:auto;
   top:auto;
-  bottom:13px;
+  bottom:-27px;
   width:255%;
   height:648px;
   object-fit:fill;
@@ -491,7 +493,21 @@ position:absolute;
   .headline-sub{font-size:31px}
   .desc{font-size:15px;line-height:1.58;margin-top:22px}
   .status{font-size:12px;margin-top:20px}
-  .world-img{left:-92px;bottom:9px;width:238%;height:560px}
+  .world-img{
+  position:absolute;
+  left:-114px;
+  right:auto;
+  top:auto;
+  bottom:-27px;
+  width:255%;
+  height:648px;
+  object-fit:fill;
+  pointer-events:none;
+  opacity:.82;
+  mix-blend-mode:screen;
+  filter:drop-shadow(0 0 16px rgba(255,255,255,.14));
+  z-index:1;
+}
   .panel{padding:0 0 34px 0}
   .panel-title{font-size:21px;margin-bottom:12px}
   .grid{gap:10px}
@@ -519,7 +535,7 @@ position:absolute;
       <div class="desc">\u6574\u5408\u6d3e\u5de5\u3001\u5e33\u52d9\u3001\u5ba2\u6236\u3001\u5927\u6a13\u3001\u696d\u52d9\u8207\u5de5\u7a0b\u8cc7\u6599\uff0c\u8b93\u516c\u53f8\u7ba1\u7406\u8207\u73fe\u5834\u4f5c\u696d\u80fd\u5728\u540c\u4e00\u5957\u5e73\u53f0\u5feb\u901f\u8854\u63a5\u3002</div>
       <div class="status">SHINNAN TELECOM OPERATION PLATFORM ONLINE</div>
 
-      <img class="world-img" src="/erp-static/home_globe_wire_transparent_stronger.png?v=35" alt="">
+      <img class="world-img" src="/erp-static/home_globe_wire_transparent_stronger.png?v=20260512211904" alt="">
 
     </section>
 
@@ -533,8 +549,8 @@ position:absolute;
         <a class="module" href="/admin/hr"><div class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 14.5-4 16 0"/></svg></div><div><div class="module-name">\u4eba\u4e8b\u7cfb\u7d71</div><div class="module-desc">\u54e1\u5de5\u540d\u518a\u3001\u5e33\u865f\u3001\u90e8\u9580\u3001\u8077\u7a31\u3001\u4f11\u5047\u8207\u4ee3\u7406\u8a2d\u5b9a\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="#" onclick="return openAdminModule('/admin/buildings')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M5 21V5h8v16"/><path d="M13 9h6v12"/><path d="M8 8h2M8 12h2M8 16h2M16 13h1M16 17h1"/></svg></div><div><div class="module-name">\u5927\u6a13\u8cc7\u6599</div><div class="module-desc">\u793e\u5340\u5927\u6a13\u3001\u8a2d\u5099IP\u3001\u7ba1\u7406\u516c\u53f8\u8207\u4f4f\u6236\u8cc7\u6599\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="/admin/customers"><div class="mi"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c1-4 11-4 12 0"/><circle cx="17" cy="10" r="2.5"/><path d="M15 20c.7-2.6 5.4-2.6 6 0"/></svg></div><div><div class="module-name">\u5ba2\u6236\u8cc7\u6599</div><div class="module-desc">\u5ba2\u6236\u8cc7\u6599\u3001\u670d\u52d9\u65b9\u6848\u3001\u5e33\u52d9\u72c0\u614b\u8207\u8a2d\u5099\u8cc7\u8a0a\u3002</div></div><div class="arrow">&rsaquo;</div></a>
-        <a class="module" href="#" onclick="return openAdminModule('/admin/import')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div><div><div class="module-name">\u8cc7\u6599\u5f59\u6574</div><div class="module-desc">Excel\u3001CSV\u3001JSON\u3001DB / SQL \u8cc7\u6599\u532f\u5165\u3001\u6e05\u7406\u8207\u9810\u89bd\u3002</div></div><div class="arrow">&rsaquo;</div></a>
-        <a class="module" href="#" onclick="return openAdminModule('/admin/import')"><div class="mi"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div><div class="module-name">\u532f\u5165\u8cc7\u6599</div><div class="module-desc">Excel\u3001CSV\u3001JSON\u3001DB / SQL \u8cc7\u6599\u532f\u5165\u8207\u9810\u89bd\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+        <a class="module" href="#" onclick="return openAdminModule('/admin/stats')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div><div><div class="module-name">\u8cc7\u6599\u7d71\u8a08</div><div class="module-desc">\u5f59\u6574\u6d3e\u5de5\u3001\u5ba2\u6236\u3001\u5e33\u52d9\u3001\u696d\u52d9\u3001\u4eba\u4e8b\u8207\u6750\u6599\u8cc7\u6599\uff0c\u7522\u751f\u71df\u904b\u7d71\u8a08\u3001\u8da8\u52e2\u5206\u6790\u8207\u7ba1\u7406\u5831\u544a\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+        <a class="module" href="#" onclick="return openAdminModule('/admin/stats')"><div class="mi"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div><div class="module-name">\u532f\u5165\u8cc7\u6599</div><div class="module-desc">Excel\u3001CSV\u3001JSON\u3001DB / SQL \u8cc7\u6599\u532f\u5165\u8207\u9810\u89bd\u3002</div></div><div class="arrow">&rsaquo;</div></a>
       </div>
     </section>
     <div class="footer">SHINNAN ERP SYSTEM</div>

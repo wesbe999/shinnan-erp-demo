@@ -17,11 +17,11 @@ ENGINEER_DIRECTORY = [
     {"employee_no": "E011", "password": "1234", "name": "李承翰", "department": "安平"},
     {"employee_no": "E012", "password": "1234", "name": "黃俊傑", "department": "安平"},
 
-    {"employee_no": "E013", "password": "1234", "name": "林柏宏", "department": "南高"},
-    {"employee_no": "E014", "password": "1234", "name": "鄭雅文", "department": "南高"},
+    {"employee_no": "E013", "password": "1234", "name": "林柏宏", "department": "高雄"},
+    {"employee_no": "E014", "password": "1234", "name": "鄭雅文", "department": "高雄"},
 
-    {"employee_no": "E015", "password": "1234", "name": "蔡明哲", "department": "北高"},
-    {"employee_no": "E016", "password": "1234", "name": "周柏宇", "department": "北高"},
+    {"employee_no": "E015", "password": "1234", "name": "蔡明哲", "department": "高雄"},
+    {"employee_no": "E016", "password": "1234", "name": "周柏宇", "department": "高雄"},
 
     {"employee_no": "E017", "password": "1234", "name": "許家豪", "department": "專案部"},
     {"employee_no": "E018", "password": "1234", "name": "方志遠", "department": "專案部"},

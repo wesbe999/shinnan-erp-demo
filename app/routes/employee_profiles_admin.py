@@ -112,15 +112,14 @@ def api_admin_employees(
                         WHEN '業務部' THEN 2
                         WHEN '工程部' THEN 3
                         WHEN '維修部' THEN 4
-                        WHEN '北高' THEN 5
-                        WHEN '南高' THEN 6
-                        WHEN '東區' THEN 7
-                        WHEN '安平' THEN 8
-                        WHEN '北區' THEN 9
-                        WHEN '永康' THEN 10
-                        WHEN '北台南' THEN 11
-                        WHEN '帳務部' THEN 12
-                        WHEN '人事部' THEN 13
+                        WHEN '高雄' THEN 5
+                        WHEN '東區' THEN 6
+                        WHEN '安平' THEN 7
+                        WHEN '北區' THEN 8
+                        WHEN '永康' THEN 9
+                        WHEN '北台南' THEN 10
+                        WHEN '帳務部' THEN 11
+                        WHEN '人事部' THEN 12
                         WHEN '客服部' THEN 14
                         WHEN '倉管部' THEN 15
                         WHEN '專案部' THEN 16

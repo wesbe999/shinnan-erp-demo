@@ -13,8 +13,8 @@ router = APIRouter(tags=["admin_dispatch"])
 
 
 DISPATCH_DEPARTMENTS = (
-    "東區", "北區", "北台南", "仁德", "永康", "安平", "南高", "北高",
-    "維修部", "工程部", "專案部",
+    "\u6771\u5340", "\u5317\u5340", "\u5317\u53f0\u5357", "\u4ec1\u5fb7", "\u6c38\u5eb7", "\u5b89\u5e73", "\u9ad8\u96c4",
+    "\u7dad\u4fee\u90e8", "\u5de5\u7a0b\u90e8", "\u5c08\u6848\u90e8",
 )
 
 
@@ -47,38 +47,50 @@ def api_admin_engineers_from_hr():
                 staff_code,
                 display_name,
                 department,
+                area,
                 role,
                 position_title,
                 employment_status,
                 app_access,
                 permission_scope,
-                note
+                '' AS note
             FROM employee_profiles
             WHERE COALESCE(employment_status, '') IN ('', '在職')
               AND COALESCE(department, '') IN (
-                    '東區', '北區', '北台南', '仁德', '永康', '安平', '南高', '北高',
-                    '維修部', '工程部', '專案部'
+                    '\u5de5\u52d9\u90e8',
+                    '\u6771\u5340', '\u5317\u5340', '\u5317\u53f0\u5357', '\u4ec1\u5fb7', '\u6c38\u5eb7', '\u5b89\u5e73', '\u9ad8\u96c4',
+                    '\u7dad\u4fee\u90e8', '\u5de5\u7a0b\u90e8', '\u5c08\u6848\u90e8'
               )
               AND (
-                    COALESCE(app_access, '') LIKE '%dispatch%'
+                    COALESCE(department, '') = '\u5de5\u52d9\u90e8'
+                 OR COALESCE(department, '') IN (
+                        '\u6771\u5340', '\u5317\u5340', '\u5317\u53f0\u5357', '\u4ec1\u5fb7', '\u6c38\u5eb7', '\u5b89\u5e73', '\u9ad8\u96c4'
+                    )
+                 OR COALESCE(app_access, '') LIKE '%dispatch%'
                  OR COALESCE(app_access, '') LIKE '%engineering%'
                  OR COALESCE(role, '') = 'field'
-                 OR COALESCE(position_title, '') LIKE '%工程%'
-                 OR COALESCE(position_title, '') LIKE '%區域%'
+                 OR COALESCE(position_title, '') LIKE '%\u5de5\u7a0b%'
+                 OR COALESCE(position_title, '') LIKE '%\u5340\u57df%'
               )
             ORDER BY
-                CASE department
-                    WHEN '東區' THEN 1
-                    WHEN '北區' THEN 2
-                    WHEN '北台南' THEN 3
-                    WHEN '仁德' THEN 4
-                    WHEN '永康' THEN 5
-                    WHEN '安平' THEN 6
-                    WHEN '南高' THEN 7
-                    WHEN '北高' THEN 8
-                    WHEN '維修部' THEN 9
-                    WHEN '工程部' THEN 10
-                    WHEN '專案部' THEN 11
+                CASE
+                    WHEN department = '工務部' AND area = '東區' THEN 1
+                    WHEN department = '工務部' AND area = '北區' THEN 2
+                    WHEN department = '工務部' AND area = '北台南' THEN 3
+                    WHEN department = '工務部' AND area = '仁德' THEN 4
+                    WHEN department = '工務部' AND area = '永康' THEN 5
+                    WHEN department = '工務部' AND area = '安平' THEN 6
+                    WHEN department = '工務部' AND area = '高雄' THEN 7
+                    WHEN department = '東區' THEN 1
+                    WHEN department = '北區' THEN 2
+                    WHEN department = '北台南' THEN 3
+                    WHEN department = '仁德' THEN 4
+                    WHEN department = '永康' THEN 5
+                    WHEN department = '安平' THEN 6
+                    WHEN department = '高雄' THEN 7
+                    WHEN department = '維修部' THEN 8
+                    WHEN department = '工程部' THEN 9
+                    WHEN department = '專案部' THEN 10
                     ELSE 99
                 END,
                 staff_code
@@ -142,7 +154,9 @@ def api_admin_engineers_from_hr():
     for row in rows:
         staff_code = str(row.get("staff_code") or "").strip()
         name = str(row.get("display_name") or "").strip()
-        department = str(row.get("department") or "").strip()
+        raw_department = str(row.get("department") or "").strip()
+        area = str(row.get("area") or "").strip()
+        department = area if raw_department == "工務部" and area else raw_department
         if not staff_code or not name or not department or staff_code in seen:
             continue
         if department not in DISPATCH_DEPARTMENTS:
@@ -173,12 +187,78 @@ def api_admin_engineers_from_hr():
     return _json_response(items)
 
 
+
+
+@router.delete("/api/admin/tickets/{ticket_id}/hard-delete")
+def api_admin_hard_delete_ticket(ticket_id: int, request: Request):
+    current_user = _employee_current_user_from_request(request)
+    if not current_user:
+        return _json_response({"ok": False, "error": "unauthorized"}, status_code=401)
+
+    deleted_children = {}
+
+    with engine.begin() as conn:
+        ticket = conn.execute(
+            text("SELECT id, ticket_no FROM tickets WHERE id = :id LIMIT 1"),
+            {"id": ticket_id},
+        ).mappings().first()
+
+        if not ticket:
+            return _json_response({"ok": False, "error": "ticket_not_found"}, status_code=404)
+
+        table_rows = conn.execute(text("""
+            SELECT name
+            FROM sqlite_master
+            WHERE type = 'table'
+            ORDER BY name
+        """)).mappings().fetchall()
+
+        for row in table_rows:
+            table_name = str(row.get("name") or "").strip()
+            if not table_name or table_name == "tickets":
+                continue
+
+            try:
+                cols = [
+                    str(c[1] or "")
+                    for c in conn.execute(text('PRAGMA table_info("' + table_name.replace('"', '""') + '")')).fetchall()
+                ]
+            except Exception:
+                cols = []
+
+            if "ticket_id" not in cols:
+                continue
+
+            safe_table = '"' + table_name.replace('"', '""') + '"'
+            result = conn.execute(
+                text("DELETE FROM " + safe_table + " WHERE ticket_id = :ticket_id"),
+                {"ticket_id": ticket_id},
+            )
+
+            if int(result.rowcount or 0) > 0:
+                deleted_children[table_name] = int(result.rowcount or 0)
+
+        result = conn.execute(
+            text("DELETE FROM tickets WHERE id = :id"),
+            {"id": ticket_id},
+        )
+
+        if int(result.rowcount or 0) <= 0:
+            return _json_response({"ok": False, "error": "ticket_delete_failed"}, status_code=500)
+
+    return _json_response({
+        "ok": True,
+        "deleted_ticket_id": ticket_id,
+        "deleted_children": deleted_children,
+    })
+
+
 CLEAN_ADMIN_HTML = r'''
 <!doctype html>
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
-  <title>訊南科技派工系統｜公司後台</title>
+  <title>\u8a0a\u5357\u79d1\u6280\u6d3e\u5de5\u7cfb\u7d71\uff5c\u4e2d\u592e\u63a7\u7ba1\u7cfb\u7d71</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     :root {
@@ -433,11 +513,21 @@ CLEAN_ADMIN_HTML = r'''
     thead tr.filter-row th:nth-child(1), thead tr.filter-row th:nth-child(2), thead tr.filter-row th:nth-child(3) { z-index:12; background:#eef3f9; }
 
     .address-cell { white-space:normal; line-height:1.35; word-break:break-word; overflow-wrap:anywhere; }
-    .pill { display:inline-flex; align-items:center; justify-content:center; min-height:21px; padding:0 7px; border-radius:999px; font-size:11px; font-weight:1000; white-space:nowrap; }
-    .pill-wait { background:#fef3c7; color:#92400e; }
-    .pill-claim { background:#ffe4e6; color:#be123c; }
-    .pill-done { background:#dcfce7; color:#166534; }
-    .pill-default { background:#f1f5f9; color:#334155; }
+    .pill { display:inline-flex; align-items:center; justify-content:center; min-height:21px; padding:0 7px; border-radius:999px; font-size:11px; font-weight:1000; white-space:nowrap; border:1px solid transparent; }
+    .pill-wait { background:#fef3c7; color:#92400e; border-color:#fcd34d; }
+    .pill-claim { background:#dbeafe; color:#1d4ed8; border-color:#93c5fd; }
+    .pill-done { background:#d1fae5; color:#047857; border-color:#6ee7b7; }
+    .pill-default { background:#f1f5f9; color:#334155; border-color:#cbd5e1; }
+
+    .pill-unclaimed { background:#e2e8f0 !important; color:#334155 !important; border-color:#cbd5e1 !important; }
+    .pill-claimed { background:#dbeafe !important; color:#1d4ed8 !important; border-color:#93c5fd !important; }
+    .pill-pending { background:#fef3c7 !important; color:#92400e !important; border-color:#fcd34d !important; }
+    .pill-processing { background:#dcfce7 !important; color:#166534 !important; border-color:#86efac !important; }
+    .pill-boss { background:#ede9fe !important; color:#6d28d9 !important; border-color:#c4b5fd !important; }
+    .pill-finished { background:#cffafe !important; color:#0e7490 !important; border-color:#67e8f9 !important; }
+    .pill-completed { background:#d1fae5 !important; color:#047857 !important; border-color:#6ee7b7 !important; }
+    .pill-returned { background:#fee2e2 !important; color:#b91c1c !important; border-color:#fca5a5 !important; }
+    .pill-cancelled { background:#e7e5e4 !important; color:#57534e !important; border-color:#c7c2be !important; }
     .delete-button { width:44px; min-width:44px; height:24px; padding:0 4px; border-radius:7px; font-size:11px; background:var(--red); }
 
     .modal-mask { position:fixed; inset:0; z-index:9000; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(15,23,42,.58); }
@@ -957,14 +1047,62 @@ CLEAN_ADMIN_HTML = r'''
       }
     }
 
+
+    .detail-amount-edit {
+      width: 100%;
+      height: 44px;
+      border: 1px solid #cfd8e3;
+      border-radius: 12px;
+      background: #fff;
+      color: #0f172a;
+      font-size: 22px;
+      font-weight: 900;
+      text-align: right;
+      padding: 0 12px;
+      box-sizing: border-box;
+    }
+    .detail-amount-edit:focus {
+      outline: none;
+      border-color: #f5b45b;
+      box-shadow: 0 0 0 3px rgba(245, 180, 91, .20);
+      background: #fffaf2;
+    }
+    .detail-amount-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .detail-amount-actions .btn-green {
+      min-width: 118px;
+      height: 42px;
+      border-radius: 12px;
+      font-weight: 900;
+    }
+    .detail-amount-save-note {
+      color: #64748b;
+      font-weight: 800;
+    }
+
 </style>
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
 </head>
 
 <body>
-  <header class="admin-header">
-    <img class="admin-logo" src="/erp-static/shinnan_home_logo.png" alt="ShinNan Logo" onerror="this.style.display='none'">
-    <div><div class="admin-title">訊南科技派工系統</div></div>
-  </header>
+  <section class="web-title web-title-tech">
+  <img class="web-title-watermark" src="/static/shinnan_logo_outline_white.png" alt="">
+  <div class="web-title-map"></div>
+  <div class="web-title-radar"></div>
+  <div class="web-title-main">
+    <div class="web-title-logo-box"><img class="web-title-logo" src="/static/shinnan_logo_gold_transparent.png?v=20260513_cl9h" alt="ShinNan Logo"></div>
+    <div class="web-title-text">
+      <h1 class="web-title-system">&#x8a0a;&#x5357;&#x79d1;&#x6280;&#x6d3e;&#x5de5;&#x7cfb;&#x7d71;</h1>
+      <div class="web-title-sub"><span class="web-title-sub-dot"></span>&#x4e2d;&#x592e;&#x63a7;&#x7ba1;&#x7cfb;&#x7d71;<span class="web-title-sub-dot"></span></div>
+    </div>
+    <div class="web-title-user" data-web-title-user="1"><span class="web-title-user-label">&#x767b;&#x5165;&#x8005;&#xff1a;</span><span class="web-title-user-name" id="web_title_user_name">&#x8f09;&#x5165;&#x4e2d;</span></div>
+  </div>
+</section>
 
   <main class="page">
     <section class="notice-panel">
@@ -1037,7 +1175,7 @@ CLEAN_ADMIN_HTML = r'''
     </section>
   </main>
 
-  <div id="detail_modal" class="modal-mask"><div class="modal"><div class="modal-head"><div><div id="detail_title" class="modal-title">案件詳情</div><div id="detail_subtitle" class="modal-subtitle"></div></div><button class="modal-close" type="button" onclick="closeDetailModal()">關閉</button></div><div id="detail_body" class="detail-grid"></div><div class="modal-actions"><button class="btn-blue" type="button" onclick="assignSelectedTicket()">指派</button><button class="btn-orange" type="button" onclick="claimSelectedTicket()">領取</button><button class="btn-green" type="button" onclick="completeSelectedTicket()">完工</button><button class="btn-purple" type="button" onclick="alert('轉派功能下一階段接工程系統')">轉派</button><button class="btn-gray" type="button" onclick="alert('退件功能下一階段接退件流程')">退件</button><button class="btn-red" type="button" onclick="deleteSelectedTicket()">刪除</button></div></div></div>
+  <div id="detail_modal" class="modal-mask"><div class="modal"><div class="modal-head"><div><div id="detail_title" class="modal-title">案件詳情</div><div id="detail_subtitle" class="modal-subtitle"></div></div><button class="modal-close" type="button" onclick="closeDetailModal()">關閉</button></div><div id="detail_body" class="detail-grid"></div><div class="modal-actions"><button class="btn-blue" type="button" onclick="assignSelectedTicket()">指派</button><button class="btn-orange" type="button" onclick="claimSelectedTicket()">領取</button><button class="btn-green" type="button" onclick="completeSelectedTicket()">完工</button><button class="btn-purple" type="button" onclick="alert('轉派功能下一階段接工程系統')">轉派</button><button class="btn-gray" type="button" onclick="alert('退件功能下一階段接退件流程')">退件</button><button class="btn-red" type="button" onclick="voidSelectedTicket()">&#x522a;&#x9664;</button></div></div></div>
 
 
   
@@ -1083,7 +1221,56 @@ CLEAN_ADMIN_HTML = r'''
     </select>
   </div>
 </div>
-      <div class="field"><label>&#x7D04;&#x5DE5;&#x65E5;&#x671F;</label><input id="new_date" type="date"></div>
+
+      <div class="field full" id="create_billing_preview" style="display:none">
+        <label>&#x5E33;&#x52D9;&#x8207;&#x8CBB;&#x7528;&#x9810;&#x89BD;</label>
+        <div class="detail-amount-board create-billing-preview-board">
+          <div class="detail-amount-title">&#x5E33;&#x52D9;&#x8CC7;&#x8A0A;</div>
+          <div class="detail-amount-row detail-amount-top">
+            <div class="detail-amount-field">
+              <div class="detail-amount-label">&#x5E33;&#x52D9;&#x72C0;&#x6CC1;</div>
+              <div class="detail-amount-total-value" id="create_billing_status">-</div>
+            </div>
+            <div class="detail-amount-field">
+              <div class="detail-amount-label">&#x662F;&#x5426;&#x6B20;&#x8CBB;</div>
+              <div class="detail-amount-total-value" id="create_billing_overdue">-</div>
+            </div>
+            <div class="detail-amount-field">
+              <div class="detail-amount-label">IP &#x9650;&#x5236;</div>
+              <div class="detail-amount-total-value" id="create_billing_ip_limited">-</div>
+            </div>
+            <div class="detail-amount-field">
+              <div class="detail-amount-label">&#x6700;&#x65B0;&#x6536;&#x8CBB;&#x5165;&#x5E33;&#x65E5;</div>
+              <div class="detail-amount-total-value" id="create_billing_last_payment_date">-</div>
+            </div>
+          </div>
+
+          <div class="detail-amount-title" style="margin-top:14px">&#x8CBB;&#x7528;&#x53C3;&#x8003;</div>
+          <div class="detail-amount-row detail-amount-top">
+            <div class="detail-amount-field">
+              <div class="detail-amount-label">&#x5E33;&#x52D9;&#x8CBB;&#x7528;</div>
+              <div class="detail-amount-total-value" id="create_billing_fee_amount">0</div>
+            </div>
+            <span class="detail-amount-symbol">+</span>
+            <div class="detail-amount-field">
+              <div class="detail-amount-label">&#x5176;&#x4ED6;&#x8CBB;&#x7528;1</div>
+              <div class="detail-amount-total-value" id="create_repair_other_fee_1">0</div>
+            </div>
+            <span class="detail-amount-symbol">+</span>
+            <div class="detail-amount-field">
+              <div class="detail-amount-label">&#x5176;&#x4ED6;&#x8CBB;&#x7528;2</div>
+              <div class="detail-amount-total-value" id="create_repair_other_fee_2">0</div>
+            </div>
+            <span class="detail-amount-symbol">=</span>
+            <div class="detail-amount-field">
+              <div class="detail-amount-label">&#x5176;&#x4ED6;&#x8CBB;&#x7528;&#x5408;&#x8A08;</div>
+              <div class="detail-amount-total-value" id="create_repair_other_fee_total">0</div>
+            </div>
+          </div>
+          <div class="detail-amount-note" id="create_billing_note"></div>
+        </div>
+      </div>
+<div class="field"><label>&#x7D04;&#x5DE5;&#x65E5;&#x671F;</label><input id="new_date" type="date"></div>
       <div class="field"><label>&#x7D04;&#x5DE5;&#x6642;&#x9593;</label><input id="new_time" type="time"></div>
 
       <div id="create_install_price_fields" class="field full create-price-panel">
@@ -1125,8 +1312,8 @@ CLEAN_ADMIN_HTML = r'''
 </div>
 
 <script>
-  const AREAS = ["全部","東區","北區","北台南","仁德","永康","安平","南高","北高"];
-  const ENGINEER_DEPARTMENTS = ["東區","北區","北台南","仁德","永康","安平","南高","北高","維修部","工程部","專案部"];
+  const AREAS = ["全部","東區","北區","北台南","仁德","永康","安平","高雄"];
+  const ENGINEER_DEPARTMENTS = ["\u6771\u5340","\u5317\u5340","\u5317\u53f0\u5357","\u4ec1\u5fb7","\u6c38\u5eb7","\u5b89\u5e73","\u9ad8\u96c4","\u7dad\u4fee\u90e8","\u5de5\u7a0b\u90e8","\u5c08\u6848\u90e8"];
   let allTickets = [];
   let buildingDirectory = [];
   let engineerDirectory = [];
@@ -1171,7 +1358,7 @@ function zh(hexText) {
       AREAS.forEach(function (area) { if (el.id === "new_area" && area === "全部") return; const opt = document.createElement("option"); opt.value = area; opt.textContent = area; el.appendChild(opt); });
     });
     if (byId("top_filter_engineer")) {
-      byId("top_filter_engineer").innerHTML = "<option value='\u5168\u90e8'>\u5168\u90e8</option><option value='\u5df2\u6d3e\u5de5'>\u5df2\u6d3e\u5de5</option><option value='\u672a\u6d3e\u5de5'>\u672a\u6d3e\u5de5</option>";
+      byId("top_filter_engineer").innerHTML = "<option value='\u5168\u90e8'>\u5168\u90e8</option><option value='\u5df2\u6307\u6d3e'>\u5df2\u6307\u6d3e</option><option value='\u672a\u6307\u6d3e'>\u672a\u6307\u6d3e</option>";
       byId("top_filter_engineer").value = "\u5168\u90e8";
     }
     if (byId("new_engineer")) byId("new_engineer").innerHTML = "<option value=''>未指派</option>";
@@ -1198,11 +1385,53 @@ function zh(hexText) {
   function appointmentText(item) { const d = item.appointment_date || ""; const t = item.appointment_time || ""; if (!d && !t) return "-"; return [d, t].filter(Boolean).join(" "); }
   function engineerText(item) { return item.assigned_engineer || "未指派"; }
   function normalizedStatus(status) { return String(status || "").trim(); }
-  function isDoneStatus(status) { return ["已完工", "已完成", "完成"].includes(normalizedStatus(status)); }
-  function isWaitingStatus(status) { return ["", "待派工", "未派工", "已建立", "已指派"].includes(normalizedStatus(status)); }
-  function isClaimedStatus(status) { return ["已領取", "施工中", "處理中", "待處理", "待老闆判斷"].includes(normalizedStatus(status)); }
-  function statusClass(status) { if (isWaitingStatus(status)) return "pill pill-wait"; if (isClaimedStatus(status)) return "pill pill-claim"; if (isDoneStatus(status)) return "pill pill-done"; return "pill pill-default"; }
-function amountText(item) {
+
+  function isDoneStatus(status) {
+    return ["\u5df2\u5b8c\u5de5", "\u5df2\u5b8c\u6210", "\u5b8c\u6210"].includes(normalizedStatus(status));
+  }
+
+  function isClosedStatus(status) {
+    return [
+      "\u5df2\u5b8c\u5de5",
+      "\u5df2\u5b8c\u6210",
+      "\u5b8c\u6210",
+      "\u4f5c\u5ee2",
+      "\u5df2\u4f5c\u5ee2",
+      "\u53d6\u6d88",
+      "\u5df2\u53d6\u6d88",
+      "\u4f4f\u6236\u53d6\u6d88"
+    ].includes(normalizedStatus(status));
+  }
+
+  function isWaitingStatus(status) {
+    return ["", "\u672a\u9818\u53d6", "\u5f85\u6d3e\u5de5", "\u672a\u6d3e\u5de5", "\u5df2\u5efa\u7acb", "\u5df2\u6307\u6d3e"].includes(normalizedStatus(status));
+  }
+
+  function isClaimedStatus(status) {
+    return ["\u5df2\u9818\u53d6", "\u65bd\u5de5\u4e2d", "\u8655\u7406\u4e2d", "\u5f85\u8655\u7406", "\u5f85\u8001\u95c6\u5224\u65b7"].includes(normalizedStatus(status));
+  }
+
+  function statusClass(status) {
+    const s = normalizedStatus(status);
+
+    if (s === "\u672a\u9818\u53d6") return "pill pill-unclaimed";
+    if (s === "\u5df2\u9818\u53d6") return "pill pill-claimed";
+    if (s === "\u5f85\u8655\u7406") return "pill pill-pending";
+    if (s === "\u8655\u7406\u4e2d" || s === "\u65bd\u5de5\u4e2d") return "pill pill-processing";
+    if (s === "\u5f85\u8001\u95c6\u5224\u65b7") return "pill pill-boss";
+    if (s === "\u5df2\u5b8c\u5de5") return "pill pill-finished";
+    if (s === "\u5df2\u5b8c\u6210" || s === "\u5b8c\u6210") return "pill pill-completed";
+    if (s === "\u9000\u56de") return "pill pill-returned";
+    if (s === "\u4f4f\u6236\u53d6\u6d88" || s === "\u53d6\u6d88" || s === "\u5df2\u53d6\u6d88") return "pill pill-cancelled";
+
+    if (isWaitingStatus(s)) return "pill pill-unclaimed";
+    if (isClaimedStatus(s)) return "pill pill-processing";
+    if (isDoneStatus(s)) return "pill pill-completed";
+
+    return "pill pill-default";
+  }
+
+  function amountText(item) {
     if (item.install_detail && Number(item.install_detail.total_amount || 0) > 0) {
       return "\u88dd\u6a5f " + money(item.install_detail.total_amount);
     }
@@ -1231,7 +1460,7 @@ function amountText(item) {
     return String(item.created_at || "").slice(0, 10);
   }
   function isThisMonthTicket(item) { return ticketDateKey(item).slice(0, 7) === monthKey(); }
-  function isBoardVisibleTicket(item) { return isThisMonthTicket(item) && !isDoneStatus(item.status); }
+  function isBoardVisibleTicket(item) { return isThisMonthTicket(item) && !isClosedStatus(item.status); }
 
   function baseFilteredTickets() {
     const area = val("top_filter_area") || "全部";
@@ -1244,7 +1473,7 @@ function amountText(item) {
       if (statFilter === "unclaimed" && !isWaitingStatus(item.status)) return false;
       if (statFilter === "claimed" && !isClaimedStatus(item.status)) return false;
       if (statFilter === "done") return false;
-      if (engineerState === "未派工") { if (item.assigned_engineer) return false; } else if (engineerState === "已派工") { if (!item.assigned_engineer) return false; } else if (engineerState !== "全部") { if (String(item.assigned_engineer || "") !== engineerState) return false; }
+      if (engineerState === "未指派") { if (item.assigned_engineer) return false; } else if (engineerState === "已指派") { if (!item.assigned_engineer) return false; } else if (engineerState !== "全部") { if (String(item.assigned_engineer || "") !== engineerState) return false; }
       if (keyword) { const hay = [item.customer_name,item.contact_name,item.contact_phone,item.customer_phone,item.service_address,mergedAddressText(item),item.ticket_no].join(" ").toLowerCase(); if (!hay.includes(keyword)) return false; }
       return true;
     });
@@ -1285,8 +1514,8 @@ function amountText(item) {
       const workStatus = e.work_status || e.leave_status || e.employment_status || "在職";
       return { name:e.name, department:e.department || "", active:activeCount(e.name), work_status:workStatus };
     });
-    if (selected === "已派工") stats = stats.filter(x => x.active > 0);
-    else if (selected === "未派工") stats = stats.filter(x => x.active === 0);
+    if (selected === "已指派") stats = stats.filter(x => x.active > 0);
+    else if (selected === "未指派") stats = stats.filter(x => x.active === 0);
     else if (selected !== "全部") stats = stats.filter(x => x.name === selected);
     if (!stats.length) { box.innerHTML = "<span class='engineer-board-pill'><span class='engineer-board-pill-name'>沒有符合條件</span><span class='engineer-board-pill-meta'>0 件</span></span>"; return; }
     box.innerHTML = stats.map(function (x) {
@@ -1305,7 +1534,7 @@ function amountText(item) {
     refreshExcelOptions(base);
     const data = applyExcelFilters(base);
     if (!data.length) { tbody.innerHTML = "<tr><td colspan='10'>目前沒有符合條件的案件。</td></tr>"; return; }
-    tbody.innerHTML = data.map(function (item) { return `<tr onclick="openDetailModal(${Number(item.id || 0)})"><td>${escapeHtml(excelCellValue(item, "area"))}</td><td>${escapeHtml(excelCellValue(item, "type"))}</td><td>${escapeHtml(excelCellValue(item, "customer"))}</td><td class="address-cell">${escapeHtml(excelCellValue(item, "address"))}</td><td>${escapeHtml(excelCellValue(item, "phone"))}</td><td>${escapeHtml(excelCellValue(item, "time"))}</td><td>${escapeHtml(excelCellValue(item, "engineer"))}</td><td><span class="${statusClass(item.status)}">${escapeHtml(excelCellValue(item, "status"))}</span></td><td>${escapeHtml(amountText(item))}</td><td><button class="delete-button" type="button" onclick="event.stopPropagation(); deleteTicket(${Number(item.id || 0)})">刪除</button></td></tr>`; }).join("");
+    tbody.innerHTML = data.map(function (item) { return `<tr onclick="openDetailModal(${Number(item.id || 0)})"><td>${escapeHtml(excelCellValue(item, "area"))}</td><td>${escapeHtml(excelCellValue(item, "type"))}</td><td>${escapeHtml(excelCellValue(item, "customer"))}</td><td class="address-cell">${escapeHtml(excelCellValue(item, "address"))}</td><td>${escapeHtml(excelCellValue(item, "phone"))}</td><td>${escapeHtml(excelCellValue(item, "time"))}</td><td>${escapeHtml(excelCellValue(item, "engineer"))}</td><td><span class="${statusClass(item.status)}">${escapeHtml(excelCellValue(item, "status"))}</span></td><td>${escapeHtml(amountText(item))}</td><td><button class="delete-button" type="button" onclick="event.stopPropagation(); voidTicket(${Number(item.id || 0)})">&#x522a;&#x9664;</button></td></tr>`; }).join("");
   }
 
   function renderAll() { updateStats(); updateEngineerBoard(); renderTable(); }
@@ -1325,7 +1554,7 @@ async function loadBuildings() {
     }
   }
 
-  async function loadEngineers() { try { const res = await fetch("/api/admin/engineers?ts=" + Date.now(), {cache:"no-store"}); if (!res.ok) return; const data = await res.json(); engineerDirectory = Array.isArray(data) ? data.map(e => ({employee_no:e.employee_no || e.staff_code || "", staff_code:e.staff_code || e.employee_no || "", name:e.name || e.display_name || "", department:e.department || "", position_title:e.position_title || "", employment_status:e.employment_status || "", work_status:e.work_status || e.leave_status || e.employment_status || "在職", leave_status:e.leave_status || ""})).filter(e => ENGINEER_DEPARTMENTS.includes(e.department)) : []; const top = byId("top_filter_engineer"); const create = byId("new_engineer"); if (top) { const current = top.value || "全部"; top.innerHTML = "<option value='全部'>全部</option><option value='已派工'>已派工</option><option value='未派工'>未派工</option>" + engineerDirectory.map(e => "<option value='" + escapeHtml(e.name) + "'>" + escapeHtml(e.name + (e.department ? "｜" + e.department : "")) + "</option>").join(""); top.value = current; } if (create) create.innerHTML = "<option value=''>未指派</option>" + engineerDirectory.map(e => "<option value='" + escapeHtml(e.name) + "'>" + escapeHtml(e.name + (e.department ? "｜" + e.department : "")) + "</option>").join(""); } catch (err) { engineerDirectory = []; } }
+  async function loadEngineers() { try { const res = await fetch("/api/admin/engineers?ts=" + Date.now(), {cache:"no-store"}); if (!res.ok) return; const data = await res.json(); engineerDirectory = Array.isArray(data) ? data.map(e => ({employee_no:e.employee_no || e.staff_code || "", staff_code:e.staff_code || e.employee_no || "", name:e.name || e.display_name || "", department:e.department || "", position_title:e.position_title || "", employment_status:e.employment_status || "", work_status:e.work_status || e.leave_status || e.employment_status || "在職", leave_status:e.leave_status || ""})).filter(e => ENGINEER_DEPARTMENTS.includes(e.department)) : []; const top = byId("top_filter_engineer"); const create = byId("new_engineer"); if (top) { const current = top.value || "全部"; top.innerHTML = "<option value='全部'>全部</option><option value='已指派'>已指派</option><option value='未指派'>未指派</option>" + engineerDirectory.map(e => "<option value='" + escapeHtml(e.name) + "'>" + escapeHtml(e.name + (e.department ? "｜" + e.department : "")) + "</option>").join(""); top.value = current; } if (create) create.innerHTML = "<option value=''>未指派</option>" + engineerDirectory.map(e => "<option value='" + escapeHtml(e.name) + "'>" + escapeHtml(e.name + (e.department ? "｜" + e.department : "")) + "</option>").join(""); } catch (err) { engineerDirectory = []; } }
 
 
   function normalizeNoticeItems(data) {
@@ -1361,7 +1590,7 @@ function renderNoticeListFromItems(items) {
       return `
         <div class="notice-row">
           <div class="notice-text">${escapeHtml((index + 1) + ". " + text)}</div>
-          <button type="button" onclick="deleteNotice(${index})">\u522a\u9664</button>
+          <button type="button" onclick="deleteNotice(${index})">&#x522a;&#x9664;</button>
         </div>
       `;
     }).join("");
@@ -1506,29 +1735,94 @@ function detailCardHtml(label, html, cls) {
 
   function detailCard(label, value, cls) { return `<div class="detail-card ${cls || ""}"><div class="detail-label">${escapeHtml(label)}</div><div class="detail-value">${escapeHtml(value || "-")}</div></div>`; }
   
+
 function amountDetailBoxHtml(item) {
     const install = item && item.install_detail ? item.install_detail : null;
     const ret = item && item.return_detail ? item.return_detail : null;
+    const ticketId = item && item.id ? item.id : "";
 
     function n(value) {
-      return Number(value || 0);
+      const raw = String(value == null ? "" : value).replace(/,/g, "").trim();
+      const num = Number(raw);
+      return Number.isFinite(num) ? num : 0;
     }
 
     function moneyPlain(value) {
       return n(value).toLocaleString("zh-TW");
     }
 
-    function box(label, value) {
+    function inputBox(label, key, value) {
       return `<div class="detail-amount-field">
         <div class="detail-amount-label">${escapeHtml(label)}</div>
-        <div class="detail-amount-input">${escapeHtml(moneyPlain(value))}</div>
+        <input class="detail-amount-edit" data-price-key="${escapeHtml(key)}" value="${escapeHtml(String(value == null ? 0 : value))}" inputmode="numeric" autocomplete="off">
       </div>`;
     }
 
     function totalBox(label, value) {
       return `<div class="detail-amount-total">
         <div class="detail-amount-label">${escapeHtml(label)}</div>
-        <div class="detail-amount-total-value">${escapeHtml(moneyPlain(value))}</div>
+        <div class="detail-amount-total-value" id="detail_amount_total_value">${escapeHtml(moneyPlain(value))}</div>
+      </div>`;
+    }
+
+    function saveButton(mode) {
+      return `<div class="detail-amount-actions">
+        <button class="btn-green" type="button" onclick="saveDetailPrice('${escapeHtml(String(ticketId))}', '${escapeHtml(mode)}')">&#x5132;&#x5B58;&#x50F9;&#x683C;</button>
+        <span class="detail-amount-save-note" id="detail_amount_save_note"></span>
+      </div>`;
+    }
+
+    function readonlyBox(label, value) {
+      return `<div class="detail-amount-field">
+        <div class="detail-amount-label">${escapeHtml(label)}</div>
+        <div class="detail-amount-total-value">${escapeHtml(String(value == null || value === "" ? "-" : value))}</div>
+      </div>`;
+    }
+
+    function readonlyMoneyBox(label, value) {
+      return readonlyBox(label, moneyPlain(value));
+    }
+
+    function yesNo(value) {
+      return Number(value || 0) ? "\u662f" : "\u5426";
+    }
+
+    const caseTypeText = String(item && item.case_type || "");
+    const isRepairTicket = caseTypeText.indexOf("\u7dad\u4fee") >= 0 || String(item && item.repair_charge_type || "") === "repair_or_service";
+
+    if (!install && !ret && isRepairTicket) {
+      const billingFee = n(item && (item.billing_fee_amount || item.billing_monthly_fee));
+      const otherFee1 = n(item && item.repair_other_fee_1);
+      const otherFee2 = n(item && item.repair_other_fee_2);
+      const otherTotal = n(item && item.repair_other_fee_total) || (otherFee1 + otherFee2);
+
+      const billingStatus = [
+        item && item.billing_payment_status ? "\u7e73\u8cbb\uff1a" + item.billing_payment_status : "",
+        item && item.billing_arrears_status ? "\u6b20\u8cbb\uff1a" + item.billing_arrears_status : "",
+        item && item.billing_account_status ? "\u5e33\u6236\uff1a" + item.billing_account_status : ""
+      ].filter(Boolean).join(" / ") || "-";
+
+      return `<div class="detail-amount-board" data-price-mode="repair-readonly">
+        <div class="detail-amount-title">&#x5e33;&#x52d9;&#x8cc7;&#x8a0a;</div>
+        <div class="detail-amount-row detail-amount-top">
+          ${readonlyBox("\u5e33\u52d9\u72c0\u6cc1", billingStatus)}
+          ${readonlyBox("\u662f\u5426\u6b20\u8cbb", yesNo(item && item.billing_is_overdue))}
+          ${readonlyBox("IP \u9650\u5236", yesNo(item && item.billing_ip_limited))}
+          ${readonlyBox("\u6700\u65b0\u6536\u8cbb\u5165\u5e33\u65e5", item && item.billing_last_payment_date)}
+        </div>
+
+        <div class="detail-amount-title" style="margin-top:14px">&#x8cbb;&#x7528;&#x660e;&#x7d30;</div>
+        <div class="detail-amount-row detail-amount-top">
+          ${readonlyMoneyBox("\u5e33\u52d9\u8cbb\u7528", billingFee)}
+          <span class="detail-amount-symbol">+</span>
+          ${readonlyMoneyBox("\u5176\u4ed6\u8cbb\u7528\u0031", otherFee1)}
+          <span class="detail-amount-symbol">+</span>
+          ${readonlyMoneyBox("\u5176\u4ed6\u8cbb\u7528\u0032", otherFee2)}
+          <span class="detail-amount-symbol">=</span>
+          ${totalBox("\u5176\u4ed6\u8cbb\u7528\u5408\u8a08", otherTotal)}
+        </div>
+
+        <div class="detail-amount-note">${escapeHtml(item && item.repair_fee_note || item && item.billing_note || "")}</div>
       </div>`;
     }
 
@@ -1546,34 +1840,35 @@ function amountDetailBoxHtml(item) {
       const monthlyTotal = (monthly1 + monthly2 + monthly3) * months;
       const total = installFee + deposit + otherFee1 + otherFee2 + monthlyTotal;
 
-      return `<div class="detail-amount-board">
+      return `<div class="detail-amount-board" data-price-mode="install">
         <div class="detail-amount-title">${zh("8CBB 7528 8A08 7B97")}</div>
 
         <div class="detail-amount-row detail-amount-top">
-          ${box(zh("5B89 88DD 8CBB"), installFee)}
+          ${inputBox(zh("5B89 88DD 8CBB"), "construction_fee", installFee)}
           <span class="detail-amount-symbol">+</span>
-          ${box(zh("62BC 91D1"), deposit)}
+          ${inputBox(zh("62BC 91D1"), "deposit_amount", deposit)}
           <span class="detail-amount-symbol">+</span>
-          ${box(zh("5176 4ED6 8CBB 7528 0031"), otherFee1)}
+          ${inputBox(zh("5176 4ED6 8CBB 7528 0031"), "other_fee_1", otherFee1)}
           <span class="detail-amount-symbol">+</span>
-          ${box(zh("5176 4ED6 8CBB 7528 0032"), otherFee2)}
+          ${inputBox(zh("5176 4ED6 8CBB 7528 0032"), "other_fee_2", otherFee2)}
         </div>
 
         <div class="detail-amount-formula">
           <span class="detail-amount-symbol">+</span>
           <span class="detail-amount-symbol">(</span>
-          ${box(zh("6708 79DF 8CBB 0031"), monthly1)}
+          ${inputBox(zh("6708 79DF 8CBB 0031"), "monthly_fee_1", monthly1)}
           <span class="detail-amount-symbol">+</span>
-          ${box(zh("6708 79DF 8CBB 0032"), monthly2)}
+          ${inputBox(zh("6708 79DF 8CBB 0032"), "monthly_fee_2", monthly2)}
           <span class="detail-amount-symbol">+</span>
-          ${box(zh("6708 79DF 8CBB 0033"), monthly3)}
+          ${inputBox(zh("6708 79DF 8CBB 0033"), "monthly_fee_3", monthly3)}
           <span class="detail-amount-symbol">)</span>
           <span class="detail-amount-symbol">&times;</span>
-          ${box(zh("7E73 8CBB 6708 6578"), months)}
+          ${inputBox(zh("7E73 8CBB 6708 6578"), "month_count", months)}
           <span class="detail-amount-symbol">=</span>
           ${totalBox(zh("7E3D 91D1 984D 0020 002F 0020 5E33 55AE 91D1 984D"), total)}
         </div>
 
+        ${saveButton("install")}
         <div class="detail-amount-note">${zh("7E3D 91D1 984D 003D 5B89 88DD 8CBB 002B 62BC 91D1 002B 5176 4ED6 8CBB 7528 0031 002B 5176 4ED6 8CBB 7528 0032 002B FF08 6708 79DF 8CBB 0031 002B 6708 79DF 8CBB 0032 002B 6708 79DF 8CBB 0033 FF09 00D7 7E73 8CBB 6708 6578 3002")}</div>
       </div>`;
     }
@@ -1588,36 +1883,137 @@ function amountDetailBoxHtml(item) {
 
       const total = deposit + refund - deduction - device - cleaning - other;
 
-      return `<div class="detail-amount-board">
+      return `<div class="detail-amount-board" data-price-mode="return">
         <div class="detail-amount-title">${zh("9000 6A5F 8CBB 7528 8A08 7B97")}</div>
 
         <div class="detail-amount-row detail-amount-top">
-          ${box(zh("62BC 91D1"), deposit)}
+          ${inputBox(zh("62BC 91D1"), "deposit_amount", deposit)}
           <span class="detail-amount-symbol">+</span>
-          ${box(zh("9000 9084 91D1 984D"), refund)}
+          ${inputBox(zh("9000 9084 91D1 984D"), "refund_amount", refund)}
           <span class="detail-amount-symbol">-</span>
-          ${box(zh("6263 6B3E 91D1 984D"), deduction)}
+          ${inputBox(zh("6263 6B3E 91D1 984D"), "deduction_amount", deduction)}
         </div>
 
         <div class="detail-amount-formula">
           <span class="detail-amount-symbol">-</span>
-          ${box(zh("8A2D 5099 8CBB"), device)}
+          ${inputBox(zh("8A2D 5099 8CBB"), "device_fee", device)}
           <span class="detail-amount-symbol">-</span>
-          ${box(zh("6E05 6F54 8CBB"), cleaning)}
+          ${inputBox(zh("6E05 6F54 8CBB"), "cleaning_fee", cleaning)}
           <span class="detail-amount-symbol">-</span>
-          ${box(zh("5176 4ED6 8CBB 7528"), other)}
+          ${inputBox(zh("5176 4ED6 8CBB 7528"), "other_fee", other)}
           <span class="detail-amount-symbol">=</span>
           ${totalBox(zh("9000 6A5F 7D50 7B97 91D1 984D"), total)}
         </div>
 
+        ${saveButton("return")}
         <div class="detail-amount-note">${zh("9000 6A5F 7D50 7B97 91D1 984D 003D 62BC 91D1 002B 9000 9084 91D1 984D 002D 6263 6B3E 91D1 984D 002D 8A2D 5099 8CBB 002D 6E05 6F54 8CBB 002D 5176 4ED6 8CBB 7528 3002")}</div>
       </div>`;
     }
 
-    return `<div class="detail-amount-board">
-      <div class="detail-amount-title">${zh("8CBB 7528 8A08 7B97")}</div>
-      <div class="detail-amount-empty">${zh("76EE 524D 6C92 6709 91D1 984D 8CC7 6599 3002")}</div>
-    </div>`;
+    return "";
+  }
+
+
+  function readDetailPriceNumber(key) {
+    const el = document.querySelector('[data-price-key="' + key + '"]');
+    if (!el) return 0;
+    const raw = String(el.value || "").replace(/,/g, "").trim();
+    const num = Number(raw);
+    return Number.isFinite(num) ? num : 0;
+  }
+
+  function recalcDetailPriceTotal() {
+    const board = document.querySelector(".detail-amount-board");
+    const totalEl = document.getElementById("detail_amount_total_value");
+    if (!board || !totalEl) return;
+
+    const mode = String(board.getAttribute("data-price-mode") || "");
+    let total = 0;
+
+    if (mode === "install") {
+      const installFee = readDetailPriceNumber("construction_fee");
+      const deposit = readDetailPriceNumber("deposit_amount");
+      const other1 = readDetailPriceNumber("other_fee_1");
+      const other2 = readDetailPriceNumber("other_fee_2");
+      const monthly1 = readDetailPriceNumber("monthly_fee_1");
+      const monthly2 = readDetailPriceNumber("monthly_fee_2");
+      const monthly3 = readDetailPriceNumber("monthly_fee_3");
+      const months = Math.max(1, Number(readDetailPriceNumber("month_count") || 1));
+      total = installFee + deposit + other1 + other2 + ((monthly1 + monthly2 + monthly3) * months);
+    }
+
+    if (mode === "return") {
+      const deposit = readDetailPriceNumber("deposit_amount");
+      const refund = readDetailPriceNumber("refund_amount");
+      const deduction = readDetailPriceNumber("deduction_amount");
+      const device = readDetailPriceNumber("device_fee");
+      const cleaning = readDetailPriceNumber("cleaning_fee");
+      const other = readDetailPriceNumber("other_fee");
+      total = deposit + refund - deduction - device - cleaning - other;
+    }
+
+    totalEl.textContent = Number(total || 0).toLocaleString("zh-TW");
+  }
+
+  async function saveDetailPrice(ticketId, mode) {
+    ticketId = String(ticketId || selectedTicketId || "").trim();
+    if (!ticketId) return;
+
+    const note = document.getElementById("detail_amount_save_note");
+    if (note) note.textContent = zh("5132 5B58 4E2D");
+
+    const payload = {};
+
+    if (mode === "install") {
+      payload.install_detail = {
+        construction_fee: readDetailPriceNumber("construction_fee"),
+        deposit_amount: readDetailPriceNumber("deposit_amount"),
+        other_fee_1: readDetailPriceNumber("other_fee_1"),
+        other_fee_2: readDetailPriceNumber("other_fee_2"),
+        monthly_fee: readDetailPriceNumber("monthly_fee_1"),
+        monthly_fee_1: readDetailPriceNumber("monthly_fee_1"),
+        monthly_fee_2: readDetailPriceNumber("monthly_fee_2"),
+        monthly_fee_3: readDetailPriceNumber("monthly_fee_3"),
+        month_count: Math.max(1, Number(readDetailPriceNumber("month_count") || 1)),
+        other_fee: 0
+      };
+    } else if (mode === "return") {
+      payload.return_detail = {
+        deposit_amount: readDetailPriceNumber("deposit_amount"),
+        refund_amount: readDetailPriceNumber("refund_amount"),
+        deduction_amount: readDetailPriceNumber("deduction_amount"),
+        device_fee: readDetailPriceNumber("device_fee"),
+        cleaning_fee: readDetailPriceNumber("cleaning_fee"),
+        other_fee: readDetailPriceNumber("other_fee")
+      };
+    } else {
+      return;
+    }
+
+    recalcDetailPriceTotal();
+
+    try {
+      const res = await fetch("/api/tickets/" + encodeURIComponent(ticketId) + "/mobile-update", {
+        method: "PATCH",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        throw new Error("save failed");
+      }
+
+      if (note) note.textContent = zh("5DF2 5132 5B58");
+
+      await loadAll();
+      selectedTicket = allTickets.find(function (x) { return String(x.id) === String(ticketId); }) || selectedTicket;
+      if (selectedTicket) {
+        openDetailModal(selectedTicket.id);
+      }
+    } catch (err) {
+      if (note) note.textContent = "";
+      alert(zh("50F9 683C 5132 5B58 5931 6557"));
+    }
   }
 
 
@@ -1641,8 +2037,41 @@ function amountDetailBoxHtml(item) {
   function assignSelectedTicket() { if (!selectedTicketId) return; const names = engineerDirectory.map(e => e.name).filter(Boolean); const current = selectedTicket ? (selectedTicket.assigned_engineer || "") : ""; const name = prompt("請輸入工程師姓名：\n" + names.join("、"), current); if (!name) return; assignTicket(selectedTicketId, name.trim()); }
   function claimSelectedTicket() { if (!selectedTicketId) return; const current = selectedTicket ? selectedTicket.assigned_engineer : ""; if (current) { updateTicketStatus(selectedTicketId, "已領取"); return; } assignSelectedTicket(); }
   function completeSelectedTicket() { if (!selectedTicketId) return; updateTicketStatus(selectedTicketId, "已完工"); }
-  async function deleteTicket(id) { if (!id) return; if (!confirm("確認刪除此案件？")) return; const res = await fetch("/api/tickets/" + id, {method:"DELETE"}); if (!res.ok) { alert("刪除失敗"); return; } closeDetailModal(); await loadAll(); }
-  function deleteSelectedTicket() { if (!selectedTicketId) return; deleteTicket(selectedTicketId); }
+  async function voidTicket(id) {
+    if (!id) return;
+    if (!confirm("\u78ba\u8a8d\u76f4\u63a5\u522a\u9664\u6b64\u6848\u4ef6\uff1f\n\u522a\u9664\u5f8c\u4e0d\u6703\u7559\u5728\u6d3e\u5de5\u8cc7\u6599\u5eab\u3002")) return;
+
+    try {
+      const res = await fetch("/api/admin/tickets/" + encodeURIComponent(id) + "/hard-delete", {
+        method: "DELETE",
+        cache: "no-store"
+      });
+
+      if (!res.ok) {
+        const body = await res.text().catch(function () { return ""; });
+        alert("\u522a\u9664\u5931\u6557\uff1a" + res.status + "\n" + body.slice(0, 500));
+        return;
+      }
+
+      closeDetailModal();
+      await loadAll();
+    } catch (err) {
+      alert("\u522a\u9664\u932f\u8aa4\uff1a" + String(err && err.message ? err.message : err));
+    }
+  }
+
+  function voidSelectedTicket() {
+    if (!selectedTicketId) return;
+    voidTicket(selectedTicketId);
+  }
+
+  async function deleteTicket(id) {
+    return voidTicket(id);
+  }
+
+  function deleteSelectedTicket() {
+    return voidSelectedTicket();
+  }
   
 function syncCreatePriceFields() {
     const caseType = val("new_type");
@@ -1653,6 +2082,12 @@ function syncCreatePriceFields() {
     if (returnPanel) returnPanel.style.display = caseType === "\u9000\u6a5f" ? "" : "none";
 
     updateCreateCustomerAddressOptions(false);
+    const createCustomerSelect = byId("new_existing_customer_address");
+    if (createCustomerSelect && !createCustomerSelect.dataset.billingPreviewBound) {
+      createCustomerSelect.dataset.billingPreviewBound = "1";
+      createCustomerSelect.addEventListener("change", onCreateCustomerPicked);
+    }
+
   }
 
 
@@ -1665,12 +2100,23 @@ function updateCreateBuildingOptions(clearCurrent) {
 
     const current = clearCurrent ? "" : String(select.value || "");
 
-    const items = Array.isArray(buildingDirectory)
+    const allItems = Array.isArray(buildingDirectory)
       ? buildingDirectory.filter(function (b) {
-          const bArea = String(b.area || b.dispatch_area || "").trim();
-          return !area || bArea === area;
+          const no = String(b.building_no || b.id || "").trim();
+          const name = String(b.name || b.building_name || no || "").trim();
+          return !!(no || name);
         })
       : [];
+
+    let items = allItems.filter(function (b) {
+      const bArea = String(b.area || b.dispatch_area || "").trim();
+      return !area || bArea === area;
+    });
+
+    const fallbackAllBuildings = !!area && items.length === 0 && allItems.length > 0;
+    if (fallbackAllBuildings) {
+      items = allItems.slice();
+    }
 
     select.innerHTML = "";
 
@@ -1679,29 +2125,58 @@ function updateCreateBuildingOptions(clearCurrent) {
     empty.textContent = area ? "\u8acb\u9078\u64c7\u5927\u6a13" : "\u8acb\u5148\u9078\u64c7\u5340\u57df";
     select.appendChild(empty);
 
+    if (fallbackAllBuildings) {
+      const note = document.createElement("option");
+      note.value = "";
+      note.disabled = true;
+      note.textContent = "\u6b64\u5340\u76ee\u524d\u7121\u5c0d\u61c9\u5927\u6a13\uff0c\u4ee5\u5168\u90e8\u5927\u6a13\u5217\u51fa";
+      select.appendChild(note);
+    }
+
     const house = document.createElement("option");
     house.value = "HOUSE";
     house.textContent = "\u900f\u5929";
+    house.dataset.buildingName = "\u900f\u5929";
+    house.dataset.area = area || "";
+    house.dataset.address = "";
     select.appendChild(house);
 
     items.forEach(function (b) {
       const no = String(b.building_no || b.id || "").trim();
       const name = String(b.name || b.building_name || no || "").trim();
       const addr = String(b.display_address || b.address || b.raw_address || "").trim();
+      const bArea = String(b.area || b.dispatch_area || "").trim();
 
       if (!no && !name) return;
 
       const opt = document.createElement("option");
       opt.value = no || name;
-      opt.textContent = name || no;
+      opt.dataset.buildingName = name;
+      opt.dataset.name = name;
+      opt.dataset.area = bArea;
+      opt.dataset.address = addr;
+
+
+      let label = name || no;
+      opt.title = addr ? label + " | " + addr : label;
+      if (fallbackAllBuildings && bArea) {
+        label = "[" + bArea + "] " + label;
+      }
+
+      opt.textContent = label;
       select.appendChild(opt);
     });
 
-    if (current && Array.from(select.options).some(opt => opt.value === current)) {
-      select.value = current;
+    if (current) {
+      const exists = Array.prototype.some.call(select.options, function (opt) {
+        return String(opt.value || "") === current;
+      });
+      select.value = exists ? current : "";
     } else {
       select.value = "";
     }
+
+    updateCreateCustomerAddressOptions(false);
   }
 
 function updateCreateAddressDatalist() {
@@ -1798,14 +2273,197 @@ function selectedCreateBuildingName() {
     if (!select || !select.selectedOptions || !select.selectedOptions.length) return "";
 
     const opt = select.selectedOptions[0];
-    return String(opt.dataset.buildingName || opt.textContent || opt.value || "").split("\uff5c")[0].split("|")[0].trim();
+    const raw = String(
+      opt.dataset.buildingName ||
+      opt.dataset.name ||
+      opt.textContent ||
+      opt.value ||
+      ""
+    );
+
+    return raw
+      .split("\uff5c")[0]
+      .split("|")[0]
+      .replace(/^\[[^\]]+\]\s*/, "")
+      .trim();
   }
 
+
+function normalizeCreateText(value) {
+    return String(value || "")
+      .replace(/\s+/g, " ")
+      .replace(/\u3000/g, " ")
+      .trim();
+  }
+
+  function stripCreateBuildingNameFromAddress(address, buildingName) {
+    let out = normalizeCreateText(address);
+    const name = normalizeCreateText(buildingName);
+
+    if (!out || !name) return out;
+
+    const candidates = [
+      name,
+      name.replace(/\s+/g, ""),
+      name.replace(/\u5927\u6a13$/g, ""),
+      name.replace(/\u793e\u5340$/g, "")
+    ].filter(Boolean);
+
+    candidates.forEach(function (candidate) {
+      if (!candidate) return;
+
+      if (out.indexOf(candidate) === 0) {
+        out = out.slice(candidate.length);
+      }
+
+      out = out.replace(candidate + " ", "");
+      out = out.replace(candidate + "\uff5c", "");
+      out = out.replace(candidate + "|", "");
+    });
+
+    out = out
+      .replace(/^[\s\|\uff5c,，:：\-]+/, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    return out;
+  }
+
+function createYesNoText(value) {
+    return Number(value || 0) ? "\u662f" : "\u5426";
+  }
+
+  function createMoneyText(value) {
+    const n = Number(value || 0);
+    if (!isFinite(n)) return "0";
+    return String(Math.round(n));
+  }
+
+  function clearCreateBillingPreview() {
+    const box = byId("create_billing_preview");
+    if (box) box.style.display = "none";
+
+    [
+      "create_billing_status",
+      "create_billing_overdue",
+      "create_billing_ip_limited",
+      "create_billing_last_payment_date",
+      "create_billing_fee_amount",
+      "create_repair_other_fee_1",
+      "create_repair_other_fee_2",
+      "create_repair_other_fee_total",
+      "create_billing_note"
+    ].forEach(function (id) {
+      const el = byId(id);
+      if (el) el.textContent = id === "create_billing_note" ? "" : "-";
+    });
+  }
+
+  function updateCreateBillingPreviewFromOption(opt) {
+    if (!opt) {
+      clearCreateBillingPreview();
+      return;
+    }
+
+    const box = byId("create_billing_preview");
+    if (box) box.style.display = "";
+
+    const statusParts = [];
+    if (opt.dataset.billingPaymentStatus) {
+      statusParts.push("\u7e73\u8cbb\uff1a" + opt.dataset.billingPaymentStatus);
+    }
+    if (opt.dataset.billingArrearsStatus) {
+      statusParts.push("\u6b20\u8cbb\uff1a" + opt.dataset.billingArrearsStatus);
+    }
+    if (opt.dataset.billingAccountStatus) {
+      statusParts.push("\u5e33\u6236\uff1a" + opt.dataset.billingAccountStatus);
+    }
+
+    const other1 = Number(opt.dataset.repairOtherFee1 || 0);
+    const other2 = Number(opt.dataset.repairOtherFee2 || 0);
+    const otherTotal = Number(opt.dataset.repairOtherFeeTotal || 0) || (other1 + other2);
+
+    const setText = function (id, value) {
+      const el = byId(id);
+      if (el) el.textContent = String(value == null || value === "" ? "-" : value);
+    };
+
+    setText("create_billing_status", statusParts.join(" / ") || "-");
+    setText("create_billing_overdue", createYesNoText(opt.dataset.billingIsOverdue));
+    setText("create_billing_ip_limited", createYesNoText(opt.dataset.billingIpLimited));
+    setText("create_billing_last_payment_date", opt.dataset.billingLastPaymentDate || "-");
+    setText("create_billing_fee_amount", createMoneyText(opt.dataset.billingFeeAmount || opt.dataset.billingMonthlyFee));
+    setText("create_repair_other_fee_1", createMoneyText(other1));
+    setText("create_repair_other_fee_2", createMoneyText(other2));
+    setText("create_repair_other_fee_total", createMoneyText(otherTotal));
+    setText("create_billing_note", opt.dataset.repairFeeNote || opt.dataset.billingNote || "");
+  }
+
+  function onCreateCustomerPicked() {
+    const select = byId("new_existing_customer_address");
+    if (!select || !select.selectedOptions || !select.selectedOptions.length || !select.value) {
+      clearCreateBillingPreview();
+      return;
+    }
+
+    const opt = select.selectedOptions[0];
+
+    if (byId("new_customer_name") && opt.dataset.customerName) {
+      byId("new_customer_name").value = opt.dataset.customerName;
+    }
+
+    if (byId("new_phone") && opt.dataset.phone) {
+      byId("new_phone").value = opt.dataset.phone;
+    }
+
+    if (byId("new_address") && opt.dataset.address) {
+      byId("new_address").value = opt.dataset.address;
+    }
+
+    updateCreateBillingPreviewFromOption(opt);
+  }
+
+function createUnitSortParts(value) {
+    const raw = String(value || "").trim();
+
+    const towerMatch = raw.match(/^([A-Za-z\u4e00-\u9fff])\s*\u68df/i);
+    const tower = towerMatch ? towerMatch[1].toUpperCase() : "";
+
+    const floorMatch = raw.match(/(\d+)\s*F/i);
+    const floor = floorMatch ? Number(floorMatch[1]) : 9999;
+
+    const roomMatch = raw.match(/F\s*[- ]\s*(\d+)/i) || raw.match(/[- ](\d+)$/);
+    const room = roomMatch ? Number(roomMatch[1]) : 9999;
+
+    return {
+      tower: tower,
+      floor: isFinite(floor) ? floor : 9999,
+      room: isFinite(room) ? room : 9999,
+      raw: raw
+    };
+  }
+
+  function compareCreateUnitAddress(a, b) {
+    const aa = createUnitSortParts(a && a.address);
+    const bb = createUnitSortParts(b && b.address);
+
+    if (aa.tower !== bb.tower) {
+      if (!aa.tower && bb.tower) return -1;
+      if (aa.tower && !bb.tower) return 1;
+      return aa.tower.localeCompare(bb.tower);
+    }
+
+    if (aa.floor !== bb.floor) return aa.floor - bb.floor;
+    if (aa.room !== bb.room) return aa.room - bb.room;
+
+    return aa.raw.localeCompare(bb.raw);
+  }
 
 function updateCreateCustomerAddressOptions(clearCurrent) {
     const select = byId("new_existing_customer_address");
     if (!select) return;
 
+    const area = String(val("new_area") || "").trim();
     const buildingValue = String(val("new_building_no") || "").trim();
     const buildingName = typeof selectedCreateBuildingName === "function" ? selectedCreateBuildingName() : "";
 
@@ -1813,54 +2471,135 @@ function updateCreateCustomerAddressOptions(clearCurrent) {
 
     const empty = document.createElement("option");
     empty.value = "";
+
+    if (!area) {
+      empty.textContent = "\u8acb\u5148\u9078\u64c7\u5340\u57df";
+      select.appendChild(empty);
+      select.disabled = true;
+      clearCreateBillingPreview();
+      return;
+    }
+
+    if (!buildingValue) {
+      empty.textContent = "\u8acb\u5148\u9078\u64c7\u5927\u6a13";
+      select.appendChild(empty);
+      select.disabled = true;
+      clearCreateBillingPreview();
+      return;
+    }
+
     empty.textContent = "\u8acb\u9078\u64c7\u5ba2\u6236";
     select.appendChild(empty);
+    select.disabled = false;
+
+    const current = clearCurrent ? "" : String(select.value || "");
+
+    if (!Array.isArray(allTickets)) {
+      allTickets = [];
+    }
 
     const seen = new Set();
+    const rows = [];
 
-    (Array.isArray(allTickets) ? allTickets : []).forEach(function (item) {
-      const itemBuildingNo = String(item.building_no || "").trim();
-      const serviceAddress = String(item.service_address || "").trim();
-      const internalNote = String(item.internal_note || "").trim();
+    allTickets.forEach(function (item) {
+      const customerName = String(item.customer_name || item.contact_name || "").trim();
+      const phone = String(item.contact_phone || item.phone || "").trim();
+      const rawAddress = String(item.service_address || item.address || "").trim();
+      const unitAddress = stripCreateBuildingNameFromAddress(rawAddress, buildingName);
+      const bno = String(item.building_no || "").trim();
+      const bname = String(item.building_name || item.building || "").trim();
+      const itemArea = String(item.dispatch_area || item.area || "").trim();
 
-      if (!serviceAddress) return;
+      if (!customerName && !phone && !rawAddress) return;
 
-      let matched = true;
+      if (area && itemArea && itemArea !== area) return;
 
-      if (buildingValue) {
-        matched =
-          itemBuildingNo === buildingValue ||
-          itemBuildingNo === buildingName ||
-          (buildingName && serviceAddress.indexOf(buildingName) !== -1) ||
-          (buildingValue && serviceAddress.indexOf(buildingValue) !== -1) ||
-          (buildingName && internalNote.indexOf(buildingName) !== -1) ||
-          (buildingValue && internalNote.indexOf(buildingValue) !== -1);
+      if (buildingValue && buildingValue !== "HOUSE") {
+        const matchByNo = bno && bno === buildingValue;
+        const matchByName = buildingName && (rawAddress.indexOf(buildingName) >= 0 || bname === buildingName);
+        if (!matchByNo && !matchByName) return;
       }
 
-      if (!matched) return;
+      if (buildingValue === "HOUSE") {
+        const looksHouse = !bno || bno === "HOUSE" || rawAddress.indexOf("\u900f\u5929") >= 0;
+        if (!looksHouse) return;
+      }
 
-      const customer = String(item.customer_name || item.contact_name || "").trim();
-      const phone = String(item.contact_phone || "").trim();
-
-      const key = customer + "|" + phone + "|" + serviceAddress;
+      const key = [customerName, phone, rawAddress].join("|");
       if (seen.has(key)) return;
       seen.add(key);
 
+      rows.push({
+        customer_name: customerName,
+        phone: phone,
+        address: unitAddress || rawAddress,
+        full_address: rawAddress,
+        building_no: bno,
+        building_name: bname,
+
+        billing_payment_status: item.billing_payment_status || "",
+        billing_arrears_status: item.billing_arrears_status || "",
+        billing_account_status: item.billing_account_status || "",
+        billing_service_status: item.billing_service_status || "",
+        billing_monthly_fee: item.billing_monthly_fee || "0",
+        billing_fee_amount: item.billing_fee_amount || item.billing_monthly_fee || "0",
+        billing_is_overdue: item.billing_is_overdue || "0",
+        billing_ip_limited: item.billing_ip_limited || "0",
+        billing_last_payment_date: item.billing_last_payment_date || "",
+        billing_note: item.billing_note || "",
+        repair_other_fee_1: item.repair_other_fee_1 || "0",
+        repair_other_fee_2: item.repair_other_fee_2 || "0",
+        repair_other_fee_total: item.repair_other_fee_total || "0",
+        repair_fee_note: item.repair_fee_note || ""
+      });
+    });
+
+    rows.sort(compareCreateUnitAddress).slice(0, 80).forEach(function (item) {
       const opt = document.createElement("option");
-      opt.value = serviceAddress;
-      opt.dataset.customerName = customer;
-      opt.dataset.phone = phone;
+      const unit = String(item.address || "").trim();
+      const shortUnit = unit.length > 12 ? unit.slice(0, 12) + "..." : unit;
 
-      const labelParts = [];
-      if (customer) labelParts.push(customer);
-      if (phone) labelParts.push(phone);
-      labelParts.push(serviceAddress);
+      const fullParts = [];
+      if (item.customer_name) fullParts.push(item.customer_name);
+      if (item.phone) fullParts.push(item.phone);
+      if (item.full_address) fullParts.push(item.full_address);
 
-      opt.textContent = labelParts.join("\uff5c");
+      opt.value = item.address || "";
+      opt.textContent = shortUnit || item.address || "-";
+      opt.title = fullParts.join(" | ");
+
+      opt.dataset.customerName = item.customer_name || "";
+      opt.dataset.phone = item.phone || "";
+      opt.dataset.address = item.address || "";
+      opt.dataset.fullAddress = item.full_address || "";
+      opt.dataset.buildingNo = item.building_no || "";
+      opt.dataset.buildingName = item.building_name || "";
+      opt.dataset.billingPaymentStatus = item.billing_payment_status || "";
+      opt.dataset.billingArrearsStatus = item.billing_arrears_status || "";
+      opt.dataset.billingAccountStatus = item.billing_account_status || "";
+      opt.dataset.billingServiceStatus = item.billing_service_status || "";
+      opt.dataset.billingMonthlyFee = item.billing_monthly_fee || "0";
+      opt.dataset.billingFeeAmount = item.billing_fee_amount || item.billing_monthly_fee || "0";
+      opt.dataset.billingIsOverdue = item.billing_is_overdue || "0";
+      opt.dataset.billingIpLimited = item.billing_ip_limited || "0";
+      opt.dataset.billingLastPaymentDate = item.billing_last_payment_date || "";
+      opt.dataset.billingNote = item.billing_note || "";
+      opt.dataset.repairOtherFee1 = item.repair_other_fee_1 || "0";
+      opt.dataset.repairOtherFee2 = item.repair_other_fee_2 || "0";
+      opt.dataset.repairOtherFeeTotal = item.repair_other_fee_total || "0";
+      opt.dataset.repairFeeNote = item.repair_fee_note || "";
+
       select.appendChild(opt);
     });
 
-    select.value = "";
+    if (current) {
+      const exists = Array.prototype.some.call(select.options, function (opt) {
+        return String(opt.value || "") === current;
+      });
+      select.value = exists ? current : "";
+    } else {
+      select.value = "";
+    }
   }
 
 
@@ -1874,9 +2613,12 @@ function applyCreateExistingCustomerAddress() {
       ? select.selectedOptions[0]
       : null;
 
-    if (!opt || !opt.value) return;
+    if (!opt || !opt.value) {
+      clearCreateBillingPreview();
+      return;
+    }
 
-    addressInput.value = opt.value;
+    addressInput.value = opt.dataset.address || opt.value || "";
 
     const customer = String(opt.dataset.customerName || "").trim();
     const phone = String(opt.dataset.phone || "").trim();
@@ -1884,8 +2626,9 @@ function applyCreateExistingCustomerAddress() {
     if (customer && byId("new_customer_name")) byId("new_customer_name").value = customer;
     if (phone && byId("new_phone")) byId("new_phone").value = phone;
 
-    // ?????????????
-    select.value = "";
+    if (typeof updateCreateBillingPreviewFromOption === "function") {
+      updateCreateBillingPreviewFromOption(opt);
+    }
   }
 
 
@@ -1899,6 +2642,49 @@ function openCreateModal() {
 
 
   function closeCreateModal() { byId("create_modal").classList.remove("active"); }
+
+  function resetCreateForm() {
+    const keepArea = val("new_area") || "";
+    const defaults = {
+      "new_customer_name": "",
+      "new_phone": "",
+      "new_address": "",
+      "new_date": "",
+      "new_time": "",
+      "new_description": "",
+      "new_construction": "1000",
+      "new_deposit": "1000",
+      "new_other_1": "0",
+      "new_other_2": "0",
+      "new_monthly_1": "350",
+      "new_monthly_2": "0",
+      "new_monthly_3": "0",
+      "new_month_count": "1",
+      "new_return_deposit": "1000",
+      "new_refund_amount": "0",
+      "new_deduction_amount": "0",
+      "new_device_fee": "0",
+      "new_cleaning_fee": "0",
+      "new_return_other": "0"
+    };
+
+    Object.keys(defaults).forEach(function (id) {
+      const el = byId(id);
+      if (el) el.value = defaults[id];
+    });
+
+    if (byId("new_type")) byId("new_type").value = "\u88dd\u6a5f";
+    if (byId("new_engineer")) byId("new_engineer").value = "";
+    if (byId("new_area") && keepArea) byId("new_area").value = keepArea;
+    if (byId("new_building_no")) byId("new_building_no").value = "";
+    if (byId("new_existing_customer_address")) byId("new_existing_customer_address").value = "";
+
+    updateCreateBuildingOptions(false);
+    syncCreatePriceFields();
+    updateCreateCustomerAddressOptions(true);
+  }
+
+
   function numeric(id) { return Number(String(val(id) || "0").replace(/[^\d.-]/g, "")) || 0; }
 async function createTicket() {
     const caseType = val("new_type");
@@ -1972,13 +2758,23 @@ async function createTicket() {
       return;
     }
 
-    resetCreateForm();
+    if (typeof resetCreateForm === "function") {
+      resetCreateForm();
+    }
     closeCreateModal();
     await loadAll();
   }
 
 
   function logout() { sessionStorage.removeItem("xunnan_admin_token"); localStorage.removeItem("xunnan_admin_token"); localStorage.removeItem("xunnan_auth_token"); window.location.href = "/employee/logout?next=/"; }
+
+
+  document.addEventListener("input", function (event) {
+    if (!event || !event.target) return;
+    if (event.target.matches && event.target.matches(".detail-amount-edit")) {
+      recalcDetailPriceTotal();
+    }
+  });
 
   function bindEvents() {
     if (byId("new_type")) byId("new_type").addEventListener("change", syncCreatePriceFields);
@@ -2009,6 +2805,65 @@ async function createTicket() {
   });
 
 </script>
+
+<script>
+(function () {
+  function text(v) {
+    return String(v || "").trim();
+  }
+
+  function setName(name) {
+    var el = document.getElementById("web_title_user_name");
+    if (!el) return;
+    el.textContent = text(name) || "-";
+  }
+
+  function fallbackName() {
+    var keys = [
+      "xunnan_employee_display_name",
+      "xunnan_display_name",
+      "xunnan_employee_name",
+      "xunnan_engineer_name",
+      "xunnan_admin_name"
+    ];
+    for (var i = 0; i < keys.length; i += 1) {
+      try {
+        var v = localStorage.getItem(keys[i]) || sessionStorage.getItem(keys[i]);
+        if (text(v)) return v;
+      } catch (e) {}
+    }
+    return "";
+  }
+
+  setName(fallbackName() || "\u767b\u5165\u8005");
+
+  fetch("/api/app/employee/profile?ts=" + Date.now(), {
+    cache: "no-store",
+    credentials: "same-origin"
+  })
+    .then(function (res) {
+      if (!res || !res.ok) return null;
+      return res.json();
+    })
+    .then(function (data) {
+      if (!data) return;
+      var p = data.profile || data.data || data;
+      var name =
+        p.display_name ||
+        p.acting_display_name ||
+        p.login_display_name ||
+        p.staff_code ||
+        data.display_name ||
+        data.staff_code ||
+        "";
+      setName(name || fallbackName() || "\u767b\u5165\u8005");
+    })
+    .catch(function () {
+      setName(fallbackName() || "\u767b\u5165\u8005");
+    });
+})();
+</script>
+
 </body>
 </html>
 '''

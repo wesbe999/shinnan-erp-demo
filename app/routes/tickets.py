@@ -310,7 +310,179 @@ def create_ticket(payload: TicketCreate, db: Session = Depends(get_db)):
     )
 
 
+
+def _xunnan_ticket_building_row(db, ticket):
+    try:
+        area = str(getattr(ticket, "dispatch_area", "") or "").strip()
+        bno = str(getattr(ticket, "building_no", "") or "").strip()
+        if not area or not bno:
+            return None
+
+        row = db.execute(
+            text("""
+                SELECT address, building_type
+                FROM buildings
+                WHERE TRIM(CAST(area AS TEXT)) = TRIM(CAST(:area AS TEXT))
+                  AND TRIM(CAST(building_no AS TEXT)) = TRIM(CAST(:bno AS TEXT))
+                LIMIT 1
+            """),
+            {"area": area, "bno": bno},
+        ).mappings().first()
+        return row
+    except Exception:
+        return None
+
+
+def _xunnan_ticket_building_address(db, ticket):
+    row = _xunnan_ticket_building_row(db, ticket)
+    if not row:
+        return ""
+    return str(row.get("address") or "").strip()
+
+
+def _xunnan_ticket_building_type(db, ticket):
+    row = _xunnan_ticket_building_row(db, ticket)
+    if not row:
+        return ""
+    return str(row.get("building_type") or "").strip()
+
+
+def _xunnan_ticket_navigation_address(db, ticket):
+    service_address = str(getattr(ticket, "service_address", "") or "").strip()
+    building_no = str(getattr(ticket, "building_no", "") or "").strip()
+
+    row = _xunnan_ticket_building_row(db, ticket)
+    building_address = ""
+    building_type = ""
+
+    if row:
+        building_address = str(row.get("address") or "").strip()
+        building_type = str(row.get("building_type") or "").strip()
+
+    if building_no.upper() == "HOUSE" or building_type == "\u900f\u5929":
+        return service_address
+
+    return building_address or service_address
+
+
+def _xunnan_safe_money(value):
+    try:
+        if value is None:
+            return 0.0
+        if isinstance(value, str) and not value.strip():
+            return 0.0
+        return float(value)
+    except Exception:
+        return 0.0
+
+
+def _xunnan_json_dict(value):
+    try:
+        if not value:
+            return {}
+        if isinstance(value, dict):
+            return value
+        data = json.loads(str(value))
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def _xunnan_ticket_customer_billing_row(db, ticket):
+    try:
+        customer_no = str(getattr(ticket, "customer_no", "") or "").strip()
+        area = str(getattr(ticket, "dispatch_area", "") or "").strip()
+        building_no = str(getattr(ticket, "building_no", "") or "").strip()
+
+        if not customer_no:
+            return {}
+
+        base_select = """
+            SELECT
+              customer_no,
+              customer_name,
+              service_status,
+              payment_status,
+              monthly_fee,
+              is_overdue,
+              ip_limited,
+              last_payment_date,
+              account_status,
+              arrears_status,
+              billing_day,
+              billing_note
+            FROM customer_accounts
+        """
+
+        row = db.execute(text(base_select + """
+            WHERE TRIM(CAST(customer_no AS TEXT)) = TRIM(CAST(:customer_no AS TEXT))
+              AND (:area = '' OR TRIM(CAST(area AS TEXT)) = TRIM(CAST(:area AS TEXT)))
+              AND (:building_no = '' OR TRIM(CAST(building_no AS TEXT)) = TRIM(CAST(:building_no AS TEXT)))
+            ORDER BY
+              CASE WHEN COALESCE(service_status,'') IN ('\u6b63\u5e38','\u5f85\u5fa9\u6a5f') THEN 0 ELSE 1 END,
+              id DESC
+            LIMIT 1
+        """), {
+            "customer_no": customer_no,
+            "area": area,
+            "building_no": building_no,
+        }).mappings().first()
+
+        if row:
+            return dict(row)
+
+        row = db.execute(text(base_select + """
+            WHERE TRIM(CAST(customer_no AS TEXT)) = TRIM(CAST(:customer_no AS TEXT))
+            ORDER BY
+              CASE
+                WHEN COALESCE(service_status,'') IN ('\u6b63\u5e38','\u5f85\u5fa9\u6a5f') THEN 0
+                ELSE 1
+              END,
+              id DESC
+            LIMIT 1
+        """), {
+            "customer_no": customer_no,
+        }).mappings().first()
+
+        return dict(row or {})
+    except Exception:
+        return {}
+
+
+def _xunnan_ticket_billing_payload(db, ticket):
+    billing = _xunnan_ticket_customer_billing_row(db, ticket)
+    fee_data = _xunnan_json_dict(getattr(ticket, "extra_fees_data", "") or "")
+
+    other_fee_1 = _xunnan_safe_money(
+        fee_data.get("other_fee_1", fee_data.get("service_fee", fee_data.get("other_fee", 0)))
+    )
+    other_fee_2 = _xunnan_safe_money(fee_data.get("other_fee_2", 0))
+    other_total = other_fee_1 + other_fee_2
+
+    billing_fee = _xunnan_safe_money(billing.get("monthly_fee", 0))
+
+    return {
+        "billing_service_status": billing.get("service_status", "") or "",
+        "billing_payment_status": billing.get("payment_status", "") or "",
+        "billing_account_status": billing.get("account_status", "") or "",
+        "billing_arrears_status": billing.get("arrears_status", "") or "",
+        "billing_monthly_fee": billing_fee,
+        "billing_fee_amount": billing_fee,
+        "billing_is_overdue": int(billing.get("is_overdue", 0) or 0),
+        "billing_ip_limited": int(billing.get("ip_limited", 0) or 0),
+        "billing_last_payment_date": billing.get("last_payment_date", "") or "",
+        "billing_day": billing.get("billing_day", 0) or 0,
+        "billing_note": billing.get("billing_note", "") or "",
+        "repair_other_fee_1": other_fee_1,
+        "repair_other_fee_2": other_fee_2,
+        "repair_other_fee_total": other_total,
+        "repair_fee_note": str(fee_data.get("fee_note", "") or ""),
+        "repair_charge_type": str(fee_data.get("charge_type", "") or ""),
+    }
+
+
 @router.get("", summary="查詢案件列表")
+
 def list_tickets(db: Session = Depends(get_db)):
     normalize_ticket_datetime_columns(db)
 
@@ -398,12 +570,16 @@ def list_tickets(db: Session = Depends(get_db)):
             "contact_name": ticket.contact_name or "",
             "contact_phone": ticket.contact_phone or "",
             "service_address": ticket.service_address or "",
+            "building_address": _xunnan_ticket_building_address(db, ticket),
+            "building_type": _xunnan_ticket_building_type(db, ticket),
+            "navigation_address": _xunnan_ticket_navigation_address(db, ticket),
             "appointment_date": safe_date(ticket.appointment_date),
             "appointment_time": safe_date(ticket.appointment_time),
             "assigned_engineer": ticket.assigned_engineer or "",
             "assigned_engineer_staff_code": getattr(ticket, "assigned_engineer_staff_code", "") or "",
             "customer_no": getattr(ticket, "customer_no", "") or "",
             "building_no": getattr(ticket, "building_no", "") or "",
+            **_xunnan_ticket_billing_payload(db, ticket),
             "description": ticket.description or "",
             "internal_note": ticket.internal_note or "",
             "completion_note": ticket.completion_note or "",
@@ -620,6 +796,42 @@ def update_ticket_status(
     )
 
 
+def _xunnan_table_has_column(db: Session, table_name: str, column_name: str) -> bool:
+    try:
+        rows = db.execute(text("PRAGMA table_info(" + table_name + ")")).mappings().all()
+        return any(str(r.get("name") or "") == column_name for r in rows)
+    except Exception:
+        return False
+
+
+def _xunnan_delete_ticket_related_rows(db: Session, ticket_id: int) -> dict:
+    deleted = {}
+    tid_text = str(ticket_id)
+
+    related_tables = [
+        "ticket_install_details",
+        "ticket_return_details",
+        "dispatch_material_usage",
+        "dispatch_repair_analysis",
+        "ticket_customer_candidates",
+    ]
+
+    for table_name in related_tables:
+        try:
+            if not _xunnan_table_has_column(db, table_name, "ticket_id"):
+                continue
+
+            result = db.execute(
+                text("DELETE FROM " + table_name + " WHERE CAST(ticket_id AS TEXT) = :ticket_id"),
+                {"ticket_id": tid_text},
+            )
+            deleted[table_name] = int(result.rowcount or 0)
+        except Exception as exc:
+            deleted[table_name] = "error: " + str(exc)
+
+    return deleted
+
+
 @router.delete("/{ticket_id}", summary="刪除派工案件")
 def delete_ticket(ticket_id: int, db: Session = Depends(get_db)):
     normalize_ticket_datetime_columns(db)
@@ -629,11 +841,31 @@ def delete_ticket(ticket_id: int, db: Session = Depends(get_db)):
     if ticket is None:
         raise HTTPException(status_code=404, detail="找不到案件")
 
-    db.delete(ticket)
-    db.commit()
+    try:
+        related_deleted = _xunnan_delete_ticket_related_rows(db, ticket_id)
 
-    return {
-        "status": "ok",
-        "message": "案件已刪除",
-        "ticket_id": ticket_id,
-    }
+        result = db.execute(
+            text("DELETE FROM tickets WHERE id = :ticket_id"),
+            {"ticket_id": ticket_id},
+        )
+
+        if int(result.rowcount or 0) <= 0:
+            db.rollback()
+            raise HTTPException(status_code=404, detail="找不到案件")
+
+        db.commit()
+
+        return {
+            "status": "ok",
+            "message": "案件已刪除",
+            "ticket_id": ticket_id,
+            "related_deleted": related_deleted,
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="delete failed: " + str(exc)[:500],
+        )

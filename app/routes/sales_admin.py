@@ -15,7 +15,7 @@ def shinnan_admin_sales_page():
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>業務管理系統｜訊南 ERP</title>
+  <title>\u696d\u52d9\u7ba1\u7406\u7cfb\u7d71\uff5c\u4e2d\u592e\u63a7\u7ba1\u7cfb\u7d71</title>
   <style>
     :root {
       --bg:#eef3f9;
@@ -917,25 +917,23 @@ def shinnan_admin_sales_page():
   }
 </style>
 
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
 </head>
 <body>
   <div class="wrap">
-    <div class="topbar sales-unified-header">
-      <div class="sales-title-row">
-        <img class="sales-title-logo" src="/erp-static/shinnan_home_logo.png" alt="訊南 Logo">
-        <div class="sales-title-text">
-          <h1>業務管理系統</h1>
-          
-        </div>
-      </div>
-      <div class="actions">
-        <button id="sales_btn_home" class="btn-home" type="button">返回首頁</button>
-        <button id="sales_btn_back" class="btn-gray" type="button">返回上一頁</button>
-        <button id="sales_btn_buildings" class="btn-blue" type="button">大樓名錄</button>
-        <button id="sales_btn_managers" class="btn-purple" type="button">總幹事名錄</button>
-        <button id="sales_btn_create" class="btn-green" type="button">新增案件</button>
-      </div>
+    <section class="web-title web-title-tech">
+  <img class="web-title-watermark" src="/static/shinnan_logo_outline_white.png" alt="">
+  <div class="web-title-map"></div>
+  <div class="web-title-radar"></div>
+  <div class="web-title-main">
+    <div class="web-title-logo-box"><img class="web-title-logo" src="/static/shinnan_logo_gold_transparent.png?v=20260513_cl9h" alt="ShinNan Logo"></div>
+    <div class="web-title-text">
+      <h1 class="web-title-system">&#x696d;&#x52d9;&#x7ba1;&#x7406;&#x7cfb;&#x7d71;</h1>
+      <div class="web-title-sub"><span class="web-title-sub-dot"></span>&#x4e2d;&#x592e;&#x63a7;&#x7ba1;&#x7cfb;&#x7d71;<span class="web-title-sub-dot"></span></div>
     </div>
+    <div class="web-title-actions"><button id="sales_btn_home" class="btn-home" type="button">&#x8fd4;&#x56de;&#x9996;&#x9801;</button><button id="sales_btn_back" class="btn-gray" type="button">&#x8fd4;&#x56de;&#x4e0a;&#x4e00;&#x9801;</button><button id="sales_btn_buildings" class="btn-blue" type="button">&#x5927;&#x6a13;&#x540d;&#x9304;</button><button id="sales_btn_managers" class="btn-purple" type="button">&#x7e3d;&#x5e79;&#x4e8b;&#x540d;&#x9304;</button><button id="sales_btn_create" class="btn-green" type="button">&#x65b0;&#x589e;&#x6848;&#x4ef6;</button></div>
+  </div>
+</section>
 
     <div class="stats">
       <div class="stat-card"><div class="stat-label">新大樓開發中</div><div class="stat-number" id="stat_developing">0</div></div>
@@ -966,35 +964,26 @@ def shinnan_admin_sales_page():
           <select id="filter_area">
             <option value="全部">全部</option>
             <option>東區</option><option>北區</option><option>北台南</option><option>仁德</option>
-            <option>永康</option><option>安平</option><option>南高</option><option>北高</option>
+            <option>永康</option><option>安平</option><option>高雄</option>
           </select>
         </div>
         <div>
           <label>業務類型</label>
           <select id="filter_business_type">
             <option value="全部">全部</option>
-            <option>新大樓開發</option>
-            <option>舊大樓拜訪</option>
-            <option>合約續約</option>
-            <option>管理室拜訪</option>
-            <option>業務事件</option>
-            <option>回饋處理</option>
+            <option>新社區</option>
+            <option>公設線</option>
+            <option>續約</option>
+            <option>費率調整</option>
           </select>
         </div>
         <div>
           <label>目前狀態</label>
           <select id="filter_status">
             <option value="全部">全部</option>
-            <option>未接觸</option>
-            <option>已接觸</option>
-            <option>已拜訪</option>
-            <option>已提案</option>
-            <option>等管委會</option>
-            <option>談約中</option>
-            <option>已簽約</option>
-            <option>例行維護</option>
-            <option>暫緩</option>
-            <option>失敗</option>
+            <option>追蹤中</option>
+            <option>待回覆</option>
+            <option>已完成</option>
           </select>
         </div>
         <div>
@@ -1078,7 +1067,7 @@ def shinnan_admin_sales_page():
           <label>區域</label>
           <select id="new_area">
             <option>東區</option><option>北區</option><option>北台南</option><option>仁德</option>
-            <option>永康</option><option>安平</option><option>南高</option><option>北高</option>
+            <option>永康</option><option>安平</option><option>高雄</option>
           </select>
         </div>
         <div>
@@ -1268,7 +1257,7 @@ def shinnan_admin_sales_page():
 
     async function loadBusinessRecords() {
       try {
-        const res = await fetch("/api/app/sales/business-records?ts=" + Date.now(), { cache: "no-store" });
+        const res = await fetch("/api/admin/sales/business-records?ts=" + Date.now(), { cache: "no-store" });
 
         if (!res.ok) {
           console.error("業務資料庫 API 讀取失敗", res.status);
@@ -1285,6 +1274,7 @@ def shinnan_admin_sales_page():
         }
 
         businessRecords = data;
+        window.businessRecords = businessRecords;
         console.log("sales main flow loaded from database:", businessRecords.length);
       } catch (e) {
         console.error("loadBusinessRecords database failed", e);
@@ -1555,7 +1545,7 @@ def shinnan_admin_sales_page():
 
     function updateStats() {
       byId("stat_developing").textContent = businessRecords.filter(function (item) {
-        return item.business_type === "新大樓開發" && !["已簽約", "失敗", "暫緩"].includes(item.status);
+        return item.business_type === "新社區" && !["已完成"].includes(item.status);
       }).length;
 
       byId("stat_visit").textContent = businessRecords.filter(function (item) {
@@ -1916,7 +1906,7 @@ def shinnan_admin_sales_page():
     if (quickMode === "all") return true;
 
     if (quickMode === "developing") {
-      return item.business_type === "新大樓開發" && !["已簽約", "失敗", "暫緩"].includes(item.status);
+      return item.business_type === "新社區" && !["已完成"].includes(item.status);
     }
 
     if (quickMode === "visit") {
@@ -2534,6 +2524,196 @@ def shinnan_admin_sales_page():
   setTimeout(loadSalesOwnersFromEmployeeProfiles, 500);
 })();
 </script>
+
+
+<script id="cl15i4_sales_admin_final_recovery_v1">
+(function () {
+  if (!location.pathname.includes("/admin/sales")) return;
+
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getRecords() {
+    if (Array.isArray(window.businessRecords)) return window.businessRecords;
+    try {
+      if (Array.isArray(businessRecords)) return businessRecords;
+    } catch (err) {}
+    return [];
+  }
+
+  function currentFilter(id) {
+    const el = document.getElementById(id);
+    return el ? String(el.value || "全部") : "全部";
+  }
+
+  function keywordValue() {
+    const el = document.getElementById("filter_keyword");
+    return el ? String(el.value || "").trim().toLowerCase() : "";
+  }
+
+  function matchRecord(item) {
+    const area = currentFilter("filter_area");
+    const businessType = currentFilter("filter_business_type");
+    const status = currentFilter("filter_status");
+    const contractStatus = currentFilter("filter_contract_status");
+    const owner = currentFilter("filter_owner");
+    const keyword = keywordValue();
+
+    if (area !== "全部" && String(item.area || "") !== area) return false;
+    if (businessType !== "全部" && String(item.business_type || "") !== businessType) return false;
+    if (status !== "全部" && String(item.status || "") !== status) return false;
+    if (contractStatus !== "全部" && String(item.contract_status || "") !== contractStatus) return false;
+    if (owner !== "全部" && String(item.owner || "") !== owner) return false;
+
+    if (keyword) {
+      const hay = [
+        item.building_name,
+        item.area,
+        item.management_company,
+        item.management_phone,
+        item.manager_name,
+        item.manager_phone,
+        item.business_type,
+        item.status,
+        item.contract_status,
+        item.feedback_type,
+        item.feedback_status,
+        item.event_type,
+        item.event_status,
+        item.next_visit,
+        item.owner,
+        item.business_note,
+        item.management_note
+      ].join(" ").toLowerCase();
+
+      if (!hay.includes(keyword)) return false;
+    }
+
+    return true;
+  }
+
+  function statusClass(status) {
+    if (status === "已完成") return "pill pill-green";
+    if (status === "待回覆") return "pill pill-orange";
+    if (status === "追蹤中") return "pill pill-blue";
+    return "pill pill-blue";
+  }
+
+  function contractClass(status) {
+    if (status === "已簽" || status === "已續約") return "pill pill-green";
+    if (status === "即將到期" || status === "已到期") return "pill pill-orange";
+    if (status === "終止") return "pill pill-red";
+    return "pill pill-purple";
+  }
+
+  function eventText(item) {
+    if (!item.event_type || item.event_type === "無") return "-";
+    return item.event_type + "｜" + (item.event_status || "未設定");
+  }
+
+  function feedbackText(item) {
+    if (!item.feedback_type || item.feedback_type === "無") return "-";
+    return item.feedback_type + "｜" + (item.feedback_status || "未設定");
+  }
+
+  function finalRenderSalesRows() {
+    const rows = document.getElementById("sales_rows");
+    if (!rows) return;
+
+    const records = getRecords();
+    if (!records.length) {
+      rows.innerHTML = "<tr><td colspan='12'>目前沒有載入業務資料。</td></tr>";
+      return;
+    }
+
+    const data = records.filter(matchRecord);
+
+    if (!data.length) {
+      rows.innerHTML = "<tr><td colspan='12'>目前沒有符合條件的大樓業務紀錄。</td></tr>";
+      return;
+    }
+
+    rows.innerHTML = data.map(function (item) {
+      return `
+        <tr>
+          <td>
+            <b>${esc(item.building_name || item.building_no || "-")}</b>
+            <div class="small-muted">${esc(item.management_company || "未填管理公司")}</div>
+            <div class="small-muted">管理室：${esc(item.management_phone || "未填電話")}</div>
+          </td>
+          <td>
+            <button class="sales-manager-link" type="button">${esc(item.manager_name || "未填")}</button>
+            <div class="small-muted">${esc(item.manager_phone || "未填電話")}</div>
+          </td>
+          <td>
+            <div>委員會：${esc(item.committee_time || "-")}</div>
+            <div class="small-muted">住戶大會：${esc(item.resident_meeting_time || "-")}</div>
+          </td>
+          <td>${esc(item.area || "-")}</td>
+          <td><span class="pill pill-teal">${esc(item.business_type || "-")}</span></td>
+          <td><span class="${statusClass(item.status)}">${esc(item.status || "-")}</span></td>
+          <td>
+            <span class="${contractClass(item.contract_status)}">${esc(item.contract_status || "-")}</span>
+            <div class="small-muted">${esc(item.contract_end_date || "-")}</div>
+          </td>
+          <td>${esc(eventText(item))}</td>
+          <td>${esc(feedbackText(item))}</td>
+          <td>${esc(item.next_visit || "-")}</td>
+          <td>${esc(item.owner || "-")}</td>
+          <td>
+            <div>${esc(item.business_note || "-")}</div>
+            <div class="small-muted">${esc(item.management_note || "")}</div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  window.cl15i4FinalRenderSalesRows = finalRenderSalesRows;
+
+  function bindFinalFilters() {
+    ["filter_area", "filter_business_type", "filter_status", "filter_contract_status", "filter_owner", "filter_keyword"].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (!el || el.dataset.cl15i4Bound === "1") return;
+      el.dataset.cl15i4Bound = "1";
+      el.addEventListener("input", function () { setTimeout(finalRenderSalesRows, 0); });
+      el.addEventListener("change", function () { setTimeout(finalRenderSalesRows, 0); });
+    });
+  }
+
+  async function reloadSalesRowsFromAdminApi() {
+    try {
+      const res = await fetch("/api/admin/sales/business-records?ts=" + Date.now(), {cache: "no-store"});
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        window.businessRecords = data;
+        try { businessRecords = data; } catch (err) {}
+      }
+    } catch (err) {
+      console.error("CL15I4 sales admin reload failed", err);
+    }
+
+    bindFinalFilters();
+    finalRenderSalesRows();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", reloadSalesRowsFromAdminApi);
+  } else {
+    reloadSalesRowsFromAdminApi();
+  }
+
+  setTimeout(reloadSalesRowsFromAdminApi, 500);
+})();
+</script>
+
 </body>
 </html>
 """

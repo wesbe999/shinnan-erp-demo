@@ -1283,44 +1283,119 @@ async function loadCreateBuildingDirectory() {
       }
     }
 
+function createSelectedBuildingName() {
+      const select = document.getElementById("create_building_select");
+      if (!select || !select.selectedOptions || !select.selectedOptions.length) return "";
+
+      const opt = select.selectedOptions[0];
+      const raw = String(
+        opt.dataset.buildingName ||
+        opt.dataset.name ||
+        opt.textContent ||
+        opt.value ||
+        ""
+      );
+
+      return raw
+        .split("\uff5c")[0]
+        .split("|")[0]
+        .replace(/^\[[^\]]+\]\s*/, "")
+        .trim();
+    }
+
+function createSelectedBuildingAddress() {
+      const select = document.getElementById("create_building_select");
+      if (!select || !select.selectedOptions || !select.selectedOptions.length) return "";
+      const opt = select.selectedOptions[0];
+      return String(opt.dataset.address || "").trim();
+    }
+
 function populateCreateBuildingList() {
       const area = createVal("create_dispatch_area");
       const select = document.getElementById("create_building_select");
       if (!select) return;
 
-      const rows = [];
-      const seen = new Set();
+      const current = String(select.value || "");
 
-      createBuildingDirectory.forEach(function (b) {
+      const allItems = Array.isArray(createBuildingDirectory)
+        ? createBuildingDirectory.filter(function (b) {
+            const no = String(b.building_no || b.id || "").trim();
+            const name = String(b.name || b.building_name || b.title || no || "").trim();
+            return !!(no || name);
+          })
+        : [];
+
+      let items = allItems.filter(function (b) {
         const bArea = String(b.area || b.dispatch_area || "").trim();
-        if (area && bArea && bArea !== area) return;
-
-        const name = String(b.name || b.building_name || b.title || "").trim();
-        if (!name) return;
-
-        if (seen.has(name)) return;
-        seen.add(name);
-
-        rows.push({
-          name: name,
-          area: bArea,
-          address: String(b.address || b.raw_address || "").trim()
-        });
+        return !area || bArea === area;
       });
 
-      select.innerHTML = "";
-      select.appendChild(new Option("\u8acb\u9078\u64c7\u5927\u6a13", ""));
-      select.appendChild(new Option("\u900f\u5929", "HOUSE"));
+      const fallbackAllBuildings = !!area && items.length === 0 && allItems.length > 0;
+      if (fallbackAllBuildings) {
+        items = allItems.slice();
+      }
 
-      rows.sort(function (a, b) {
-        return a.name.localeCompare(b.name, "zh-Hant");
-      }).forEach(function (row) {
-        const opt = new Option(row.name, row.name);
-        opt.dataset.address = row.address || "";
+      select.innerHTML = "";
+
+      const empty = document.createElement("option");
+      empty.value = "";
+      empty.textContent = area ? "\u8acb\u9078\u64c7\u5927\u6a13" : "\u8acb\u5148\u9078\u64c7\u5340\u57df";
+      select.appendChild(empty);
+
+      if (fallbackAllBuildings) {
+        const note = document.createElement("option");
+        note.value = "";
+        note.disabled = true;
+        note.textContent = "\u6b64\u5340\u76ee\u524d\u7121\u5c0d\u61c9\u5927\u6a13\uff0c\u4ee5\u5168\u90e8\u5927\u6a13\u5217\u51fa";
+        select.appendChild(note);
+      }
+
+      const house = document.createElement("option");
+      house.value = "HOUSE";
+      house.textContent = "\u900f\u5929";
+      house.dataset.name = "\u900f\u5929";
+      house.dataset.area = area || "";
+      house.dataset.address = "";
+      select.appendChild(house);
+
+      const seen = new Set();
+
+      items.forEach(function (b) {
+        const no = String(b.building_no || b.id || "").trim();
+        const name = String(b.name || b.building_name || b.title || no || "").trim();
+        const bArea = String(b.area || b.dispatch_area || "").trim();
+        const addr = String(b.display_address || b.address || b.raw_address || "").trim();
+
+        if (!no && !name) return;
+
+        const key = no || name;
+        if (seen.has(key)) return;
+        seen.add(key);
+
+        const opt = document.createElement("option");
+        opt.value = no || name;
+        opt.dataset.name = name;
+        opt.dataset.buildingName = name;
+        opt.dataset.area = bArea;
+        opt.dataset.address = addr;
+
+
+      let label = name || no;
+      opt.title = addr ? label + " | " + addr : label;
+        if (fallbackAllBuildings && bArea) {
+          label = "[" + bArea + "] " + label;
+        }
+
+        opt.textContent = label;
         select.appendChild(opt);
       });
 
-      populateCreateCustomerList();
+      if (current) {
+        const exists = Array.prototype.some.call(select.options, function (opt) {
+          return String(opt.value || "") === current;
+        });
+        select.value = exists ? current : "";
+      }
     }
 
 function populateCreateCustomerList() {
@@ -1347,7 +1422,7 @@ function populateCreateCustomerList() {
           ""
         );
 
-        const selectedName = createNormalizeBuildingName(building);
+        const selectedName = createNormalizeBuildingName(createSelectedBuildingName() || building);
 
         if (selectedName === "\u900f\u5929") {
           if (itemBuildingName !== "\u900f\u5929") return;
@@ -2045,3 +2120,95 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 /* XN_APP_FILTER_STAT_FIX_V1_END */
+
+// XUNNAN PATCH: dispatch status pill colors v1
+(function () {
+  const STATUS_CLASS_MAP = {
+    "\u672a\u9818\u53d6": "xunnan-status-unclaimed",
+    "\u5df2\u9818\u53d6": "xunnan-status-claimed",
+    "\u5f85\u8655\u7406": "xunnan-status-pending",
+    "\u8655\u7406\u4e2d": "xunnan-status-processing",
+    "\u5f85\u8001\u95c6\u5224\u65b7": "xunnan-status-boss",
+    "\u5df2\u5b8c\u5de5": "xunnan-status-finished",
+    "\u5df2\u5b8c\u6210": "xunnan-status-completed",
+    "\u9000\u56de": "xunnan-status-returned",
+    "\u4f4f\u6236\u53d6\u6d88": "xunnan-status-cancelled"
+  };
+
+  const STATUS_CLASSES = Object.values(STATUS_CLASS_MAP);
+
+  function normalizeText(value) {
+    return String(value || "").replace(/\s+/g, "").trim();
+  }
+
+  function shouldPatchElement(el) {
+    if (!el || !el.textContent) return false;
+
+    const tag = String(el.tagName || "").toLowerCase();
+    if (!["span", "div", "td", "button", "label"].includes(tag)) return false;
+
+    const txt = normalizeText(el.textContent);
+    if (!STATUS_CLASS_MAP[txt]) return false;
+
+    const childCount = el.children ? el.children.length : 0;
+    if (childCount > 2) return false;
+
+    return true;
+  }
+
+  function patchStatusPills(root) {
+    const base = root || document;
+    const nodes = [];
+
+    if (base.nodeType === 1 && shouldPatchElement(base)) {
+      nodes.push(base);
+    }
+
+    if (base.querySelectorAll) {
+      base.querySelectorAll("span,div,td,button,label").forEach(function (el) {
+        if (shouldPatchElement(el)) nodes.push(el);
+      });
+    }
+
+    nodes.forEach(function (el) {
+      const txt = normalizeText(el.textContent);
+      const cls = STATUS_CLASS_MAP[txt];
+      if (!cls) return;
+
+      el.classList.add("xunnan-status-pill");
+      STATUS_CLASSES.forEach(function (c) {
+        if (c !== cls) el.classList.remove(c);
+      });
+      el.classList.add(cls);
+    });
+  }
+
+  window.xunnanPatchDispatchStatusPills = patchStatusPills;
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () {
+      patchStatusPills(document);
+    });
+  } else {
+    patchStatusPills(document);
+  }
+
+  const observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (m) {
+      if (m.addedNodes) {
+        m.addedNodes.forEach(function (node) {
+          patchStatusPills(node);
+        });
+      }
+      if (m.target) {
+        patchStatusPills(m.target);
+      }
+    });
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  });
+})();

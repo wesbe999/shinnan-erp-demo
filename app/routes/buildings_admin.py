@@ -1,6 +1,6 @@
 import json as _buildings_json
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse, Response as _BuildingsResponse
 from sqlalchemy import text as _buildings_sql_text
 
@@ -79,6 +79,7 @@ def _fetch_buildings_from_db():
     with _buildings_engine.begin() as conn:
         rows = conn.execute(_buildings_sql_text("""
             SELECT
+                id,
                 building_no,
                 name,
                 area,
@@ -106,6 +107,198 @@ def _fetch_buildings_from_db():
 
     return [dict(row) for row in rows]
 # SHINNAN_BUILDINGS_DB_API_HELPER_END
+
+
+_BUILDING_EDIT_FIELDS = {
+    "building_no": "TEXT",
+    "name": "TEXT",
+    "area": "TEXT",
+    "address": "TEXT",
+    "raw_address": "TEXT",
+    "display_address": "TEXT",
+    "management_company": "TEXT",
+    "management_phone": "TEXT",
+    "manager_name": "TEXT",
+    "manager_phone": "TEXT",
+    "manager_age": "TEXT",
+    "manager_experience": "TEXT",
+    "manager_interest": "TEXT",
+    "visit_time": "TEXT",
+    "committee_time": "TEXT",
+    "resident_meeting_time": "TEXT",
+    "active_users": "INTEGER",
+    "total_households": "INTEGER",
+    "ip": "TEXT",
+    "host": "TEXT",
+    "note": "TEXT",
+}
+
+
+def _clean_building_value(field: str, value):
+    if _BUILDING_EDIT_FIELDS.get(field) == "INTEGER":
+        try:
+            return max(0, int(str(value or "0").replace(",", "").strip() or "0"))
+        except ValueError:
+            return 0
+
+    return str(value or "").strip()
+
+
+@router.patch("/api/admin/buildings/{building_id}")
+async def api_admin_update_building(building_id: int, request: Request):
+    _buildings_db_init()
+    payload = await request.json()
+
+    updates = {}
+    for field, value in dict(payload or {}).items():
+        if field in _BUILDING_EDIT_FIELDS:
+            updates[field] = _clean_building_value(field, value)
+
+    if not updates:
+        return JSONResponse({"ok": False, "error": "no editable fields"}, status_code=400)
+
+    if "address" in updates:
+        updates.setdefault("raw_address", updates["address"])
+        updates.setdefault("display_address", updates["address"])
+    elif "raw_address" in updates:
+        updates.setdefault("address", updates["raw_address"])
+        updates.setdefault("display_address", updates["raw_address"])
+    elif "display_address" in updates:
+        updates.setdefault("address", updates["display_address"])
+        updates.setdefault("raw_address", updates["display_address"])
+
+    set_sql = ", ".join(f"{field} = :{field}" for field in updates)
+    params = dict(updates)
+    params["id"] = building_id
+
+    with _buildings_engine.begin() as conn:
+        result = conn.execute(
+            _buildings_sql_text(
+                f"UPDATE buildings SET {set_sql}, updated_at = datetime('now', 'localtime') WHERE id = :id"
+            ),
+            params,
+        )
+
+        row = conn.execute(
+            _buildings_sql_text("SELECT * FROM buildings WHERE id = :id"),
+            {"id": building_id},
+        ).mappings().first()
+
+    if not row or int(result.rowcount or 0) <= 0:
+        return JSONResponse({"ok": False, "error": "building not found"}, status_code=404)
+
+    return _BuildingsResponse(
+        content=_buildings_json.dumps({"ok": True, "item": dict(row)}, ensure_ascii=False),
+        media_type="application/json; charset=utf-8",
+    )
+
+
+
+
+@router.post("/api/admin/buildings")
+async def api_admin_create_building(request: Request):
+    _buildings_db_init()
+    payload = await request.json()
+
+    data = {}
+    for field, value in dict(payload or {}).items():
+        if field in _BUILDING_EDIT_FIELDS:
+            data[field] = _clean_building_value(field, value)
+
+    name = str(data.get("name") or "").strip()
+    if not name:
+        return JSONResponse({"ok": False, "error": "name_required"}, status_code=400)
+
+    if "address" in data:
+        data.setdefault("raw_address", data["address"])
+        data.setdefault("display_address", data["address"])
+    elif "raw_address" in data:
+        data.setdefault("address", data["raw_address"])
+        data.setdefault("display_address", data["raw_address"])
+    elif "display_address" in data:
+        data.setdefault("address", data["display_address"])
+        data.setdefault("raw_address", data["display_address"])
+
+    with _buildings_engine.begin() as conn:
+        if not str(data.get("building_no") or "").strip():
+            rows = conn.execute(_buildings_sql_text("SELECT building_no FROM buildings")).fetchall()
+            max_no = 0
+            for row in rows:
+                value = str(row[0] or "")
+                m = __import__("re").search(r"B(\d+)", value)
+                if m:
+                    max_no = max(max_no, int(m.group(1)))
+            data["building_no"] = "B" + str(max_no + 1).zfill(3)
+
+        defaults = {
+            "area": "",
+            "address": "",
+            "raw_address": "",
+            "display_address": "",
+            "management_company": "",
+            "management_phone": "",
+            "manager_name": "",
+            "manager_phone": "",
+            "manager_age": "",
+            "manager_experience": "",
+            "manager_interest": "",
+            "visit_time": "",
+            "committee_time": "",
+            "resident_meeting_time": "",
+            "active_users": 0,
+            "total_households": 0,
+            "ip": "",
+            "host": "",
+            "note": "",
+        }
+
+        for key, value in defaults.items():
+            data.setdefault(key, value)
+
+        fields = [
+            "building_no",
+            "name",
+            "area",
+            "address",
+            "raw_address",
+            "display_address",
+            "management_company",
+            "management_phone",
+            "manager_name",
+            "manager_phone",
+            "manager_age",
+            "manager_experience",
+            "manager_interest",
+            "visit_time",
+            "committee_time",
+            "resident_meeting_time",
+            "active_users",
+            "total_households",
+            "ip",
+            "host",
+            "note",
+        ]
+
+        use_fields = [f for f in fields if f in data]
+        sql = (
+            "INSERT INTO buildings (" + ", ".join(use_fields) + ", created_at, updated_at) "
+            "VALUES (" + ", ".join(":" + f for f in use_fields) + ", datetime('now','localtime'), datetime('now','localtime'))"
+        )
+
+        try:
+            result = conn.execute(_buildings_sql_text(sql), data)
+        except Exception as exc:
+            return JSONResponse({"ok": False, "error": str(exc)[:500]}, status_code=400)
+
+        row = conn.execute(
+            _buildings_sql_text("SELECT * FROM buildings WHERE id = :id"),
+            {"id": result.lastrowid},
+        ).mappings().first()
+
+    return _BuildingsResponse(
+        content=_buildings_json.dumps({"ok": True, "item": dict(row)}, ensure_ascii=False),
+        media_type="application/json; charset=utf-8",
+    )
 
 
 @router.get("/api/admin/buildings")
@@ -150,7 +343,7 @@ def admin_buildings_page():
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>訊南ERP｜大樓名錄</title>
+  <title>\u5927\u6a13\u540d\u9304\uff5c\u4e2d\u592e\u63a7\u7ba1\u7cfb\u7d71</title>
   <style>
     :root {
       --bg: #eef3f9;
@@ -764,26 +957,27 @@ def admin_buildings_page():
   }
 </style>
 
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
 </head>
 
 <body>
-  <div class="topbar">
-    
-<style id="hide_building_host_column_v1">
-  /* 大樓名錄列表隱藏「主機」欄位；API 與詳細資料仍保留 */
-  table thead tr th:nth-child(9),
-  table tbody tr td:nth-child(9) {
-    display: none !important;
-  }
-</style>
-
-<h1>大樓名錄</h1>
-    <p>每區 10 棟｜地址 / 管理公司 / 用戶數量 / 住戶總數 / 主機登入 / 選擇大樓</p>
+  <section class="web-title web-title-tech">
+  <img class="web-title-watermark" src="/static/shinnan_logo_outline_white.png" alt="">
+  <div class="web-title-map"></div>
+  <div class="web-title-radar"></div>
+  <div class="web-title-main">
+    <div class="web-title-logo-box"><img class="web-title-logo" src="/static/shinnan_logo_gold_transparent.png?v=20260513_cl9h" alt="ShinNan Logo"></div>
+    <div class="web-title-text">
+      <h1 class="web-title-system">&#x5927;&#x6a13;&#x540d;&#x9304;</h1>
+      <div class="web-title-sub"><span class="web-title-sub-dot"></span>&#x4e2d;&#x592e;&#x63a7;&#x7ba1;&#x7cfb;&#x7d71;<span class="web-title-sub-dot"></span></div>
+    </div>
+    <div class="web-title-user" data-web-title-user="1"><span class="web-title-user-label">&#x767b;&#x5165;&#x8005;&#xff1a;</span><span class="web-title-user-name" id="web_title_user_name">&#x8f09;&#x5165;&#x4e2d;</span></div>
   </div>
+</section>
 
   <main class="page">
     <div class="toolbar">
-      <button type="button" onclick="location.href='/'">返回上一頁</button>
+      <button type="button" onclick="goBackFromBuildings(event)">返回上一頁</button>
       <button type="button" id="create_building_button">新增資料</button>
 
       <select id="area_filter">
@@ -794,8 +988,7 @@ def admin_buildings_page():
         <option value="仁德">仁德</option>
         <option value="永康">永康</option>
         <option value="安平">安平</option>
-        <option value="南高">南高</option>
-        <option value="北高">北高</option>
+        <option value="高雄">高雄</option>
         <option value="透天">透天</option>
       </select>
 
@@ -897,31 +1090,6 @@ def admin_buildings_page():
           history.back();
           return;
         }
-      }
-
-      window.location.href = "/admin";
-    }
-
-      if (caller === "dispatch") {
-        window.location.href = "/admin";
-        return;
-      }
-
-      if (returnUrl) {
-        if (returnUrl.includes("/admin/sales")) {
-          window.location.href = "/admin/sales";
-          return;
-        }
-
-        if (returnUrl.includes("/admin")) {
-          window.location.href = "/admin";
-          return;
-        }
-      }
-
-      if (document.referrer && document.referrer !== window.location.href) {
-        history.back();
-        return;
       }
 
       window.location.href = "/admin";
@@ -1084,8 +1252,7 @@ def admin_buildings_page():
             <option value="仁德">仁德</option>
             <option value="永康">永康</option>
             <option value="安平">安平</option>
-            <option value="南高">南高</option>
-            <option value="北高">北高</option>
+            <option value="高雄">高雄</option>
             <option value="透天">透天</option>
           </select>
         </div>
@@ -1260,7 +1427,44 @@ def admin_buildings_page():
     if (event) {
       event.preventDefault();
       event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
     }
+
+    const params = new URLSearchParams(window.location.search);
+    const caller = params.get("caller") || "";
+
+    if (caller === "sales") {
+      window.location.href = "/admin/sales";
+      return;
+    }
+
+    if (caller === "dispatch") {
+      window.location.href = "/admin";
+      return;
+    }
+
+    const backReturn = localStorage.getItem("xunnan_building_back_return") || "";
+    const pickReturn = localStorage.getItem("xunnan_building_pick_return") || "";
+
+    const candidates = [backReturn, pickReturn];
+
+    for (const raw of candidates) {
+      if (!raw) continue;
+      try {
+        const u = new URL(raw, window.location.origin);
+        if (u.pathname === "/admin/sales") {
+          window.location.href = "/admin/sales";
+          return;
+        }
+        if (u.pathname === "/admin") {
+          window.location.href = "/admin";
+          return;
+        }
+      } catch (err) {}
+    }
+
+    window.location.href = "/admin";
+  }
 
     if (window.history.length > 1) {
       window.history.back();
@@ -1672,6 +1876,7 @@ def admin_buildings_page():
     const rawAddress = item.raw_address || item.address || item.display_address || "";
 
     return {
+      id: item.id || "",
       building_no: item.building_no || item.no || "",
       name: name,
       area: item.area || "",
@@ -1784,20 +1989,14 @@ def admin_buildings_page():
       return `
         <tr>
           <td>${safeText(b.building_no)}</td>
-          <td>
-            <button
-              class="building-name-link"
-              type="button"
-              onclick="window.openBuildingDetailModal && window.openBuildingDetailModal(JSON.parse(decodeURIComponent('${encoded}')))"
-            >${safeText(b.name)}</button>
-          </td>
-          <td>${safeText(b.area)}</td>
-          <td>${safeText(b.address)}</td>
-          <td>${safeText(b.management_company)}</td>
-          <td>${safeText(b.active_users)}</td>
-          <td>${safeText(b.total_households)}</td>
-          <td>${safeText(b.ip)}</td>
-          <td>${safeText(b.host || "-")}</td>
+          <td data-building-id="${safeText(b.id)}" data-field="name" contenteditable="true">${safeText(b.name)}</td>
+          <td data-building-id="${safeText(b.id)}" data-field="area" contenteditable="true">${safeText(b.area)}</td>
+          <td data-building-id="${safeText(b.id)}" data-field="address" contenteditable="true">${safeText(b.address)}</td>
+          <td data-building-id="${safeText(b.id)}" data-field="management_company" contenteditable="true">${safeText(b.management_company)}</td>
+          <td data-building-id="${safeText(b.id)}" data-field="active_users" contenteditable="true">${safeText(b.active_users)}</td>
+          <td data-building-id="${safeText(b.id)}" data-field="total_households" contenteditable="true">${safeText(b.total_households)}</td>
+          <td data-building-id="${safeText(b.id)}" data-field="ip" contenteditable="true">${safeText(b.ip)}</td>
+          <td data-building-id="${safeText(b.id)}" data-field="host" contenteditable="true">${safeText(b.host || "")}</td>
           <td>
             <button
               class="btn-blue"
@@ -1808,6 +2007,68 @@ def admin_buildings_page():
         </tr>
       `;
     }).join("");
+
+    bindBuildingDbEditors();
+  }
+
+  async function saveBuildingFieldToDb(cell) {
+    const id = cell.getAttribute("data-building-id") || "";
+    const field = cell.getAttribute("data-field") || "";
+    const oldValue = cell.getAttribute("data-original-value") || "";
+    const value = (cell.textContent || "").trim();
+
+    if (!id || !field || value === oldValue) return;
+
+    cell.classList.add("saving");
+
+    try {
+      const res = await fetch("/api/admin/buildings/" + encodeURIComponent(id), {
+        method: "PATCH",
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: JSON.stringify({[field]: value})
+      });
+
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
+
+      const data = await res.json();
+      const item = data && data.item ? data.item : null;
+      cell.setAttribute("data-original-value", value);
+      cell.classList.remove("save-error");
+
+      if (item && Array.isArray(window.__shinnanBuildingsRecoveryData)) {
+        const idx = window.__shinnanBuildingsRecoveryData.findIndex(function (b) {
+          return String(b.id || "") === String(id);
+        });
+        if (idx >= 0) {
+          window.__shinnanBuildingsRecoveryData[idx] = Object.assign({}, window.__shinnanBuildingsRecoveryData[idx], item);
+        }
+      }
+    } catch (err) {
+      console.error("building save failed", err);
+      cell.classList.add("save-error");
+      alert("大樓資料儲存失敗，請再試一次。");
+    } finally {
+      cell.classList.remove("saving");
+    }
+  }
+
+  function bindBuildingDbEditors() {
+    document.querySelectorAll("td[contenteditable='true'][data-building-id][data-field]").forEach(function (cell) {
+      if (cell.dataset.dbEditorBound === "1") return;
+      cell.dataset.dbEditorBound = "1";
+      cell.setAttribute("data-original-value", (cell.textContent || "").trim());
+      cell.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          cell.blur();
+        }
+      });
+      cell.addEventListener("blur", function () {
+        saveBuildingFieldToDb(cell);
+      });
+    });
   }
 
   async function loadBuildingsRecovery() {
@@ -2129,8 +2390,231 @@ def admin_buildings_page():
 })();
 </script>
 
+
+<script>
+(function () {
+  function text(v) {
+    return String(v || "").trim();
+  }
+
+  function setName(name) {
+    var el = document.getElementById("web_title_user_name");
+    if (!el) return;
+    el.textContent = text(name) || "-";
+  }
+
+  function fallbackName() {
+    var keys = [
+      "xunnan_employee_display_name",
+      "xunnan_display_name",
+      "xunnan_employee_name",
+      "xunnan_engineer_name",
+      "xunnan_admin_name"
+    ];
+    for (var i = 0; i < keys.length; i += 1) {
+      try {
+        var v = localStorage.getItem(keys[i]) || sessionStorage.getItem(keys[i]);
+        if (text(v)) return v;
+      } catch (e) {}
+    }
+    return "";
+  }
+
+  setName(fallbackName() || "\u767b\u5165\u8005");
+
+  fetch("/api/app/employee/profile?ts=" + Date.now(), {
+    cache: "no-store",
+    credentials: "same-origin"
+  })
+    .then(function (res) {
+      if (!res || !res.ok) return null;
+      return res.json();
+    })
+    .then(function (data) {
+      if (!data) return;
+      var p = data.profile || data.data || data;
+      var name =
+        p.display_name ||
+        p.acting_display_name ||
+        p.login_display_name ||
+        p.staff_code ||
+        data.display_name ||
+        data.staff_code ||
+        "";
+      setName(name || fallbackName() || "\u767b\u5165\u8005");
+    })
+    .catch(function () {
+      setName(fallbackName() || "\u767b\u5165\u8005");
+    });
+})();
+</script>
+
+
+
+<script id="cl15g2_buildings_admin_final_fix_v1">
+(function () {
+  if (!location.pathname.includes("/admin/buildings")) return;
+
+  function safeBack(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }
+
+    const params = new URLSearchParams(location.search);
+    const caller = params.get("caller") || "";
+
+    if (caller === "sales") {
+      location.href = "/admin/sales";
+      return;
+    }
+
+    if (caller === "dispatch") {
+      location.href = "/admin";
+      return;
+    }
+
+    const backReturn = localStorage.getItem("xunnan_building_back_return") || "";
+    const pickReturn = localStorage.getItem("xunnan_building_pick_return") || "";
+
+    for (const raw of [backReturn, pickReturn]) {
+      if (!raw) continue;
+      try {
+        const u = new URL(raw, location.origin);
+        if (u.pathname === "/admin/sales") {
+          location.href = "/admin/sales";
+          return;
+        }
+        if (u.pathname === "/admin") {
+          location.href = "/admin";
+          return;
+        }
+      } catch (err) {}
+    }
+
+    location.href = "/admin";
+  }
+
+  window.goBackFromBuildings = safeBack;
+
+  function bindBack() {
+    Array.from(document.querySelectorAll("button, a")).forEach(function (el) {
+      const txt = String(el.textContent || "").trim();
+      if (txt !== "\u8fd4\u56de\u4e0a\u4e00\u9801" && txt !== "\u8fd4\u56de\u5f8c\u53f0" && txt !== "\u8fd4\u56de\u9996\u9801") return;
+
+      const clone = el.cloneNode(true);
+      clone.textContent = "\u8fd4\u56de\u4e0a\u4e00\u9801";
+      clone.onclick = safeBack;
+      clone.addEventListener("click", safeBack, true);
+      el.parentNode.replaceChild(clone, el);
+    });
+  }
+
+  function valueOf(id) {
+    const el = document.getElementById(id);
+    return el ? String(el.value || "").trim() : "";
+  }
+
+  async function createBuildingToDb(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }
+
+    const name = valueOf("new_building_name");
+    const area = valueOf("new_building_area");
+    const address = valueOf("new_building_address");
+    const managementCompany = valueOf("new_management_company");
+    const activeUsers = Number(valueOf("new_active_users").replace(/[^\\d]/g, "") || 0);
+    const totalHouseholds = Number(valueOf("new_total_households").replace(/[^\\d]/g, "") || 0);
+    const ip = valueOf("new_building_ip");
+
+    if (!name) {
+      alert("\u8acb\u8f38\u5165\u5927\u6a13\u540d\u7a31");
+      return false;
+    }
+
+    const payload = {
+      name: name,
+      area: area,
+      address: address,
+      raw_address: address,
+      display_address: address,
+      management_company: managementCompany,
+      active_users: activeUsers,
+      total_households: totalHouseholds,
+      ip: ip
+    };
+
+    try {
+      const res = await fetch("/api/admin/buildings", {
+        method: "POST",
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
+
+      const modal = document.getElementById("create_building_modal");
+      if (modal) modal.classList.remove("active");
+
+      ["new_building_name", "new_building_address", "new_management_company", "new_building_ip"].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
+
+      const au = document.getElementById("new_active_users");
+      const th = document.getElementById("new_total_households");
+      if (au) au.value = "0";
+      if (th) th.value = "0";
+
+      if (typeof window.loadBuildings === "function") {
+        await window.loadBuildings();
+      } else {
+        location.reload();
+      }
+
+      alert("\u5927\u6a13\u8cc7\u6599\u5df2\u65b0\u589e");
+      return false;
+    } catch (err) {
+      console.error("create building failed", err);
+      alert("\u65b0\u589e\u5927\u6a13\u5931\u6557\uff0c\u8acb\u518d\u8a66\u4e00\u6b21\u3002");
+      return false;
+    }
+  }
+
+  function bindCreateSave() {
+    const btn = document.getElementById("save_create_building_button");
+    if (!btn || btn.dataset.cl15g2Bound === "1") return;
+
+    const clone = btn.cloneNode(true);
+    clone.dataset.cl15g2Bound = "1";
+    clone.onclick = createBuildingToDb;
+    clone.addEventListener("click", createBuildingToDb, true);
+    btn.parentNode.replaceChild(clone, btn);
+  }
+
+  function bindAll() {
+    bindBack();
+    bindCreateSave();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindAll);
+  } else {
+    bindAll();
+  }
+
+  setTimeout(bindAll, 300);
+  setTimeout(bindAll, 900);
+})();
+</script>
+
 </body>
 </html>
 """
 # SHINNAN_BUILDINGS_PAGE_RESTORE_END
-

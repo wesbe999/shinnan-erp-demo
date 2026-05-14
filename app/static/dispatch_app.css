@@ -1070,3 +1070,71 @@
 }
 /* XN_DISPATCH_FINISH_REPAIR_V1_END */
 
+/* XUNNAN PATCH: dispatch status pill colors v1 */
+.xunnan-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5em;
+  padding: 0.28em 0.7em;
+  border-radius: 999px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.xunnan-status-unclaimed {
+  color: #6b4b00 !important;
+  background: #fff4c2 !important;
+  border-color: #f1d36b !important;
+}
+
+.xunnan-status-claimed {
+  color: #0f4b7a !important;
+  background: #d8efff !important;
+  border-color: #8fcaf2 !important;
+}
+
+.xunnan-status-pending {
+  color: #7a3b00 !important;
+  background: #ffe5c2 !important;
+  border-color: #f2ba78 !important;
+}
+
+.xunnan-status-processing {
+  color: #075f46 !important;
+  background: #d9f8ec !important;
+  border-color: #86dcb9 !important;
+}
+
+.xunnan-status-boss {
+  color: #5a2a85 !important;
+  background: #eadcff !important;
+  border-color: #c3a1ef !important;
+}
+
+.xunnan-status-finished {
+  color: #194b8a !important;
+  background: #ddeaff !important;
+  border-color: #9ab9ef !important;
+}
+
+.xunnan-status-completed {
+  color: #14532d !important;
+  background: #dcfce7 !important;
+  border-color: #86efac !important;
+}
+
+.xunnan-status-returned {
+  color: #7f1d1d !important;
+  background: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+}
+
+.xunnan-status-cancelled {
+  color: #44403c !important;
+  background: #e7e5e4 !important;
+  border-color: #c7c2be !important;
+}
+

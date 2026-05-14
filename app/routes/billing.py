@@ -248,7 +248,7 @@ def billing_page(request: Request):
   </div>
 <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>訊南ERP｜帳務系統</title>
+  <title>\u5e33\u52d9\u7cfb\u7d71\uff5c\u4e2d\u592e\u63a7\u7ba1\u7cfb\u7d71</title>
 
   <style>
     :root {
@@ -2070,18 +2070,23 @@ def billing_page(request: Request):
   }
 </style>
 
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
 </head>
 
 <body>
-  <div class="topbar">
-    <div class="billing-title-row">
-      <img class="billing-title-logo" src="/erp-static/shinnan_home_logo.png" alt="訊南 Logo">
-      <div class="billing-title-text">
-        <h1>帳務系統</h1>
-      </div>
+  <section class="web-title web-title-tech">
+  <img class="web-title-watermark" src="/static/shinnan_logo_outline_white.png" alt="">
+  <div class="web-title-map"></div>
+  <div class="web-title-radar"></div>
+  <div class="web-title-main">
+    <div class="web-title-logo-box"><img class="web-title-logo" src="/static/shinnan_logo_gold_transparent.png?v=20260513_cl9h" alt="ShinNan Logo"></div>
+    <div class="web-title-text">
+      <h1 class="web-title-system">&#x5e33;&#x52d9;&#x7cfb;&#x7d71;</h1>
+      <div class="web-title-sub"><span class="web-title-sub-dot"></span>&#x4e2d;&#x592e;&#x63a7;&#x7ba1;&#x7cfb;&#x7d71;<span class="web-title-sub-dot"></span></div>
     </div>
-    <p>統一測試資料來源：大樓、客戶、會計同步顯示</p>
+    <div class="web-title-user" data-web-title-user="1"><span class="web-title-user-label">&#x767b;&#x5165;&#x8005;&#xff1a;</span><span class="web-title-user-name" id="web_title_user_name">&#x8f09;&#x5165;&#x4e2d;</span></div>
   </div>
+</section>
 
   <main class="page">
 
@@ -2986,6 +2991,65 @@ def billing_page(request: Request):
   } else {
     bindBillingNoticePanel();
   }
+})();
+</script>
+
+
+<script>
+(function () {
+  function text(v) {
+    return String(v || "").trim();
+  }
+
+  function setName(name) {
+    var el = document.getElementById("web_title_user_name");
+    if (!el) return;
+    el.textContent = text(name) || "-";
+  }
+
+  function fallbackName() {
+    var keys = [
+      "xunnan_employee_display_name",
+      "xunnan_display_name",
+      "xunnan_employee_name",
+      "xunnan_engineer_name",
+      "xunnan_admin_name"
+    ];
+    for (var i = 0; i < keys.length; i += 1) {
+      try {
+        var v = localStorage.getItem(keys[i]) || sessionStorage.getItem(keys[i]);
+        if (text(v)) return v;
+      } catch (e) {}
+    }
+    return "";
+  }
+
+  setName(fallbackName() || "\u767b\u5165\u8005");
+
+  fetch("/api/app/employee/profile?ts=" + Date.now(), {
+    cache: "no-store",
+    credentials: "same-origin"
+  })
+    .then(function (res) {
+      if (!res || !res.ok) return null;
+      return res.json();
+    })
+    .then(function (data) {
+      if (!data) return;
+      var p = data.profile || data.data || data;
+      var name =
+        p.display_name ||
+        p.acting_display_name ||
+        p.login_display_name ||
+        p.staff_code ||
+        data.display_name ||
+        data.staff_code ||
+        "";
+      setName(name || fallbackName() || "\u767b\u5165\u8005");
+    })
+    .catch(function () {
+      setName(fallbackName() || "\u767b\u5165\u8005");
+    });
 })();
 </script>
 
