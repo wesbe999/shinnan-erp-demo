@@ -30,6 +30,97 @@
 
 
 
+
+<style id="cl15j7_calculator_button_animation_v1">
+  .calculator button,
+  .calculator-grid button,
+  .calc button,
+  .calc-grid button,
+  .tool-calculator button,
+  .calculator-key,
+  .calc-key,
+  .calc-btn,
+  [data-calc-key],
+  [data-calculator-key] {
+    position: relative !important;
+    overflow: hidden !important;
+    transform: translateY(0) scale(1) !important;
+    transition:
+      transform 110ms ease,
+      box-shadow 130ms ease,
+      filter 130ms ease,
+      background-color 130ms ease !important;
+    will-change: transform, filter !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  .calculator button:hover,
+  .calculator-grid button:hover,
+  .calc button:hover,
+  .calc-grid button:hover,
+  .tool-calculator button:hover,
+  .calculator-key:hover,
+  .calc-key:hover,
+  .calc-btn:hover,
+  [data-calc-key]:hover,
+  [data-calculator-key]:hover {
+    transform: translateY(-2px) scale(1.015) !important;
+    filter: brightness(1.035) !important;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.16) !important;
+  }
+
+  .calculator button:active,
+  .calculator-grid button:active,
+  .calc button:active,
+  .calc-grid button:active,
+  .tool-calculator button:active,
+  .calculator-key:active,
+  .calc-key:active,
+  .calc-btn:active,
+  [data-calc-key]:active,
+  [data-calculator-key]:active,
+  .cl15j7-calc-pressed {
+    transform: translateY(2px) scale(0.965) !important;
+    filter: brightness(0.96) !important;
+    box-shadow: inset 0 4px 10px rgba(15, 23, 42, 0.18) !important;
+  }
+
+  .calculator button::after,
+  .calculator-grid button::after,
+  .calc button::after,
+  .calc-grid button::after,
+  .tool-calculator button::after,
+  .calculator-key::after,
+  .calc-key::after,
+  .calc-btn::after,
+  [data-calc-key]::after,
+  [data-calculator-key]::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    opacity: 0 !important;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.72), transparent 58%) !important;
+    transform: scale(0.2) !important;
+    transition: opacity 180ms ease, transform 180ms ease !important;
+    pointer-events: none !important;
+  }
+
+  .calculator button:active::after,
+  .calculator-grid button:active::after,
+  .calc button:active::after,
+  .calc-grid button:active::after,
+  .tool-calculator button:active::after,
+  .calculator-key:active::after,
+  .calc-key:active::after,
+  .calc-btn:active::after,
+  [data-calc-key]:active::after,
+  [data-calculator-key]:active::after,
+  .cl15j7-calc-pressed::after {
+    opacity: 0.38 !important;
+    transform: scale(1.15) !important;
+  }
+</style>
+
 </head>
 <body>
 
@@ -245,6 +336,59 @@
 }
 </style>
 <!-- XN_APP_HOME_LOGOUT_STYLE_V17_END -->
+
+
+<script id="cl15j7_calculator_button_animation_script_v1">
+(function () {
+  function getCalcButtons() {
+    return Array.from(document.querySelectorAll([
+      ".calculator button",
+      ".calculator-grid button",
+      ".calc button",
+      ".calc-grid button",
+      ".tool-calculator button",
+      ".calculator-key",
+      ".calc-key",
+      ".calc-btn",
+      "[data-calc-key]",
+      "[data-calculator-key]"
+    ].join(",")));
+  }
+
+  function bindButton(btn) {
+    if (!btn || btn.dataset.cl15j7CalcBound === "1") return;
+    btn.dataset.cl15j7CalcBound = "1";
+
+    function press() {
+      btn.classList.add("cl15j7-calc-pressed");
+    }
+
+    function release() {
+      window.setTimeout(function () {
+        btn.classList.remove("cl15j7-calc-pressed");
+      }, 90);
+    }
+
+    btn.addEventListener("pointerdown", press, {passive: true});
+    btn.addEventListener("pointerup", release, {passive: true});
+    btn.addEventListener("pointerleave", release, {passive: true});
+    btn.addEventListener("blur", release, {passive: true});
+  }
+
+  function bindAll() {
+    getCalcButtons().forEach(bindButton);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindAll);
+  } else {
+    bindAll();
+  }
+
+  setTimeout(bindAll, 300);
+  setTimeout(bindAll, 900);
+})();
+</script>
 
 </body>
 </html>

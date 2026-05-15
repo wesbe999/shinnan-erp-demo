@@ -626,6 +626,7 @@ def api_app_employee_rest_month(request: _EmpRequest, year: int, month: int):
                 "required_rest_days": required_rest_days,
                 "selected_dates": selected_dates,
                 "rest_count": len(selected_dates),
+                "review_status": str(row["review_status"] or "") if row else "",
             },
             ensure_ascii=False,
         ),
@@ -683,6 +684,46 @@ async def api_app_employee_rest_month_save(request: _EmpRequest):
         )
 
     staff_code = user.get("staff_code") or ""
+
+    # CL15K5_REST_APPROVED_SAVE_GUARD
+    approved_status_values = {"\u5df2\u6838\u51c6", "\u6838\u51c6", "\u5df2\u901a\u904e"}
+
+    with _employee_settings_engine.begin() as conn:
+        existing_rest_month = conn.execute(
+            _employee_settings_sql_text("""
+                SELECT selected_dates, review_status
+                FROM employee_rest_month_settings
+                WHERE staff_code = :staff_code
+                  AND year = :year
+                  AND month = :month
+                LIMIT 1
+            """),
+            {
+                "staff_code": staff_code,
+                "year": year,
+                "month": month,
+            },
+        ).mappings().first()
+
+    if existing_rest_month and str(existing_rest_month.get("review_status") or "").strip() in approved_status_values:
+        try:
+            existing_dates = _employee_settings_json.loads(existing_rest_month.get("selected_dates") or "[]")
+        except Exception:
+            existing_dates = []
+
+        if sorted([str(x) for x in existing_dates]) != sorted([str(x) for x in selected_dates]):
+            return _EmployeeSettingsResponse(
+                content=_employee_settings_json.dumps(
+                    {
+                        "ok": False,
+                        "error": "\u6b64\u6708\u6392\u4f11\u5df2\u6838\u51c6\uff0c\u4e0d\u53ef\u53d6\u6d88\u6216\u4fee\u6539\u5df2\u6838\u51c6\u7684\u5047\u671f\u3002",
+                    },
+                    ensure_ascii=False,
+                ),
+                media_type="application/json; charset=utf-8",
+                status_code=400,
+            )
+
 
     with _employee_settings_engine.begin() as conn:
         conn.execute(
@@ -1543,7 +1584,18 @@ async def api_app_employee_proxy_revoke(request: _EmpRequest):
 
 
 
+
+
+def _employee_leave_period_label():
+    from datetime import datetime
+
+    now = datetime.now()
+    return str(now.year) + "-" + str(now.month).zfill(2)
+
+
 @router.get("/api/app/employee/leave-settings", summary="員工讀取自己的請假設定")
+
+
 def api_app_employee_leave_settings(request: _EmpRequest):
     user = _employee_current_user_from_request(request)
 
@@ -1661,6 +1713,39 @@ async def api_app_employee_leave_settings_create(request: _EmpRequest):
     new_ids = []
 
     with _employee_settings_engine.begin() as conn:
+        blocked_dates = []
+        for one_leave_date in leave_dates:
+            exists = conn.execute(
+                _employee_settings_sql_text("""
+                    SELECT leave_date, leave_type, review_status
+                    FROM employee_leave_settings
+                    WHERE staff_code = :staff_code
+                      AND leave_date = :leave_date
+                      AND COALESCE(review_status, '') <> '\u5df2\u9000\u56de'
+                    LIMIT 1
+                """),
+                {
+                    "staff_code": user.get("staff_code") or "",
+                    "leave_date": one_leave_date,
+                },
+            ).mappings().first()
+
+            if exists:
+                blocked_dates.append(str(exists.get("leave_date") or one_leave_date))
+
+        if blocked_dates:
+            return _EmployeeSettingsResponse(
+                content=_employee_settings_json.dumps(
+                    {
+                        "ok": False,
+                        "error": "\u4ee5\u4e0b\u65e5\u671f\u5df2\u6709\u8acb\u5047\u7533\u8acb\uff0c\u4e0d\u53ef\u91cd\u8907\u9001\u51fa\uff1a" + "\u3001".join(blocked_dates),
+                    },
+                    ensure_ascii=False,
+                ),
+                media_type="application/json; charset=utf-8",
+                status_code=400,
+            )
+
         for one_leave_date in leave_dates:
             conn.execute(
                 _employee_settings_sql_text("""
@@ -1720,6 +1805,841 @@ async def api_app_employee_leave_settings_create(request: _EmpRequest):
         content=_employee_settings_json.dumps({"ok": True, "id": new_id, "ids": new_ids, "count": len(new_ids)}, ensure_ascii=False),
         media_type="application/json; charset=utf-8",
     )
+
+
+
+
+@router.get("/app/employee/leave", response_class=_EmployeeSettingsHTMLResponse)
+def employee_leave_page(request: _EmpRequest):
+    user = _employee_current_user_from_request(request)
+
+    if not user:
+        return _EmployeeSettingsRedirectResponse("/employee/login?next=/app/employee/leave", status_code=303)
+
+    raw_return_to = str(request.query_params.get("return_to", "") or "").strip()
+
+    def _safe_return_to(value: str) -> str:
+        if not value or not value.startswith("/") or value.startswith("//"):
+            return "/app"
+        if value.startswith("/employee/login"):
+            return "/app"
+        return value
+
+    employee_leave_return_to = _safe_return_to(raw_return_to)
+    employee_display_name = str(user.get("display_name") or user.get("staff_code") or "\u767b\u5165\u8005")
+
+    html = """
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>\u8acb\u5047\u7533\u8acb\uff5c\u8a0a\u5357 ERP</title>
+<link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#eef3f9;color:#102348;font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;padding-bottom:28px}
+.app-shell{max-width:520px;margin:0 auto;min-height:100vh;background:#eef3f9}
+.content{padding:14px 16px 22px}
+.card{background:#fff;border:1px solid #d7e1ef;border-radius:20px;padding:14px;box-shadow:0 8px 22px rgba(15,23,42,.06);margin-bottom:14px}
+.page-title{font-size:26px;font-weight:1000;margin:0 0 6px}
+.page-sub{color:#64748b;font-size:14px;font-weight:900;line-height:1.45;margin-bottom:12px}
+label{display:block;color:#475569;font-size:14px;font-weight:1000;margin:12px 0 6px}
+input,select,textarea{width:100%;min-height:46px;border-radius:15px;border:1px solid #cbd5e1;background:#fff;color:#102348;font-size:16px;font-weight:900;padding:9px 12px}
+textarea{min-height:72px;resize:vertical}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.btn{height:48px;border:0;border-radius:16px;background:#365ee8;color:#fff;font-size:16px;font-weight:1000}
+.btn.gray{background:#64748b}
+.btn.green{background:#4b9647}
+.hint{margin-top:8px;color:#64748b;font-size:13px;font-weight:900;line-height:1.4}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:8px}
+.week-cell,.day-cell{min-height:42px;border:0;border-radius:12px;background:#f1f5f9;color:#102348;font-size:14px;font-weight:1000}
+.week-cell{background:#e2e8f0;color:#475569}
+.day-cell.weekend{background:#fff7ed;color:#c2410c;border:1px solid #fdba74}
+.day-cell.holiday{background:#fff7ed;color:#c2410c}
+.day-cell.selected{background:#365ee8;color:#fff}
+.day-cell.pending{background:#fef3c7;color:#92400e;border:1px solid #f59e0b}
+.day-cell.approved{background:#dcfce7;color:#166534;border:1px solid #22c55e}
+.day-cell.locked{opacity:.92;cursor:not-allowed}
+.day-cell small{font-size:9px;font-weight:1000}
+.leave-list{display:grid;gap:9px}
+.leave-item{border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;padding:10px}
+.leave-main{font-size:16px;font-weight:1000}
+.leave-sub{margin-top:4px;color:#64748b;font-size:13px;font-weight:900;line-height:1.35}
+.status-approved{color:#166534}
+.status-pending{color:#92400e}
+.status-rejected{color:#991b1b}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.legend span{font-size:12px;font-weight:900;color:#475569}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:4px;vertical-align:-1px}
+.i-selected{background:#365ee8}.i-approved{background:#dcfce7;border:1px solid #22c55e}.i-pending{background:#fef3c7;border:1px solid #f59e0b}
+</style>
+
+<style id="cl15k3_leave_weekend_holiday_style_v1">
+  .day-cell.weekend {
+    background: #fff7ed !important;
+    color: #c2410c !important;
+    border: 1px solid #fdba74 !important;
+  }
+
+  .day-cell.weekend small {
+    color: #c2410c !important;
+  }
+
+  .day-cell.weekend.selected {
+    background: #365ee8 !important;
+    color: #ffffff !important;
+    border: 1px solid #365ee8 !important;
+  }
+
+  .day-cell.weekend.approved {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    border: 1px solid #22c55e !important;
+  }
+
+  .day-cell.weekend.pending {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    border: 1px solid #f59e0b !important;
+  }
+</style>
+
+
+<style id="cl15k4_leave_date_display_removed_v1">
+  #leave_calendar_summary {
+    margin-top: 10px !important;
+  }
+</style>
+
+</head>
+<body>
+<div class="app-shell">
+<section class="hero app-standard-hero">
+  <div class="hero-main">
+    <span class="hero-logo"><img class="hero-logo-img" src="/static/shinnan_home_logo.png" alt="Logo"></span>
+    <h1 class="hero-title">\u8a0a\u5357\u5de5\u4f5c\u7ba1\u7406\u7cfb\u7d71</h1>
+  </div>
+  <div class="hero-sub">__USER_LINE__</div>
+</section>
+
+<main class="content">
+  <div class="card">
+    <h2 class="page-title">\u8acb\u5047\u7533\u8acb</h2>
+    <div class="page-sub">\u76f4\u63a5\u5728\u6b64\u9078\u64c7\u8acb\u5047\u65e5\u671f\u3002\u5df2\u6838\u51c6\u65e5\u671f\u6703\u9396\u5b9a\uff0c\u4e0d\u53ef\u53d6\u6d88\u6216\u91cd\u8907\u9001\u51fa\u3002</div>
+
+    <label>\u5047\u5225</label>
+    <select id="leave_type">
+      <option value="\u4e8b\u5047">\u4e8b\u5047</option>
+      <option value="\u75c5\u5047">\u75c5\u5047\uff08\u9700\u8b49\u660e\uff09</option>
+      <option value="\u516c\u5047">\u516c\u5047\uff08\u9700\u8b49\u660e\uff09</option>
+      <option value="\u55aa\u5047">\u55aa\u5047\uff08\u9700\u8b49\u660e\uff09</option>
+      <option value="\u7279\u4f11">\u7279\u4f11</option>
+      <option value="\u5176\u4ed6\u9700\u8b49\u660e">\u5176\u4ed6\u9700\u8b49\u660e</option>
+    </select>
+
+    <label>\u65e5\u671f</label>
+
+
+    <div class="grid-2">
+      <select id="leave_calendar_year" onchange="renderLeaveCalendar()"></select>
+      <select id="leave_calendar_month" onchange="renderLeaveCalendar()"></select>
+    </div>
+
+    <div id="leave_calendar_summary" class="hint">\u8acb\u9078\u64c7\u8acb\u5047\u65e5\u671f</div>
+    <div class="legend">
+      <span><i class="i-selected"></i>\u672c\u6b21\u9078\u64c7</span>
+      <span><i class="i-approved"></i>\u5df2\u6838\u51c6\uff08\u9396\u5b9a\uff09</span>
+      <span><i class="i-pending"></i>\u5f85\u5be9\u6838</span>
+    </div>
+    <div id="leave_calendar_grid" class="calendar-grid"></div>
+
+    <div class="grid-2">
+      <div><label>\u958b\u59cb\u6642\u9593</label><input id="start_time" type="time"></div>
+      <div><label>\u7d50\u675f\u6642\u9593</label><input id="end_time" type="time"></div>
+    </div>
+
+    <label>\u8aaa\u660e</label>
+    <textarea id="note" placeholder="\u8acb\u586b\u5beb\u8acb\u5047\u4e8b\u7531"></textarea>
+
+    <label>\u8b49\u660e\u7167\u7247</label>
+    <input id="proof_photo" type="file" accept="image/*">
+
+    <div class="btn-row">
+      <button class="btn gray" type="button" onclick="location.href='__RETURN_TO__'">\u8fd4\u56de</button>
+      <button class="btn green" type="button" onclick="submitLeaveSetting()">\u9001\u51fa\u8acb\u5047</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="page-title">\u6211\u7684\u8acb\u5047\u7d00\u9304</h2>
+    <div id="leave_list" class="leave-list">\u8cc7\u6599\u8f09\u5165\u4e2d...</div>
+  </div>
+</main>
+</div>
+
+<script>
+const byId=(id)=>document.getElementById(id);
+const esc=(s)=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","'":"&#039;"}[m]));
+let leaveDates=[];
+let leaveItems=[];
+let approvedLeaveDates=[];
+let pendingLeaveDates=[];
+let leaveHolidayMap={};
+
+function dateKey(y,m,d){return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`}
+
+function initLeaveCalendar(){
+  const now=new Date();
+  const y=byId("leave_calendar_year");
+  const m=byId("leave_calendar_month");
+  if(!y.options.length){
+    for(let yy=now.getFullYear()-1; yy<=now.getFullYear()+1; yy++){
+      y.innerHTML+=`<option value="${yy}">${yy}</option>`;
+    }
+    for(let mm=1; mm<=12; mm++){
+      m.innerHTML+=`<option value="${mm}">${mm}\u6708</option>`;
+    }
+    y.value=now.getFullYear();
+    m.value=now.getMonth()+1;
+  }
+}
+
+function isApprovedStatus(v){
+  return ["\u5df2\u6838\u51c6","\u6838\u51c6","\u5df2\u901a\u904e"].includes(String(v||"").trim());
+}
+
+function isRejectedStatus(v){
+  return ["\u5df2\u9000\u56de","\u9000\u56de","\u99c1\u56de"].includes(String(v||"").trim());
+}
+
+async function loadLeaveSettings(){
+  const res=await fetch("/api/app/employee/leave-settings?ts="+Date.now(),{cache:"no-store",credentials:"same-origin"});
+  if(res.status===401){location.href="/employee/login?next=/app/employee/leave";return}
+  const data=await res.json().catch(()=>({}));
+  leaveItems=data.items||[];
+
+  approvedLeaveDates=leaveItems.filter(i=>isApprovedStatus(i.review_status)).map(i=>String(i.leave_date||"").slice(0,10)).filter(Boolean);
+  pendingLeaveDates=leaveItems.filter(i=>!isApprovedStatus(i.review_status)&&!isRejectedStatus(i.review_status)).map(i=>String(i.leave_date||"").slice(0,10)).filter(Boolean);
+
+  renderLeaveList();
+}
+
+async function loadHolidays(){
+  initLeaveCalendar();
+  const y=Number(byId("leave_calendar_year").value);
+  const res=await fetch(`/api/app/employee/holidays?year=${y}&ts=${Date.now()}`,{cache:"no-store",credentials:"same-origin"});
+  const data=await res.json().catch(()=>({}));
+  leaveHolidayMap={};
+  (data.items||[]).forEach(i=>leaveHolidayMap[i.holiday_date]=i.title||"\u570b\u5b9a\u5047\u65e5");
+}
+
+async function renderLeaveCalendar(){
+  initLeaveCalendar();
+  await loadHolidays();
+  const y=Number(byId("leave_calendar_year").value);
+  const m=Number(byId("leave_calendar_month").value);
+  const days=new Date(y,m,0).getDate();
+  const start=new Date(y,m-1,1).getDay();
+  let html=["\u65e5","\u4e00","\u4e8c","\u4e09","\u56db","\u4e94","\u516d"].map(w=>`<button class="week-cell" disabled>${w}</button>`).join("");
+
+  for(let i=0;i<start;i++) html+=`<button class="day-cell" disabled></button>`;
+
+  for(let d=1;d<=days;d++){
+    const key=dateKey(y,m,d);
+    const wk=new Date(y,m-1,d).getDay();
+    const hol=leaveHolidayMap[key];
+    const selected=leaveDates.includes(key);
+    const approved=approvedLeaveDates.includes(key);
+    const pending=pendingLeaveDates.includes(key);
+    const cls=[
+      "day-cell",
+      wk===0||wk===6 ? "weekend" : "",
+      hol ? "holiday" : "",
+      selected ? "selected" : "",
+      approved ? "approved locked" : "",
+      pending ? "pending locked" : ""
+    ].filter(Boolean).join(" ");
+    const title=approved ? "\u5df2\u6838\u51c6\uff0c\u4e0d\u53ef\u53d6\u6d88" : (pending ? "\u5f85\u5be9\u6838\uff0c\u4e0d\u53ef\u91cd\u8907\u9001\u51fa" : "");
+    html+=`<button class="${cls}" title="${title}" onclick="toggleLeaveDate('${key}')">${d}${hol?`<br><small>${esc(hol)}</small>`:""}</button>`;
+  }
+
+  byId("leave_calendar_grid").innerHTML=html;
+  updateLeaveDisplay();
+}
+
+function toggleLeaveDate(k){
+  if(approvedLeaveDates.includes(k)){
+    alert("\u6b64\u65e5\u671f\u5df2\u6838\u51c6\uff0c\u4e0d\u53ef\u53d6\u6d88\u6216\u91cd\u8907\u9001\u51fa\u3002");
+    return;
+  }
+
+  if(pendingLeaveDates.includes(k)){
+    alert("\u6b64\u65e5\u671f\u5df2\u9001\u51fa\u5be9\u6838\uff0c\u4e0d\u53ef\u91cd\u8907\u9001\u51fa\u3002");
+    return;
+  }
+
+  leaveDates=leaveDates.includes(k)?leaveDates.filter(x=>x!==k):leaveDates.concat([k]).sort();
+  renderLeaveCalendar();
+}
+
+function updateLeaveDisplay(){
+
+  byId("leave_calendar_summary").textContent=leaveDates.length ? `\u5df2\u9078 ${leaveDates.length} \u5929` : "\u8acb\u9078\u64c7\u8acb\u5047\u65e5\u671f";
+}
+
+function fileToBase64(file){
+  return new Promise((resolve)=>{
+    if(!file){resolve("");return}
+    const reader=new FileReader();
+    reader.onload=()=>resolve(String(reader.result||""));
+    reader.onerror=()=>resolve("");
+    reader.readAsDataURL(file);
+  });
+}
+
+async function submitLeaveSetting(){
+  if(!leaveDates.length){alert("\u8acb\u9078\u64c7\u8acb\u5047\u65e5\u671f");return}
+  const type=byId("leave_type").value;
+  const file=byId("proof_photo").files[0];
+  if(["\u75c5\u5047","\u516c\u5047","\u55aa\u5047","\u5176\u4ed6\u9700\u8b49\u660e"].includes(type)&&!file){
+    alert("\u6b64\u5047\u5225\u9700\u9644\u4e0a\u8b49\u660e\u7167\u7247");
+    return;
+  }
+
+  const proof=await fileToBase64(file);
+  const res=await fetch("/api/app/employee/leave-settings/create",{
+    method:"POST",
+    credentials:"same-origin",
+    headers:{"Content-Type":"application/json; charset=utf-8"},
+    body:JSON.stringify({
+      leave_type:type,
+      leave_date:leaveDates[0],
+      leave_dates:leaveDates,
+      start_time:byId("start_time").value,
+      end_time:byId("end_time").value,
+      note:byId("note").value,
+      proof_image_data:proof
+    })
+  });
+
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok||!data.ok){alert(data.error||"\u9001\u51fa\u5931\u6557");return}
+
+  alert(`\u5df2\u9001\u51fa\u8acb\u5047\u7533\u8acb\uff0c\u5171 ${leaveDates.length} \u5929`);
+  leaveDates=[];
+  ["start_time","end_time","note","proof_photo"].forEach(id=>byId(id).value="");
+  await loadLeaveSettings();
+  await renderLeaveCalendar();
+}
+
+function renderLeaveList(){
+  const list=byId("leave_list");
+  if(!leaveItems.length){
+    list.innerHTML="<div class='hint'>\u76ee\u524d\u6c92\u6709\u8acb\u5047\u7d00\u9304\u3002</div>";
+    return;
+  }
+
+  list.innerHTML=leaveItems.map(i=>{
+    const st=String(i.review_status||"\u5f85\u5be9\u6838");
+    const cls=isApprovedStatus(st)?"status-approved":(isRejectedStatus(st)?"status-rejected":"status-pending");
+    return `<div class="leave-item">
+      <div class="leave-main">${esc(i.leave_date||"")}｜${esc(i.leave_type||"")}｜<span class="${cls}">${esc(st)}</span></div>
+      <div class="leave-sub">${esc(i.start_time||"")} ${i.end_time? "\u2013 "+esc(i.end_time):""}<br>${esc(i.note||"")}</div>
+    </div>`;
+  }).join("");
+}
+
+async function initPage(){
+  initLeaveCalendar();
+  await loadLeaveSettings();
+  await renderLeaveCalendar();
+}
+initPage();
+</script>
+</body>
+</html>
+"""
+    html = html.replace("__RETURN_TO__", employee_leave_return_to.replace('"', "%22").replace("'", "%27"))
+    html = html.replace("__USER_LINE__", employee_display_name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+
+    return _EmployeeSettingsHTMLResponse(content=html)
+
+
+
+
+
+@router.get("/app/employee/comp-rest", response_class=_EmployeeSettingsHTMLResponse)
+def employee_comp_rest_page(request: _EmpRequest):
+    user = _employee_current_user_from_request(request)
+
+    if not user:
+        return _EmployeeSettingsRedirectResponse("/employee/login?next=/app/employee/comp-rest", status_code=303)
+
+    raw_return_to = str(request.query_params.get("return_to", "") or "").strip()
+
+    def _safe_return_to(value: str) -> str:
+        if not value or not value.startswith("/") or value.startswith("//"):
+            return "/app/employee/settings?return_to=/app"
+        if value.startswith("/employee/login"):
+            return "/app/employee/settings?return_to=/app"
+        return value
+
+    back_url = _safe_return_to(raw_return_to)
+    display_name = str(user.get("display_name") or user.get("staff_code") or "\u767b\u5165\u8005")
+
+    html = """
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>\u88dc\u4f11\u7533\u8acb\uff5c\u8a0a\u5357 ERP</title>
+<link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#eef3f9;color:#102348;font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;padding-bottom:28px}
+.app-shell{max-width:520px;margin:0 auto;min-height:100vh;background:#eef3f9}
+.content{padding:14px 16px 22px}
+.card{background:#fff;border:1px solid #d7e1ef;border-radius:20px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.06);margin-bottom:14px}
+.page-title{font-size:26px;font-weight:1000;margin:0 0 8px}
+.page-sub{color:#64748b;font-size:15px;font-weight:900;line-height:1.55;margin-bottom:14px}
+label{display:block;color:#475569;font-size:14px;font-weight:1000;margin:12px 0 6px}
+input,select,textarea{width:100%;min-height:46px;border-radius:15px;border:1px solid #cbd5e1;background:#fff;color:#102348;font-size:16px;font-weight:900;padding:9px 12px}
+textarea{min-height:86px;resize:vertical}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.btn{height:48px;border:0;border-radius:16px;background:#365ee8;color:#fff;font-size:16px;font-weight:1000}
+.btn.gray{background:#64748b}
+.btn.green{background:#4b9647}
+.hint{margin-top:10px;color:#64748b;font-size:13px;font-weight:900;line-height:1.45}
+</style>
+</head>
+<body>
+<div class="app-shell">
+<section class="hero app-standard-hero">
+  <div class="hero-main">
+    <span class="hero-logo"><img class="hero-logo-img" src="/static/shinnan_home_logo.png" alt="Logo"></span>
+    <h1 class="hero-title">\u8a0a\u5357\u5de5\u4f5c\u7ba1\u7406\u7cfb\u7d71</h1>
+  </div>
+  <div class="hero-sub">__USER_LINE__</div>
+</section>
+
+<main class="content">
+  <div class="card">
+    <h2 class="page-title">\u88dc\u4f11\u7533\u8acb</h2>
+    <div class="page-sub">\u6b64\u9801\u9762\u5df2\u9810\u7559\u88dc\u4f11\u7533\u8acb\u5165\u53e3\u3002\u5f8c\u7e8c\u53ef\u63a5\u5165\u52a0\u73ed\u8cc7\u6599\u3001\u88dc\u4f11\u6642\u6578\u8207\u4e3b\u7ba1\u5be9\u6838\u6d41\u7a0b\u3002</div>
+
+    <label>\u88dc\u4f11\u65e5\u671f</label>
+    <input type="date" id="comp_rest_date">
+
+    <div class="grid-2">
+      <div>
+        <label>\u958b\u59cb\u6642\u9593</label>
+        <input type="time" id="comp_rest_start">
+      </div>
+      <div>
+        <label>\u7d50\u675f\u6642\u9593</label>
+        <input type="time" id="comp_rest_end">
+      </div>
+    </div>
+
+    <label>\u7533\u8acb\u539f\u56e0</label>
+    <textarea id="comp_rest_note" placeholder="\u8acb\u586b\u5beb\u88dc\u4f11\u539f\u56e0"></textarea>
+
+    <div class="hint">\u76ee\u524d\u70ba\u5165\u53e3\u8207\u756b\u9762\u9810\u7559\uff0c\u5c1a\u672a\u5beb\u5165\u88dc\u4f11\u5be9\u6838 DB\u3002</div>
+
+    <div class="btn-row">
+      <button class="btn gray" type="button" onclick="location.href='__BACK_URL__'">\u8fd4\u56de</button>
+      <button class="btn green" type="button" onclick="alert('\\u88dc\\u4f11\\u7533\\u8acb\\u6d41\\u7a0b\\u5c1a\\u672a\\u555f\\u7528\\uff0c\\u4e0b\\u4e00\\u6b65\\u9700\\u63a5\\u5165 DB \\u8207\\u4e3b\\u7ba1\\u5be9\\u6838\\u3002')">\u9001\u51fa\u7533\u8acb</button>
+    </div>
+  </div>
+</main>
+</div>
+</body>
+</html>
+"""
+    html = html.replace("__USER_LINE__", display_name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+    html = html.replace("__BACK_URL__", back_url.replace('"', "%22").replace("'", "%27"))
+
+    return _EmployeeSettingsHTMLResponse(content=html)
+
+
+
+@router.get("/app/employee/rest", response_class=_EmployeeSettingsHTMLResponse)
+def employee_rest_page(request: _EmpRequest):
+    user = _employee_current_user_from_request(request)
+
+    if not user:
+        return _EmployeeSettingsRedirectResponse("/employee/login?next=/app/employee/rest", status_code=303)
+
+    raw_return_to = str(request.query_params.get("return_to", "") or "").strip()
+
+    def _safe_return_to(value: str) -> str:
+        if not value or not value.startswith("/") or value.startswith("//"):
+            return "/app"
+        if value.startswith("/employee/login"):
+            return "/app"
+        return value
+
+    employee_rest_return_to = _safe_return_to(raw_return_to)
+    employee_display_name = str(user.get("display_name") or user.get("staff_code") or "\u767b\u5165\u8005")
+
+    html = """
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>\u6392\u4f11\u8a2d\u5b9a\uff5c\u8a0a\u5357 ERP</title>
+<link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#eef3f9;color:#102348;font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;padding-bottom:28px}
+.app-shell{max-width:520px;margin:0 auto;min-height:100vh;background:#eef3f9}
+.content{padding:14px 16px 22px}
+.card{background:#fff;border:1px solid #d7e1ef;border-radius:20px;padding:14px;box-shadow:0 8px 22px rgba(15,23,42,.06);margin-bottom:14px}
+.page-title{font-size:26px;font-weight:1000;margin:0 0 6px}
+.page-sub{color:#64748b;font-size:14px;font-weight:900;line-height:1.45;margin-bottom:12px}
+label{display:block;color:#475569;font-size:14px;font-weight:1000;margin:12px 0 6px}
+select{width:100%;min-height:46px;border-radius:15px;border:1px solid #cbd5e1;background:#fff;color:#102348;font-size:16px;font-weight:900;padding:9px 12px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.btn{height:48px;border:0;border-radius:16px;background:#365ee8;color:#fff;font-size:16px;font-weight:1000}
+.btn.gray{background:#64748b}
+.btn.green{background:#4b9647}
+.btn.green:disabled{background:#94a3b8;color:#e2e8f0}
+.hint{margin-top:10px;color:#64748b;font-size:13px;font-weight:900;line-height:1.4}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:8px}
+.week-cell,.day-cell{min-height:42px;border:1px solid transparent;border-radius:12px;background:#f1f5f9;color:#102348;font-size:14px;font-weight:1000}
+.week-cell{background:#e2e8f0;color:#475569}
+.day-cell.weekend,.day-cell.holiday{background:#fff7ed;color:#c2410c;border:1px solid #fdba74}
+.day-cell.selected{background:#365ee8;color:#fff;border:1px solid #365ee8}
+.day-cell.pending{background:#fef3c7;color:#92400e;border:1px solid #f59e0b}
+.day-cell.approved{background:#dcfce7;color:#166534;border:1px solid #22c55e}
+.day-cell.locked{opacity:.92;cursor:not-allowed}
+.day-cell small{font-size:9px;font-weight:1000}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.legend span{font-size:12px;font-weight:900;color:#475569}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:4px;vertical-align:-1px}
+.i-selected{background:#365ee8}.i-approved{background:#dcfce7;border:1px solid #22c55e}.i-pending{background:#fef3c7;border:1px solid #f59e0b}.i-holiday{background:#fff7ed;border:1px solid #fdba74}
+.status-box{margin-top:10px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;padding:10px;color:#475569;font-size:14px;font-weight:900;line-height:1.45}
+.status-approved{color:#166534}
+.status-pending{color:#92400e}
+.status-rejected{color:#991b1b}
+</style>
+</head>
+<body>
+<div class="app-shell">
+<section class="hero app-standard-hero">
+  <div class="hero-main">
+    <span class="hero-logo"><img class="hero-logo-img" src="/static/shinnan_home_logo.png" alt="Logo"></span>
+    <h1 class="hero-title">\u8a0a\u5357\u5de5\u4f5c\u7ba1\u7406\u7cfb\u7d71</h1>
+  </div>
+  <div class="hero-sub">__USER_LINE__</div>
+</section>
+
+<main class="content">
+  <div class="card">
+    <h2 class="page-title">\u6392\u4f11\u8a2d\u5b9a</h2>
+    <div class="page-sub">\u76f4\u63a5\u5728\u6b64\u9078\u64c7\u7576\u6708\u6392\u4f11\u65e5\u671f\u3002\u5df2\u6838\u51c6\u6708\u4efd\u7684\u5df2\u9078\u5047\u671f\u6703\u9396\u5b9a\uff0c\u4e0d\u53ef\u53d6\u6d88\u6216\u4fee\u6539\u3002</div>
+
+    <label>\u6708\u4efd</label>
+    <div class="grid-2">
+      <select id="rest_year" onchange="loadRestMonth()"></select>
+      <select id="rest_month" onchange="loadRestMonth()"></select>
+    </div>
+
+    <div id="rest_summary" class="hint">\u8acb\u9078\u64c7\u6392\u4f11\u65e5\u671f</div>
+    <div class="legend">
+      <span><i class="i-selected"></i>\u672c\u6b21\u9078\u64c7</span>
+      <span><i class="i-approved"></i>\u5df2\u6838\u51c6\uff08\u9396\u5b9a\uff09</span>
+      <span><i class="i-pending"></i>\u5f85\u5be9\u6838</span>
+      <span><i class="i-holiday"></i>\u516d\u65e5\uff0f\u570b\u5b9a\u5047\u65e5</span>
+    </div>
+
+    <div id="calendar_grid" class="calendar-grid"></div>
+    <div id="rest_status_box" class="status-box"></div>
+
+    <div class="btn-row">
+      <button class="btn gray" type="button" onclick="location.href='__RETURN_TO__'">\u8fd4\u56de</button>
+      <button id="save_rest_button" class="btn green" type="button" onclick="saveRestMonth(false)">\u9001\u51fa\u6392\u4f11</button>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+const byId=(id)=>document.getElementById(id);
+const esc=(s)=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","'":"&#039;"}[m]));
+let selectedRestDates=[];
+let approvedLockedDates=[];
+let pendingDates=[];
+let holidayMap={};
+let requiredRestDays=8;
+let restReviewStatus="";
+
+function dateKey(y,m,d){return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`}
+
+function isApprovedStatus(v){
+  return ["\u5df2\u6838\u51c6","\u6838\u51c6","\u5df2\u901a\u904e"].includes(String(v||"").trim());
+}
+
+function isRejectedStatus(v){
+  return ["\u5df2\u9000\u56de","\u9000\u56de","\u99c1\u56de"].includes(String(v||"").trim());
+}
+
+function initMonthOptions(){
+  const now=new Date();
+  const y=byId("rest_year");
+  const m=byId("rest_month");
+
+  if(!y.options.length){
+    for(let yy=now.getFullYear()-1;yy<=now.getFullYear()+1;yy++){
+      y.innerHTML+=`<option value="${yy}">${yy} \u5e74</option>`;
+    }
+    for(let mm=1;mm<=12;mm++){
+      m.innerHTML+=`<option value="${mm}">${mm} \u6708</option>`;
+    }
+    y.value=now.getFullYear();
+    m.value=now.getMonth()+1;
+  }
+}
+
+async function loadHolidays(year){
+  holidayMap={};
+  const res=await fetch("/api/app/employee/holidays?year="+year+"&ts="+Date.now(),{cache:"no-store",credentials:"same-origin"});
+  if(!res.ok)return;
+  const data=await res.json().catch(()=>({}));
+  (data.items||[]).forEach(i=>holidayMap[i.holiday_date]=i.title||"\u570b\u5b9a\u5047\u65e5");
+}
+
+async function loadRestMonth(){
+  initMonthOptions();
+
+  const y=Number(byId("rest_year").value);
+  const m=Number(byId("rest_month").value);
+
+  await loadHolidays(y);
+
+  const res=await fetch(`/api/app/employee/rest-month?year=${y}&month=${m}&ts=${Date.now()}`,{cache:"no-store",credentials:"same-origin"});
+  if(res.status===401){location.href="/employee/login?next=/app/employee/rest";return}
+
+  const data=await res.json().catch(()=>({}));
+  selectedRestDates=data.selected_dates||[];
+  requiredRestDays=Number(data.required_rest_days||8);
+  restReviewStatus=String(data.review_status||"").trim();
+
+  if(isApprovedStatus(restReviewStatus)){
+    approvedLockedDates=[...selectedRestDates];
+    pendingDates=[];
+  }else if(!isRejectedStatus(restReviewStatus)){
+    approvedLockedDates=[];
+    pendingDates=[...selectedRestDates];
+  }else{
+    approvedLockedDates=[];
+    pendingDates=[];
+  }
+
+  renderRestCalendar(y,m);
+}
+
+function renderRestCalendar(y,m){
+  const box=byId("calendar_grid");
+  const days=new Date(y,m,0).getDate();
+  const start=new Date(y,m-1,1).getDay();
+
+  let html=["\u65e5","\u4e00","\u4e8c","\u4e09","\u56db","\u4e94","\u516d"].map(w=>`<button class="week-cell" disabled>${w}</button>`).join("");
+
+  for(let i=0;i<start;i++) html+=`<button class="day-cell blank" disabled></button>`;
+
+  for(let d=1;d<=days;d++){
+    const key=dateKey(y,m,d);
+    const wk=new Date(y,m-1,d).getDay();
+    const hol=holidayMap[key];
+    const selected=selectedRestDates.includes(key);
+    const approved=approvedLockedDates.includes(key);
+    const pending=pendingDates.includes(key);
+    const locked=approved || isApprovedStatus(restReviewStatus);
+    const cls=[
+      "day-cell",
+      wk===0||wk===6 ? "weekend" : "",
+      hol ? "holiday" : "",
+      selected && !approved && !pending ? "selected" : "",
+      approved ? "approved locked" : "",
+      pending ? "pending" : "",
+      locked ? "locked" : ""
+    ].filter(Boolean).join(" ");
+
+    const title=approved ? "\u5df2\u6838\u51c6\uff0c\u4e0d\u53ef\u53d6\u6d88" : (locked ? "\u6b64\u6708\u6392\u4f11\u5df2\u6838\u51c6\uff0c\u4e0d\u53ef\u4fee\u6539" : "");
+    html+=`<button class="${cls}" title="${title}" onclick="toggleRestDate('${key}')">${d}${hol?`<br><small>${esc(hol)}</small>`:""}</button>`;
+  }
+
+  box.innerHTML=html;
+
+  const missing=Math.max(0,requiredRestDays-selectedRestDates.length);
+  const statusText=restReviewStatus||"\u672a\u9001\u51fa";
+  byId("rest_summary").textContent=`\u5df2\u9078 ${selectedRestDates.length} \u5929\uff5c\u61c9\u9078 ${requiredRestDays} \u5929${missing?`\uff5c\u5c1a\u7f3a ${missing} \u5929`:"\uff5c\u5df2\u9054\u6a19"}`;
+
+  const statusClass=isApprovedStatus(restReviewStatus)?"status-approved":(isRejectedStatus(restReviewStatus)?"status-rejected":"status-pending");
+  byId("rest_status_box").innerHTML=`\u76ee\u524d\u72c0\u614b\uff1a<span class="${statusClass}">${esc(statusText)}</span>${isApprovedStatus(restReviewStatus)?"<br>\u6b64\u6708\u6392\u4f11\u5df2\u6838\u51c6\uff0c\u5df2\u9078\u65e5\u671f\u4e0d\u53ef\u53d6\u6d88\u6216\u4fee\u6539\u3002":""}`;
+
+  const saveBtn=byId("save_rest_button");
+  if(saveBtn){
+    saveBtn.disabled=isApprovedStatus(restReviewStatus);
+    saveBtn.textContent=isApprovedStatus(restReviewStatus) ? "\u5df2\u6838\u51c6" : "\u9001\u51fa\u6392\u4f11";
+  }
+}
+
+function toggleRestDate(k){
+  if(isApprovedStatus(restReviewStatus)){
+    alert("\u6b64\u6708\u6392\u4f11\u5df2\u6838\u51c6\uff0c\u4e0d\u53ef\u53d6\u6d88\u6216\u4fee\u6539\u3002");
+    return;
+  }
+
+  if(approvedLockedDates.includes(k)){
+    alert("\u6b64\u65e5\u671f\u5df2\u6838\u51c6\uff0c\u4e0d\u53ef\u53d6\u6d88\u3002");
+    return;
+  }
+
+  selectedRestDates=selectedRestDates.includes(k)?selectedRestDates.filter(x=>x!==k):selectedRestDates.concat([k]).sort();
+  pendingDates=[...selectedRestDates];
+  renderRestCalendar(Number(byId("rest_year").value),Number(byId("rest_month").value));
+}
+
+async function saveRestMonth(force){
+  if(isApprovedStatus(restReviewStatus)){
+    alert("\u6b64\u6708\u6392\u4f11\u5df2\u6838\u51c6\uff0c\u4e0d\u53ef\u53d6\u6d88\u6216\u4fee\u6539\u3002");
+    return;
+  }
+
+  const y=Number(byId("rest_year").value);
+  const m=Number(byId("rest_month").value);
+
+  const res=await fetch("/api/app/employee/rest-month/save",{
+    method:"POST",
+    credentials:"same-origin",
+    headers:{"Content-Type":"application/json; charset=utf-8"},
+    body:JSON.stringify({year:y,month:m,selected_dates:selectedRestDates,force:Boolean(force)})
+  });
+
+  const data=await res.json().catch(()=>({}));
+
+  if(res.status===409&&data.need_confirm){
+    if(confirm(data.error+" \u662f\u5426\u4ecd\u8981\u7e7c\u7e8c\u9001\u51fa\uff1f")) saveRestMonth(true);
+    return;
+  }
+
+  if(!res.ok||!data.ok){
+    alert(data.error||"\u6392\u4f11\u5132\u5b58\u5931\u6557");
+    return;
+  }
+
+  alert("\u6392\u4f11\u5df2\u9001\u51fa");
+  await loadRestMonth();
+}
+
+async function initPage(){
+  initMonthOptions();
+  await loadRestMonth();
+}
+
+initPage();
+</script>
+</body>
+</html>
+"""
+    html = html.replace("__RETURN_TO__", employee_rest_return_to.replace('"', "%22").replace("'", "%27"))
+    html = html.replace("__USER_LINE__", employee_display_name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+
+    return _EmployeeSettingsHTMLResponse(content=html)
+
+
+
+
+@router.get("/app/employee/overtime", response_class=_EmployeeSettingsHTMLResponse)
+def employee_overtime_page(request: _EmpRequest):
+    user = _employee_current_user_from_request(request)
+
+    if not user:
+        return _EmployeeSettingsRedirectResponse("/employee/login?next=/app/employee/overtime", status_code=303)
+
+    raw_return_to = str(request.query_params.get("return_to", "") or "").strip()
+
+    def _safe_return_to(value: str) -> str:
+        if not value or not value.startswith("/") or value.startswith("//"):
+            return "/app/employee/settings?return_to=/app"
+        if value.startswith("/employee/login"):
+            return "/app/employee/settings?return_to=/app"
+        return value
+
+    back_url = _safe_return_to(raw_return_to)
+    display_name = str(user.get("display_name") or user.get("staff_code") or "\u767b\u5165\u8005")
+
+    html = """
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>\u52a0\u73ed\u7533\u8acb\uff5c\u8a0a\u5357 ERP</title>
+<link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#eef3f9;color:#102348;font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;padding-bottom:28px}
+.app-shell{max-width:520px;margin:0 auto;min-height:100vh;background:#eef3f9}
+.content{padding:14px 16px 22px}
+.card{background:#fff;border:1px solid #d7e1ef;border-radius:20px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.06);margin-bottom:14px}
+.page-title{font-size:26px;font-weight:1000;margin:0 0 8px}
+.page-sub{color:#64748b;font-size:15px;font-weight:900;line-height:1.55;margin-bottom:14px}
+label{display:block;color:#475569;font-size:14px;font-weight:1000;margin:12px 0 6px}
+input,textarea{width:100%;min-height:46px;border-radius:15px;border:1px solid #cbd5e1;background:#fff;color:#102348;font-size:16px;font-weight:900;padding:9px 12px}
+textarea{min-height:86px;resize:vertical}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.btn{height:48px;border:0;border-radius:16px;background:#365ee8;color:#fff;font-size:16px;font-weight:1000}
+.btn.gray{background:#64748b}
+.btn.green{background:#4b9647}
+.hint{margin-top:10px;color:#64748b;font-size:13px;font-weight:900;line-height:1.45}
+</style>
+</head>
+<body>
+<div class="app-shell">
+<section class="hero app-standard-hero">
+  <div class="hero-main">
+    <span class="hero-logo"><img class="hero-logo-img" src="/static/shinnan_home_logo.png" alt="Logo"></span>
+    <h1 class="hero-title">\u8a0a\u5357\u5de5\u4f5c\u7ba1\u7406\u7cfb\u7d71</h1>
+  </div>
+  <div class="hero-sub">__USER_LINE__</div>
+</section>
+<main class="content">
+  <div class="card">
+    <h2 class="page-title">\u52a0\u73ed\u7533\u8acb</h2>
+    <div class="page-sub">\u6b64\u9801\u9762\u5df2\u9810\u7559\u52a0\u73ed\u7533\u8acb\u5165\u53e3\u3002\u5f8c\u7e8c\u53ef\u63a5\u5165\u4e3b\u7ba1\u5be9\u6838\u8207\u88dc\u4f11\u6642\u6578\u8a08\u7b97\u3002</div>
+    <label>\u52a0\u73ed\u65e5\u671f</label>
+    <input type="date">
+    <div class="grid-2">
+      <div><label>\u958b\u59cb\u6642\u9593</label><input type="time"></div>
+      <div><label>\u7d50\u675f\u6642\u9593</label><input type="time"></div>
+    </div>
+    <label>\u52a0\u73ed\u539f\u56e0</label>
+    <textarea placeholder="\u8acb\u586b\u5beb\u52a0\u73ed\u539f\u56e0"></textarea>
+    <div class="hint">\u76ee\u524d\u70ba\u5165\u53e3\u8207\u756b\u9762\u9810\u7559\uff0c\u5c1a\u672a\u5beb\u5165\u52a0\u73ed\u5be9\u6838 DB\u3002</div>
+    <div class="btn-row">
+      <button class="btn gray" type="button" onclick="location.href='__BACK_URL__'">\u8fd4\u56de</button>
+      <button class="btn green" type="button" onclick="alert('\u52a0\u73ed\u7533\u8acb\u6d41\u7a0b\u5c1a\u672a\u555f\u7528\uff0c\u4e0b\u4e00\u6b65\u9700\u63a5\u5165 DB \u8207\u4e3b\u7ba1\u5be9\u6838\u3002')">\u9001\u51fa\u7533\u8acb</button>
+    </div>
+  </div>
+</main>
+</div>
+</body>
+</html>
+"""
+    html = html.replace("__USER_LINE__", display_name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+    html = html.replace("__BACK_URL__", back_url.replace('"', "%22").replace("'", "%27"))
+
+    return _EmployeeSettingsHTMLResponse(content=html)
 
 
 
@@ -1797,6 +2717,7 @@ textarea{min-height:84px;padding:12px 14px}
 .bottom-nav button.primary{background:#365ee8;color:#fff}
 </style>
   <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+
 </head>
 <body>
 <div class="app-shell">
@@ -1832,11 +2753,11 @@ textarea{min-height:84px;padding:12px 14px}
 
 <section class="card">
   <div class="menu-grid">
-    <button class="menu-btn" onclick="openPanel('password')">密碼設定</button>
-    <button class="menu-btn" onclick="openPanel('rest')">休假設定</button>
-    <button class="menu-btn" onclick="openPanel('leave')">請假設定</button>
-    <button class="menu-btn" onclick="openPanel('query')">休假查詢</button>
-    <button class="menu-btn" onclick="openPanel('proxy')">代理人設定</button>
+    <button class="menu-btn" onclick="openPanel('password')">\u5bc6\u78bc\u8a2d\u5b9a</button>
+    <button class="menu-btn" onclick="openPanel('query')">\u4f11\u5047\u67e5\u8a62</button>
+    <button class="menu-btn" onclick="openPanel('proxy')">\u4ee3\u7406\u4eba\u8a2d\u5b9a</button>
+    <button class="menu-btn" onclick="location.href='/app/employee/overtime?return_to=/app/employee/settings?return_to=/app'">\u52a0\u73ed\u7533\u8acb</button>
+    <button class="menu-btn" onclick="location.href='/app/employee/comp-rest?return_to=/app/employee/settings?return_to=/app'">\u88dc\u4f11\u7533\u8acb</button>
   </div>
 </section>
 </main>
@@ -2043,7 +2964,7 @@ async function submitLeaveSetting(){
   const proof=await fileToBase64(file);
   const res=await fetch("/api/app/employee/leave-settings/create",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json; charset=utf-8"},body:JSON.stringify({leave_type:type,leave_date:leaveDates[0],leave_dates:leaveDates,start_time:byId("start_time").value,end_time:byId("end_time").value,note:byId("note").value,proof_image_data:proof})});
   const data=await res.json().catch(()=>({})); if(!res.ok||!data.ok){alert(data.error||"送出失敗");return}
-  alert(`已送出請假申請，共 ${leaveDates.length} 天`); leaveDates=[]; ["start_time","end_time","note","proof_photo","leave_date_display"].forEach(id=>byId(id).value=""); closePanel(); loadAll();
+  alert(`已送出請假申請，共 ${leaveDates.length} 天`); leaveDates=[]; ["start_time","end_time","note","proof_photo"].forEach(id=>byId(id).value=""); closePanel(); loadAll();
 }
 
 async function loadRestQuery(){
@@ -2151,6 +3072,8 @@ def unified_mobile_app_home(request: _EmpRequest):
             return True
         if key == "manager":
             return role == "manager" or "manager" in app_access or "admin" in app_access
+        if key == "maintenance":
+            return department == "\u7dad\u4fee\u90e8" or "maintenance" in app_access or "\u7dad\u4fee" in app_access
         return key in app_access
 
     modules = [
@@ -2158,6 +3081,7 @@ def unified_mobile_app_home(request: _EmpRequest):
         ("billing", "\u5e33\u52d9\u7cfb\u7d71", "\u5927\u6a13\u5e33\u55ae\u3001\u903e\u671f\u672a\u7e73\u3001\u5e33\u52d9\u4efb\u52d9", "/app/billing"),
         ("sales", "\u696d\u52d9\u7cfb\u7d71", "\u5927\u6a13\u62dc\u8a2a\u3001\u5408\u7d04\u8ffd\u8e64\u3001\u4e8b\u4ef6\u7ba1\u7406", "/app/sales"),
         ("engineering", "\u5de5\u7a0b\u7cfb\u7d71", "\u5de5\u7a0b\u6848\u4ef6\u3001\u65bd\u5de5\u7ba1\u7406\u3001\u5c08\u6848\u9032\u5ea6", "/app/engineering"),
+        ("maintenance", "\u7dad\u4fee\u90e8\u7cfb\u7d71", "\u5404\u5340\u8f49\u4fee\u3001\u516c\u8a2d\u652f\u63f4\u3001\u7dad\u4fee\u5b8c\u5de5\u56de\u5831", "/app/maintenance"),
         ("manager", "\u4e3b\u7ba1\u4e2d\u5fc3", "\u90e8\u9580\u6848\u4ef6\u3001\u5f85\u5be9\u6838\u3001\u4eba\u54e1\u72c0\u6cc1\u8207\u90e8\u9580\u7d71\u8a08", "/app/manager"),
     ]
 
@@ -2300,11 +3224,11 @@ def unified_mobile_app_home(request: _EmpRequest):
           <div class="card-title">員工設定</div>
           <div class="card-desc">個人資料、PIN、代理人、假表與請假相關設定。</div>
         </a>
-        <a class="card general-card" href="/app/employee/settings?return_to=/app#leave">
+        <a class="card general-card" href="/app/employee/leave?return_to=/app">
           <div class="card-title">請假申請</div>
           <div class="card-desc">無紙化請假、查看自己的申請與休假狀態。</div>
         </a>
-        <a class="card general-card" href="/app/employee/settings?return_to=/app#rest">
+        <a class="card general-card" href="/app/employee/rest?return_to=/app">
           <div class="card-title">排休設定</div>
           <div class="card-desc">設定月休假表，送主管與人事審核。</div>
         </a>
@@ -2419,6 +3343,113 @@ def unified_mobile_app_calculator(request: _EmpRequest):
     .red {{ background:#dc2626 !important; color:#fff !important; }}
   </style>
   <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+
+
+    <style id="cl15j9_calculator_refined_button_style_v1">
+      .calc .keys button {{
+        position: relative !important;
+        overflow: hidden !important;
+        border: 1px solid rgba(226, 232, 240, 0.95) !important;
+        border-bottom: 2px solid rgba(203, 213, 225, 0.95) !important;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.96) 100%) !important;
+        box-shadow:
+          0 4px 10px rgba(15, 23, 42, 0.07),
+          inset 0 1px 0 rgba(255,255,255,0.95) !important;
+        transform: translateY(0) scale(1) !important;
+        transition:
+          transform 70ms ease,
+          box-shadow 90ms ease,
+          filter 90ms ease,
+          background 90ms ease !important;
+        cursor: pointer !important;
+        user-select: none !important;
+        touch-action: manipulation !important;
+      }}
+
+      .calc .keys button:hover {{
+        filter: brightness(1.015) !important;
+        box-shadow:
+          0 6px 14px rgba(15, 23, 42, 0.10),
+          inset 0 1px 0 rgba(255,255,255,0.95) !important;
+      }}
+
+      .calc .keys button:active {{
+        transform: translateY(2px) scale(0.992) !important;
+        border-bottom-width: 1px !important;
+        box-shadow:
+          0 1px 4px rgba(15, 23, 42, 0.10),
+          inset 0 2px 5px rgba(15, 23, 42, 0.10) !important;
+        filter: brightness(0.985) !important;
+      }}
+
+      .calc .keys button.op {{
+        border-color: rgba(191, 219, 254, 0.95) !important;
+        border-bottom-color: rgba(147, 197, 253, 0.95) !important;
+        background:
+          linear-gradient(180deg, rgba(239,246,255,0.98) 0%, rgba(219,234,254,0.96) 100%) !important;
+        color: #2f55d4 !important;
+      }}
+
+      .calc .keys button.op:hover {{
+        box-shadow:
+          0 6px 14px rgba(37, 99, 235, 0.12),
+          inset 0 1px 0 rgba(255,255,255,0.95) !important;
+      }}
+
+      .calc .keys button.equal {{
+        border-color: rgba(74, 163, 82, 0.9) !important;
+        border-bottom-color: rgba(34, 126, 47, 0.95) !important;
+        background:
+          linear-gradient(180deg, rgba(83, 175, 87, 1) 0%, rgba(62, 151, 69, 1) 100%) !important;
+        color: #ffffff !important;
+        box-shadow:
+          0 4px 10px rgba(22, 101, 52, 0.16),
+          inset 0 1px 0 rgba(255,255,255,0.24) !important;
+      }}
+
+      .calc .keys button.equal:hover {{
+        box-shadow:
+          0 6px 14px rgba(22, 101, 52, 0.20),
+          inset 0 1px 0 rgba(255,255,255,0.26) !important;
+      }}
+
+      .calc .keys button.clear {{
+        border-color: rgba(254, 202, 202, 0.95) !important;
+        border-bottom-color: rgba(252, 165, 165, 0.95) !important;
+        background:
+          linear-gradient(180deg, rgba(255,245,245,1) 0%, rgba(254,226,226,0.96) 100%) !important;
+        color: #9f2b22 !important;
+      }}
+
+      .calc .keys button.clear:hover {{
+        box-shadow:
+          0 6px 14px rgba(185, 28, 28, 0.10),
+          inset 0 1px 0 rgba(255,255,255,0.95) !important;
+      }}
+
+      .calc .keys button::after {{
+        content: "" !important;
+        position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        width: 0 !important;
+        height: 0 !important;
+        border-radius: 999px !important;
+        background: rgba(255, 255, 255, 0.45) !important;
+        transform: translate(-50%, -50%) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }}
+
+      .calc .keys button:active::after {{
+        width: 95% !important;
+        height: 95% !important;
+        opacity: 0.20 !important;
+        transition: width 100ms ease, height 100ms ease, opacity 120ms ease !important;
+      }}
+    </style>
+
 </head>
 <body>
   <div class="app">
@@ -2437,7 +3468,7 @@ def unified_mobile_app_calculator(request: _EmpRequest):
         <input id="display" value="0" readonly>
         <div class="keys">
           <button class="clear" onclick="clearDisplay()">C</button>
-          <button onclick="backspace()">⌫</button>
+          <button onclick="backspace()">DEL</button>
           <button class="op" onclick="appendValue('%')">%</button>
           <button class="op" onclick="appendValue('/')">÷</button>
 
@@ -2594,5 +3625,4 @@ button {{ height: 50px; border: 0; border-radius: 16px; background: white; color
 </html>
 """)
 # XN_MANAGER_CENTER_SIMPLE_V2_END
-
 

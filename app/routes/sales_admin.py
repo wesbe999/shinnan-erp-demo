@@ -918,6 +918,174 @@ def shinnan_admin_sales_page():
 </style>
 
   <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
+
+
+  <style id="cl15i8_sales_header_actions_right_v1">
+    body .web-title.web-title-tech {
+      height: 150px !important;
+      min-height: 150px !important;
+      padding: 0 28px !important;
+      overflow: hidden !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+
+    body .web-title .web-title-main {
+      width: 100% !important;
+      height: 100% !important;
+      display: grid !important;
+      grid-template-columns: 210px minmax(420px, auto) 1fr !important;
+      grid-template-rows: auto auto !important;
+      grid-template-areas:
+        "logo title spacer"
+        "logo title actions" !important;
+      align-items: center !important;
+      column-gap: 24px !important;
+      row-gap: 4px !important;
+      position: relative !important;
+      z-index: 10 !important;
+    }
+
+    body .web-title .web-title-logo-box {
+      grid-area: logo !important;
+      width: 190px !important;
+      min-width: 190px !important;
+      height: 118px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    body .web-title .web-title-logo {
+      width: 118px !important;
+      max-height: 92px !important;
+      object-fit: contain !important;
+    }
+
+    body .web-title .web-title-text {
+      grid-area: title !important;
+      min-width: 420px !important;
+      width: auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      align-items: flex-start !important;
+      gap: 8px !important;
+      white-space: nowrap !important;
+      overflow: visible !important;
+      transform: translateY(0) !important;
+    }
+
+    body .web-title .web-title-system {
+      margin: 0 !important;
+      padding: 0 !important;
+      font-size: 38px !important;
+      line-height: 1.02 !important;
+      letter-spacing: 2px !important;
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      overflow-wrap: normal !important;
+      max-width: none !important;
+    }
+
+    body .web-title .web-title-sub {
+      margin: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      gap: 12px !important;
+      font-size: 17px !important;
+      line-height: 1.1 !important;
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      max-width: none !important;
+    }
+
+    body .web-title .web-title-actions {
+      grid-area: actions !important;
+      justify-self: end !important;
+      align-self: start !important;
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      gap: 7px !important;
+      min-width: 0 !important;
+      width: auto !important;
+      max-width: 760px !important;
+      white-space: nowrap !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      position: relative !important;
+      z-index: 20 !important;
+      transform: translateY(-2px) !important;
+    }
+
+    body .web-title .web-title-actions button,
+    body .web-title .web-title-actions a {
+      flex: 0 0 auto !important;
+      height: 28px !important;
+      min-width: 68px !important;
+      padding: 0 10px !important;
+      border-radius: 9px !important;
+      font-size: 12px !important;
+      font-weight: 1000 !important;
+      line-height: 1 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      white-space: nowrap !important;
+      border-width: 1px !important;
+    }
+
+    body .web-title .web-title-user {
+      display: none !important;
+    }
+
+    @media (max-width: 1500px) {
+      body .web-title.web-title-tech {
+        height: 148px !important;
+        min-height: 148px !important;
+      }
+
+      body .web-title .web-title-main {
+        grid-template-columns: 175px minmax(360px, auto) 1fr !important;
+        column-gap: 16px !important;
+      }
+
+      body .web-title .web-title-logo-box {
+        width: 160px !important;
+        min-width: 160px !important;
+      }
+
+      body .web-title .web-title-logo {
+        width: 102px !important;
+      }
+
+      body .web-title .web-title-text {
+        min-width: 360px !important;
+      }
+
+      body .web-title .web-title-system {
+        font-size: 34px !important;
+      }
+
+      body .web-title .web-title-actions {
+        gap: 6px !important;
+        max-width: 640px !important;
+      }
+
+      body .web-title .web-title-actions button,
+      body .web-title .web-title-actions a {
+        min-width: 62px !important;
+        height: 26px !important;
+        padding: 0 8px !important;
+        font-size: 11px !important;
+      }
+    }
+  </style>
+
 </head>
 <body>
   <div class="wrap">

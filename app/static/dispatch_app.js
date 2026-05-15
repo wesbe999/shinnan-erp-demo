@@ -656,14 +656,21 @@ function renderDetailPage(item) {
 
         <div class="action-panel workflow-detail-actions">
           <div class="action-row">
-            <button class="action-btn blue" onclick="callCustomer(currentTicket())">\u4e00\u9375\u64a5\u865f</button>
-            <button class="action-btn orange" onclick="navigateCustomer(currentTicket())">\u4e00\u9375\u5c0e\u822a</button>
+            <button class="action-btn dial-btn" onclick="callCustomer(currentTicket())">\u4e00\u9375\u64a5\u865f</button>
+            <button class="action-btn nav-btn" onclick="navigateCustomer(currentTicket())">\u4e00\u9375\u5c0e\u822a</button>
           </div>
           <div class="action-row">
-            <button id="claim_btn" class="action-btn green" onclick="claimTicketPreview()" disabled>\u9818\u53d6\u6848\u4ef6</button>
-            <button class="action-btn gray" onclick="showListPage()">\u8fd4\u56de\u5217\u8868</button>
+            <button id="claim_btn" class="action-btn claim-btn" onclick="claimTicketPreview()" disabled>\u9818\u53d6\u6848\u4ef6</button>
+            <button class="action-btn transfer-btn" onclick="transferTicketPreview()">\u8f49\u6d3e</button>
           </div>
-          <button class="action-btn blue next-btn" onclick="showFinishPage()">\u4e0b\u4e00\u6b65</button>
+          ${Number(item.transfer_origin_ticket_id || 0) ? `
+          <div class="action-row single-full">
+            <button class="action-btn transfer-return-btn" onclick="returnTransferredTicketPreview()">\u9000\u56de\u8f49\u6d3e</button>
+          </div>` : ``}
+          <div class="action-row">
+            <button class="action-btn list-btn" onclick="showListPage()">\u8fd4\u56de\u5217\u8868</button>
+            <button class="action-btn next-btn action-next-blue" onclick="showFinishPage()">\u4e0b\u4e00\u6b65</button>
+          </div>
         </div>
       `;
 
@@ -671,6 +678,211 @@ function renderDetailPage(item) {
       showDetailPage();
     }
 
+
+
+
+/* CL15L1_TRANSFER_JS_FUNCTIONS_START */
+async function loadTransferDepartments() {
+      try {
+        const res = await fetch("/api/app/dispatch/departments?ts=" + Date.now(), {
+          cache: "no-store",
+          credentials: "same-origin"
+        });
+
+        const data = await res.json().catch(function(){ return {}; });
+
+        if (!res.ok || !data.ok) return [];
+
+        return Array.isArray(data.items) ? data.items : [];
+      } catch (err) {
+        return [];
+      }
+    }
+
+
+function cl15l6EscapeHtml(value) {
+      return String(value == null ? "" : value).replace(/[&<>"']/g, function (m) {
+        return ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "\"": "&quot;",
+          "'": "&#039;"
+        })[m];
+      });
+    }
+
+function openTransferDepartmentDialog(options, currentDepartment) {
+      return new Promise(function (resolve) {
+        const old = document.querySelector(".cl15l6-transfer-modal-mask");
+        if (old) old.remove();
+
+        const filtered = options.filter(function (x) {
+          const v = String(x || "").trim();
+          return v && v !== String(currentDepartment || "").trim();
+        });
+
+        const mask = document.createElement("div");
+        mask.className = "cl15l6-transfer-modal-mask";
+
+        const optionHtml = filtered.map(function (name) {
+          return "<option value=\"" + cl15l6EscapeHtml(name) + "\">" + cl15l6EscapeHtml(name) + "</option>";
+        }).join("");
+
+        mask.innerHTML = `
+          <div class="cl15l6-transfer-modal">
+            <div class="cl15l6-transfer-title">\u8f49\u6d3e\u6848\u4ef6</div>
+            <div class="cl15l6-transfer-sub">\u8acb\u9078\u64c7\u8981\u8f49\u6d3e\u7684\u76ee\u6a19\u90e8\u9580\u3002</div>
+
+            <label class="cl15l6-transfer-label">\u76ee\u6a19\u90e8\u9580</label>
+            <select id="cl15l6_transfer_department" class="cl15l6-transfer-select">
+              ${optionHtml}
+            </select>
+
+            <label class="cl15l6-transfer-label">\u8f49\u6d3e\u5099\u8a3b</label>
+            <textarea id="cl15l6_transfer_note" class="cl15l6-transfer-note" placeholder="\u53ef\u586b\u5beb\u539f\u56e0\u6216\u88dc\u5145\u8aaa\u660e"></textarea>
+
+            <div class="cl15l6-transfer-actions">
+              <button type="button" class="cl15l6-transfer-cancel">\u53d6\u6d88</button>
+              <button type="button" class="cl15l6-transfer-submit">\u78ba\u8a8d\u8f49\u6d3e</button>
+            </div>
+          </div>
+        `;
+
+        document.body.appendChild(mask);
+
+        const select = mask.querySelector("#cl15l6_transfer_department");
+        const note = mask.querySelector("#cl15l6_transfer_note");
+        const cancel = mask.querySelector(".cl15l6-transfer-cancel");
+        const submit = mask.querySelector(".cl15l6-transfer-submit");
+
+        if (!filtered.length) {
+          select.innerHTML = "<option value=\"\">\u6c92\u6709\u53ef\u8f49\u6d3e\u90e8\u9580</option>";
+          submit.disabled = true;
+        }
+
+        function close(result) {
+          mask.remove();
+          resolve(result);
+        }
+
+        cancel.addEventListener("click", function () {
+          close(null);
+        });
+
+        mask.addEventListener("click", function (event) {
+          if (event.target === mask) close(null);
+        });
+
+        submit.addEventListener("click", function () {
+          const target = String(select.value || "").trim();
+          if (!target) {
+            alert("\u8acb\u9078\u64c7\u8f49\u6d3e\u90e8\u9580");
+            return;
+          }
+
+          close({
+            target_department: target,
+            note: String(note.value || "").trim()
+          });
+        });
+      });
+    }
+
+async function transferTicketPreview() {
+      const item = currentTicket();
+
+      if (!item || !item.id) {
+        alert("\u627e\u4e0d\u5230\u76ee\u524d\u6848\u4ef6");
+        return;
+      }
+
+      const departments = await loadTransferDepartments();
+      const currentDepartment = String(item.dispatch_area || "").trim();
+      const selected = await openTransferDepartmentDialog(departments, currentDepartment);
+
+      if (!selected) return;
+
+      if (!confirm("\u78ba\u8a8d\u8f49\u6d3e\u7d66\u300c" + selected.target_department + "\u300d\uff1f")) return;
+
+      try {
+        const res = await fetch("/api/app/dispatch/tickets/" + encodeURIComponent(item.id) + "/transfer", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {"Content-Type": "application/json; charset=utf-8"},
+          body: JSON.stringify({
+            target_department: selected.target_department,
+            note: selected.note
+          })
+        });
+
+        const data = await res.json().catch(function(){ return {}; });
+
+        if (!res.ok || !data.ok) {
+          alert(data.error || "\u8f49\u6d3e\u5931\u6557");
+          return;
+        }
+
+        alert("\u5df2\u8f49\u6d3e\u7d66\u300c" + selected.target_department + "\u300d");
+
+        await loadTickets();
+
+        const refreshed = allTickets.find(function (x) {
+          return Number(x.id || 0) === Number(item.id || 0);
+        });
+
+        if (refreshed) {
+          renderDetailPage(refreshed);
+        } else {
+          showListPage();
+        }
+      } catch (err) {
+        alert(err && err.message ? err.message : "\u8f49\u6d3e\u932f\u8aa4");
+      }
+    }
+
+
+async function returnTransferredTicketPreview() {
+      const item = currentTicket();
+
+      if (!item || !item.id) {
+        alert("\u627e\u4e0d\u5230\u76ee\u524d\u6848\u4ef6");
+        return;
+      }
+
+      if (!Number(item.transfer_origin_ticket_id || 0)) {
+        alert("\u6b64\u6848\u4ef6\u4e0d\u662f\u8f49\u6d3e\u6848");
+        return;
+      }
+
+      const reason = prompt("\u8acb\u8f38\u5165\u9000\u56de\u539f\u56e0\uff1a", "") || "";
+
+      if (!confirm("\u78ba\u8a8d\u9000\u56de\u6b64\u8f49\u6d3e\u6848\uff1f\u539f\u6848\u6703\u56de\u5230\u672a\u9818\u53d6\u72c0\u614b\u3002")) return;
+
+      try {
+        const res = await fetch("/api/app/dispatch/tickets/" + encodeURIComponent(item.id) + "/transfer-return", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {"Content-Type": "application/json; charset=utf-8"},
+          body: JSON.stringify({reason: reason})
+        });
+
+        const data = await res.json().catch(function(){ return {}; });
+
+        if (!res.ok || !data.ok) {
+          alert(data.error || "\u9000\u56de\u5931\u6557");
+          return;
+        }
+
+        alert("\u5df2\u9000\u56de\uff0c\u539f\u6848\u5df2\u56de\u5230\u672a\u9818\u53d6\u72c0\u614b\u3002");
+        await loadTickets();
+        showListPage();
+      } catch (err) {
+        alert(err && err.message ? err.message : "\u9000\u56de\u932f\u8aa4");
+      }
+    }
+
+/* CL15L1_TRANSFER_JS_FUNCTIONS_END */
 
 
 function updateClaimButtonState() {

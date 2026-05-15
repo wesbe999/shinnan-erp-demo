@@ -1087,6 +1087,97 @@ CLEAN_ADMIN_HTML = r'''
 
 </style>
   <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
+
+
+  <style id="cl15i10_dispatch_actions_to_header_right_v1">
+    body .web-title .web-title-user,
+    body .web-title-user,
+    body [data-web-title-user="1"] {
+      display: none !important;
+      visibility: hidden !important;
+      width: 0 !important;
+      height: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      overflow: hidden !important;
+    }
+
+    body .web-title.web-title-tech {
+      position: relative !important;
+      overflow: hidden !important;
+    }
+
+    body .cl15i10-header-actions {
+      position: absolute !important;
+      right: 38px !important;
+      bottom: 24px !important;
+      z-index: 50 !important;
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      gap: 7px !important;
+      white-space: nowrap !important;
+    }
+
+    body .cl15i10-header-actions button {
+      flex: 0 0 auto !important;
+      height: 28px !important;
+      min-width: 68px !important;
+      padding: 0 10px !important;
+      border-radius: 9px !important;
+      border: 1px solid rgba(224, 201, 119, 0.82) !important;
+      background: #10361f !important;
+      color: #fff7d6 !important;
+      font-size: 12px !important;
+      font-weight: 1000 !important;
+      line-height: 1 !important;
+      box-shadow: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      white-space: nowrap !important;
+      cursor: pointer !important;
+    }
+
+    body .cl15i10-header-actions button:hover {
+      background: #174a2a !important;
+      border-color: #ead27b !important;
+      transform: translateY(-1px);
+    }
+
+    body .cl15i10-header-actions button.cl15i10-logout {
+      background: #7f251f !important;
+      border-color: rgba(244, 180, 140, 0.82) !important;
+      color: #fff4ec !important;
+    }
+
+    body .cl15i10-header-actions button.cl15i10-logout:hover {
+      background: #9b2d25 !important;
+      border-color: #ffd0b0 !important;
+    }
+
+    body .toolbar.cl15i10-toolbar-hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 1200px) {
+      body .cl15i10-header-actions {
+        right: 20px !important;
+        bottom: 16px !important;
+        gap: 5px !important;
+      }
+
+      body .cl15i10-header-actions button {
+        height: 26px !important;
+        min-width: 58px !important;
+        padding: 0 7px !important;
+        font-size: 11px !important;
+      }
+    }
+  </style>
+
 </head>
 
 <body>
@@ -2861,6 +2952,80 @@ async function createTicket() {
     .catch(function () {
       setName(fallbackName() || "\u767b\u5165\u8005");
     });
+})();
+</script>
+
+
+<script id="cl15i10_dispatch_actions_to_header_right_script_v1">
+(function () {
+  if (!location.pathname.includes("/admin")) return;
+
+  function textOf(el) {
+    return String(el && el.textContent ? el.textContent : "").replace(/\s+/g, "");
+  }
+
+  function findButtonByText(labels) {
+    const buttons = Array.from(document.querySelectorAll("button"));
+    return buttons.find(function (btn) {
+      const t = textOf(btn);
+      return labels.some(function (label) { return t === label; });
+    }) || null;
+  }
+
+  function cloneButton(source, label, extraClass) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = label;
+    if (extraClass) btn.classList.add(extraClass);
+
+    if (source) {
+      btn.onclick = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        source.click();
+      };
+    }
+
+    return btn;
+  }
+
+  function installHeaderActions() {
+    if (document.querySelector(".cl15i10-header-actions")) return;
+
+    const header = document.querySelector(".web-title.web-title-tech") || document.querySelector(".web-title");
+    if (!header) return;
+
+    const backBtn = findButtonByText(["返回上一頁", "上一頁"]);
+    const refreshBtn = findButtonByText(["重新整理"]);
+    const createBtn = findButtonByText(["新增案件"]);
+    const clearBtn = findButtonByText(["清除篩選"]);
+    const logoutBtn = findButtonByText(["登出"]);
+
+    const box = document.createElement("div");
+    box.className = "cl15i10-header-actions";
+
+    box.appendChild(cloneButton(backBtn, "返回上一頁", ""));
+    box.appendChild(cloneButton(refreshBtn, "重新整理", ""));
+    box.appendChild(cloneButton(createBtn, "新增案件", ""));
+    box.appendChild(cloneButton(clearBtn, "清除篩選", ""));
+    box.appendChild(cloneButton(logoutBtn, "登出", "cl15i10-logout"));
+
+    header.appendChild(box);
+
+    const toolbar = document.querySelector(".toolbar");
+    if (toolbar) {
+      toolbar.classList.add("cl15i10-toolbar-hidden");
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installHeaderActions);
+  } else {
+    installHeaderActions();
+  }
+
+  setTimeout(installHeaderActions, 300);
+  setTimeout(installHeaderActions, 900);
 })();
 </script>
 

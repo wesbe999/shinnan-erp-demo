@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json as _json
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from fastapi import Request as _Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy import text as _sql_text
@@ -142,6 +142,77 @@ def _dispatch_proxy_context_from_request(request: _Request, user: dict) -> dict:
 # XN_DISPATCH_PROXY_CONTEXT_STABLE_V1_END
 
 
+
+# CL15L1_DISPATCH_TRANSFER_HELPERS_START
+def _dispatch_now_text():
+    from datetime import datetime
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def _ensure_dispatch_transfer_columns(conn):
+    ticket_cols = _table_columns(conn, "tickets")
+    wanted = {
+        "transfer_origin_ticket_id": "INTEGER",
+        "transfer_child_ticket_id": "INTEGER",
+        "transfer_target_department": "TEXT",
+        "transfer_source_department": "TEXT",
+        "transfer_status": "TEXT",
+        "transfer_note": "TEXT",
+        "transfer_created_at": "TEXT",
+        "transfer_updated_at": "TEXT",
+    }
+
+    for col, col_type in wanted.items():
+        if col not in ticket_cols:
+            conn.execute(_sql_text("ALTER TABLE tickets ADD COLUMN " + col + " " + col_type))
+
+
+def _dispatch_status_completed_for_transfer():
+    return "\u5df2\u5b8c\u5de5"
+
+
+def _dispatch_status_unclaimed_for_transfer():
+    return "\u672a\u9818\u53d6"
+
+
+def _dispatch_status_transfering():
+    return "\u8f49\u6d3e\u4e2d"
+
+
+def _dispatch_get_departments(conn):
+    departments = []
+
+    if _table_exists(conn, "employee_profiles"):
+        rows = conn.execute(_sql_text("""
+            SELECT DISTINCT COALESCE(department, '') AS department
+            FROM employee_profiles
+            WHERE COALESCE(department, '') <> ''
+            ORDER BY department
+        """)).mappings().fetchall()
+        departments = [str(r["department"] or "").strip() for r in rows if str(r["department"] or "").strip()]
+
+    fallback = [
+        "\u5de5\u52d9\u90e8",
+        "\u7dad\u4fee\u90e8",
+        "\u5de5\u7a0b\u90e8",
+        "\u5ba2\u670d\u90e8",
+        "\u5e33\u52d9\u90e8",
+        "\u696d\u52d9\u90e8",
+        "\u63a1\u8cfc\u90e8",
+        "\u7522\u54c1\u63a8\u5ee3\u90e8",
+        "\u5c08\u6848\u90e8",
+    ]
+
+    for item in fallback:
+        if item not in departments:
+            departments.append(item)
+
+    return departments
+
+
+# CL15L1_DISPATCH_TRANSFER_HELPERS_END
+
+
 @router.get("/api/app/dispatch/tickets", summary="手機派工 APP 讀取派工案件")
 def api_app_dispatch_tickets(request: _Request):
     user = _employee_current_user_from_request(request)
@@ -220,6 +291,12 @@ def api_app_dispatch_tickets(request: _Request):
                 {_col("t", ticket_cols, "completed_at")} AS completed_at,
                 {_col("t", ticket_cols, "customer_no")} AS customer_no,
                 {_col("t", ticket_cols, "building_no")} AS building_no,
+                {_col("t", ticket_cols, "transfer_origin_ticket_id", "0")} AS transfer_origin_ticket_id,
+                {_col("t", ticket_cols, "transfer_child_ticket_id", "0")} AS transfer_child_ticket_id,
+                {_col("t", ticket_cols, "transfer_target_department")} AS transfer_target_department,
+                {_col("t", ticket_cols, "transfer_source_department")} AS transfer_source_department,
+                {_col("t", ticket_cols, "transfer_status")} AS transfer_status,
+                {_col("t", ticket_cols, "transfer_note")} AS transfer_note,
 
                 {_col("i", install_cols, "id", "NULL")} AS install_detail_id,
                 {_col("i", install_cols, "deposit_amount", "0")} AS i_deposit_amount,
@@ -335,6 +412,12 @@ def api_app_dispatch_tickets(request: _Request):
             "completed_at": _safe_text(raw.get("completed_at")),
             "customer_no": _safe_text(raw.get("customer_no")),
             "building_no": _safe_text(raw.get("building_no")),
+            "transfer_origin_ticket_id": raw.get("transfer_origin_ticket_id") or 0,
+            "transfer_child_ticket_id": raw.get("transfer_child_ticket_id") or 0,
+            "transfer_target_department": _safe_text(raw.get("transfer_target_department")),
+            "transfer_source_department": _safe_text(raw.get("transfer_source_department")),
+            "transfer_status": _safe_text(raw.get("transfer_status")),
+            "transfer_note": _safe_text(raw.get("transfer_note")),
             "install_detail": install_detail,
             "return_detail": return_detail,
         })
@@ -355,6 +438,331 @@ def api_app_dispatch_tickets(request: _Request):
         },
         "items": items,
     })
+
+
+
+# CL15L1_DISPATCH_TRANSFER_APIS_START
+@router.get("/api/app/dispatch/departments", summary="\u624b\u6a5f\u6d3e\u5de5 APP \u8f49\u6d3e\u90e8\u9580\u6e05\u55ae")
+def api_app_dispatch_departments(request: _Request):
+    user = _employee_current_user_from_request(request)
+
+    if not user:
+        return _json_response({"ok": False, "error": "login required"}, status_code=401)
+
+    with engine.begin() as conn:
+        departments = _dispatch_get_departments(conn)
+
+    return _json_response({"ok": True, "items": departments})
+
+
+@router.post("/api/app/dispatch/tickets/{ticket_id}/claim", summary="\u624b\u6a5f\u6d3e\u5de5 APP \u9818\u53d6\u6848\u4ef6")
+def api_app_dispatch_claim_ticket(ticket_id: int, request: _Request, payload: dict = Body(default_factory=dict)):
+    user = _employee_current_user_from_request(request)
+
+    if not user:
+        return _json_response({"ok": False, "error": "login required"}, status_code=401)
+
+    proxy_context = _dispatch_proxy_context_from_request(request, user)
+    staff_code = proxy_context["staff_code"]
+    staff_name = str(payload.get("assigned_engineer") or proxy_context["display_name"] or "").strip()
+    if not staff_name:
+        staff_name = "\u7cfb\u7d71\u7ba1\u7406\u54e1"
+
+    now_text = _dispatch_now_text()
+
+    with engine.begin() as conn:
+        _ensure_dispatch_transfer_columns(conn)
+        ticket_cols = _table_columns(conn, "tickets")
+
+        ticket = conn.execute(
+            _sql_text("SELECT * FROM tickets WHERE id = :id LIMIT 1"),
+            {"id": ticket_id},
+        ).mappings().first()
+
+        if not ticket:
+            return _json_response({"ok": False, "error": "ticket not found"}, status_code=404)
+
+        sets = []
+        params = {
+            "id": ticket_id,
+            "status": "\u5df2\u9818\u53d6",
+            "assigned_engineer": staff_name,
+            "assigned_engineer_staff_code": staff_code,
+            "arrived_at": now_text,
+            "transfer_updated_at": now_text,
+        }
+
+        if "status" in ticket_cols:
+            sets.append("status = :status")
+        if "assigned_engineer" in ticket_cols:
+            sets.append("assigned_engineer = :assigned_engineer")
+        if "assigned_engineer_staff_code" in ticket_cols:
+            sets.append("assigned_engineer_staff_code = :assigned_engineer_staff_code")
+        if "arrived_at" in ticket_cols:
+            sets.append("arrived_at = COALESCE(arrived_at, :arrived_at)")
+        if "transfer_updated_at" in ticket_cols:
+            sets.append("transfer_updated_at = :transfer_updated_at")
+
+        if sets:
+            conn.execute(_sql_text("UPDATE tickets SET " + ", ".join(sets) + " WHERE id = :id"), params)
+
+        origin_id = int(ticket.get("transfer_origin_ticket_id") or 0)
+
+        if origin_id > 0:
+            origin_sets = []
+            origin_params = {
+                "origin_id": origin_id,
+                "status": _dispatch_status_completed_for_transfer(),
+                "completed_at": now_text,
+                "finished_at": now_text,
+                "transfer_status": "\u5df2\u9818\u53d6\uff0c\u539f\u6848\u5b8c\u5de5",
+                "transfer_updated_at": now_text,
+                "completion_note": "\u8f49\u6d3e\u6848\u4ef6\u5df2\u88ab\u9818\u53d6\uff0c\u539f\u6848\u81ea\u52d5\u5217\u70ba\u5b8c\u5de5\u3002",
+            }
+
+            if "status" in ticket_cols:
+                origin_sets.append("status = :status")
+            if "completed_at" in ticket_cols:
+                origin_sets.append("completed_at = COALESCE(completed_at, :completed_at)")
+            if "finished_at" in ticket_cols:
+                origin_sets.append("finished_at = COALESCE(finished_at, :finished_at)")
+            if "transfer_status" in ticket_cols:
+                origin_sets.append("transfer_status = :transfer_status")
+            if "transfer_updated_at" in ticket_cols:
+                origin_sets.append("transfer_updated_at = :transfer_updated_at")
+            if "completion_note" in ticket_cols:
+                origin_sets.append("completion_note = CASE WHEN COALESCE(completion_note, '') = '' THEN :completion_note ELSE completion_note || char(10) || :completion_note END")
+
+            if origin_sets:
+                conn.execute(_sql_text("UPDATE tickets SET " + ", ".join(origin_sets) + " WHERE id = :origin_id"), origin_params)
+
+    return _json_response({
+        "ok": True,
+        "id": ticket_id,
+        "status": "\u5df2\u9818\u53d6",
+        "assigned_engineer": staff_name,
+        "transfer_origin_completed": bool(origin_id > 0),
+    })
+
+
+@router.post("/api/app/dispatch/tickets/{ticket_id}/transfer", summary="\u624b\u6a5f\u6d3e\u5de5 APP \u8f49\u6d3e\u6848\u4ef6")
+def api_app_dispatch_transfer_ticket(ticket_id: int, request: _Request, payload: dict = Body(default_factory=dict)):
+    user = _employee_current_user_from_request(request)
+
+    if not user:
+        return _json_response({"ok": False, "error": "login required"}, status_code=401)
+
+    target_department = str(payload.get("target_department") or "").strip()
+    transfer_note = str(payload.get("note") or "").strip()
+
+    if not target_department:
+        return _json_response({"ok": False, "error": "target department required"}, status_code=400)
+
+    proxy_context = _dispatch_proxy_context_from_request(request, user)
+    source_department = proxy_context["department"]
+    now_text = _dispatch_now_text()
+
+    with engine.begin() as conn:
+        _ensure_dispatch_transfer_columns(conn)
+        ticket_cols = _table_columns(conn, "tickets")
+
+        departments = _dispatch_get_departments(conn)
+        if target_department not in departments:
+            return _json_response({"ok": False, "error": "target department not allowed"}, status_code=400)
+
+        original = conn.execute(
+            _sql_text("SELECT * FROM tickets WHERE id = :id LIMIT 1"),
+            {"id": ticket_id},
+        ).mappings().first()
+
+        if not original:
+            return _json_response({"ok": False, "error": "ticket not found"}, status_code=404)
+
+        active_child = conn.execute(
+            _sql_text("""
+                SELECT id
+                FROM tickets
+                WHERE COALESCE(transfer_origin_ticket_id, 0) = :id
+                  AND COALESCE(status, '') NOT IN ('\u9000\u56de', '\u5df2\u53d6\u6d88', '\u4f4f\u6236\u53d6\u6d88')
+                ORDER BY id DESC
+                LIMIT 1
+            """),
+            {"id": ticket_id},
+        ).mappings().first()
+
+        if active_child:
+            return _json_response({"ok": False, "error": "ticket already transferred"}, status_code=409)
+
+        clone = {}
+        skip_cols = {"id"}
+
+        for col in ticket_cols:
+            if col in skip_cols:
+                continue
+            clone[col] = original.get(col)
+
+        if "ticket_no" in ticket_cols:
+            clone["ticket_no"] = str(original.get("ticket_no") or ("T" + str(ticket_id))) + "-TR" + str(ticket_id)
+
+        if "dispatch_area" in ticket_cols:
+            clone["dispatch_area"] = target_department
+        if "status" in ticket_cols:
+            clone["status"] = _dispatch_status_unclaimed_for_transfer()
+        if "assigned_engineer" in ticket_cols:
+            clone["assigned_engineer"] = ""
+        if "assigned_engineer_staff_code" in ticket_cols:
+            clone["assigned_engineer_staff_code"] = ""
+        if "created_at" in ticket_cols:
+            clone["created_at"] = now_text
+        if "arrived_at" in ticket_cols:
+            clone["arrived_at"] = None
+        if "completed_at" in ticket_cols:
+            clone["completed_at"] = None
+        if "finished_at" in ticket_cols:
+            clone["finished_at"] = None
+        if "completion_note" in ticket_cols:
+            clone["completion_note"] = ""
+        if "transfer_origin_ticket_id" in ticket_cols:
+            clone["transfer_origin_ticket_id"] = ticket_id
+        if "transfer_child_ticket_id" in ticket_cols:
+            clone["transfer_child_ticket_id"] = 0
+        if "transfer_target_department" in ticket_cols:
+            clone["transfer_target_department"] = target_department
+        if "transfer_source_department" in ticket_cols:
+            clone["transfer_source_department"] = str(original.get("dispatch_area") or source_department or "")
+        if "transfer_status" in ticket_cols:
+            clone["transfer_status"] = "\u5f85\u9818\u53d6"
+        if "transfer_note" in ticket_cols:
+            clone["transfer_note"] = transfer_note
+        if "transfer_created_at" in ticket_cols:
+            clone["transfer_created_at"] = now_text
+        if "transfer_updated_at" in ticket_cols:
+            clone["transfer_updated_at"] = now_text
+
+        insert_cols = [c for c in clone.keys() if c in ticket_cols and c != "id"]
+        insert_sql = "INSERT INTO tickets (" + ", ".join(insert_cols) + ") VALUES (" + ", ".join([":" + c for c in insert_cols]) + ")"
+        result = conn.execute(_sql_text(insert_sql), {c: clone[c] for c in insert_cols})
+        child_id = int(result.lastrowid)
+
+        update_sets = []
+        update_params = {
+            "id": ticket_id,
+            "status": _dispatch_status_transfering(),
+            "child_id": child_id,
+            "target_department": target_department,
+            "source_department": str(original.get("dispatch_area") or source_department or ""),
+            "transfer_status": "\u8f49\u6d3e\u4e2d",
+            "transfer_note": transfer_note,
+            "transfer_created_at": now_text,
+            "transfer_updated_at": now_text,
+        }
+
+        if "status" in ticket_cols:
+            update_sets.append("status = :status")
+        if "transfer_child_ticket_id" in ticket_cols:
+            update_sets.append("transfer_child_ticket_id = :child_id")
+        if "transfer_target_department" in ticket_cols:
+            update_sets.append("transfer_target_department = :target_department")
+        if "transfer_source_department" in ticket_cols:
+            update_sets.append("transfer_source_department = :source_department")
+        if "transfer_status" in ticket_cols:
+            update_sets.append("transfer_status = :transfer_status")
+        if "transfer_note" in ticket_cols:
+            update_sets.append("transfer_note = :transfer_note")
+        if "transfer_created_at" in ticket_cols:
+            update_sets.append("transfer_created_at = :transfer_created_at")
+        if "transfer_updated_at" in ticket_cols:
+            update_sets.append("transfer_updated_at = :transfer_updated_at")
+
+        conn.execute(_sql_text("UPDATE tickets SET " + ", ".join(update_sets) + " WHERE id = :id"), update_params)
+
+    return _json_response({
+        "ok": True,
+        "origin_ticket_id": ticket_id,
+        "transfer_ticket_id": child_id,
+        "target_department": target_department,
+        "status": _dispatch_status_transfering(),
+    })
+
+
+@router.post("/api/app/dispatch/tickets/{ticket_id}/transfer-return", summary="\u624b\u6a5f\u6d3e\u5de5 APP \u9000\u56de\u8f49\u6d3e")
+def api_app_dispatch_transfer_return(ticket_id: int, request: _Request, payload: dict = Body(default_factory=dict)):
+    user = _employee_current_user_from_request(request)
+
+    if not user:
+        return _json_response({"ok": False, "error": "login required"}, status_code=401)
+
+    reason = str(payload.get("reason") or "").strip()
+    now_text = _dispatch_now_text()
+
+    with engine.begin() as conn:
+        _ensure_dispatch_transfer_columns(conn)
+        ticket_cols = _table_columns(conn, "tickets")
+
+        child = conn.execute(
+            _sql_text("SELECT * FROM tickets WHERE id = :id LIMIT 1"),
+            {"id": ticket_id},
+        ).mappings().first()
+
+        if not child:
+            return _json_response({"ok": False, "error": "ticket not found"}, status_code=404)
+
+        origin_id = int(child.get("transfer_origin_ticket_id") or 0)
+        if origin_id <= 0:
+            return _json_response({"ok": False, "error": "not a transferred ticket"}, status_code=400)
+
+        child_sets = []
+        child_params = {
+            "id": ticket_id,
+            "status": "\u9000\u56de",
+            "transfer_status": "\u9000\u56de",
+            "transfer_note": reason,
+            "transfer_updated_at": now_text,
+        }
+
+        if "status" in ticket_cols:
+            child_sets.append("status = :status")
+        if "transfer_status" in ticket_cols:
+            child_sets.append("transfer_status = :transfer_status")
+        if "transfer_note" in ticket_cols:
+            child_sets.append("transfer_note = CASE WHEN COALESCE(transfer_note, '') = '' THEN :transfer_note ELSE transfer_note || char(10) || :transfer_note END")
+        if "transfer_updated_at" in ticket_cols:
+            child_sets.append("transfer_updated_at = :transfer_updated_at")
+
+        conn.execute(_sql_text("UPDATE tickets SET " + ", ".join(child_sets) + " WHERE id = :id"), child_params)
+
+        origin_sets = []
+        origin_params = {
+            "origin_id": origin_id,
+            "status": _dispatch_status_unclaimed_for_transfer(),
+            "transfer_status": "\u8f49\u6d3e\u88ab\u9000\u56de",
+            "transfer_updated_at": now_text,
+            "assigned_engineer": "",
+            "assigned_engineer_staff_code": "",
+        }
+
+        if "status" in ticket_cols:
+            origin_sets.append("status = :status")
+        if "assigned_engineer" in ticket_cols:
+            origin_sets.append("assigned_engineer = :assigned_engineer")
+        if "assigned_engineer_staff_code" in ticket_cols:
+            origin_sets.append("assigned_engineer_staff_code = :assigned_engineer_staff_code")
+        if "transfer_status" in ticket_cols:
+            origin_sets.append("transfer_status = :transfer_status")
+        if "transfer_updated_at" in ticket_cols:
+            origin_sets.append("transfer_updated_at = :transfer_updated_at")
+
+        conn.execute(_sql_text("UPDATE tickets SET " + ", ".join(origin_sets) + " WHERE id = :origin_id"), origin_params)
+
+    return _json_response({
+        "ok": True,
+        "transfer_ticket_id": ticket_id,
+        "origin_ticket_id": origin_id,
+        "origin_status": _dispatch_status_unclaimed_for_transfer(),
+    })
+
+
+# CL15L1_DISPATCH_TRANSFER_APIS_END
 
 
 @router.get("/api/app/dispatch/emergency-notices", summary="手機派工 APP 讀取緊急通知")
@@ -423,9 +831,130 @@ def dispatch_mobile_app_page(request: _Request):
   <title>訊南派工系統｜訊南 ERP</title>
 
   <link rel="stylesheet" href="/static/app_common.css">
-  <link rel="stylesheet" href="/static/dispatch_app.css">
+  <link rel="stylesheet" href="/static/dispatch_app.css?v=cl15l4_20260515_024129">
 
   <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+
+  <style id="cl15l4_dispatch_action_button_inline_final_v1">
+    body .workflow-detail-actions {
+      display: grid !important;
+      gap: 12px !important;
+    }
+
+    body .workflow-detail-actions .action-row {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+      gap: 12px !important;
+      align-items: center !important;
+    }
+
+    body .workflow-detail-actions .action-row.single-full {
+      grid-template-columns: 1fr !important;
+    }
+
+    body .workflow-detail-actions button.action-btn {
+      width: 100% !important;
+      min-height: 62px !important;
+      border: 0 !important;
+      border-radius: 22px !important;
+      font-size: 20px !important;
+      font-weight: 1000 !important;
+      letter-spacing: 1px !important;
+      opacity: 1 !important;
+      filter: none !important;
+      background-image: none !important;
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12) !important;
+      text-shadow: none !important;
+    }
+
+    body .workflow-detail-actions button.action-btn.dial-btn {
+      background: #8b5e34 !important;
+      color: #ffffff !important;
+    }
+
+    body .workflow-detail-actions button.action-btn.nav-btn {
+      background: #e47a24 !important;
+      color: #ffffff !important;
+    }
+
+    body .workflow-detail-actions button.action-btn.claim-btn,
+    body .workflow-detail-actions button.action-btn.claim-btn:disabled {
+      background: #0f3d2e !important;
+      color: #ffffff !important;
+      opacity: 1 !important;
+      filter: none !important;
+      cursor: pointer !important;
+    }
+
+    body .workflow-detail-actions button.action-btn.claim-btn:disabled {
+      cursor: not-allowed !important;
+    }
+
+    body .workflow-detail-actions button.action-btn.transfer-btn {
+      background: #f2c94c !important;
+      color: #3b2f00 !important;
+    }
+
+    body .workflow-detail-actions button.action-btn.list-btn {
+      background: #475569 !important;
+      color: #ffffff !important;
+    }
+
+    body .workflow-detail-actions button.action-btn.action-next-blue,
+    body .workflow-detail-actions button.action-btn.next-btn {
+      background: #365ee8 !important;
+      color: #ffffff !important;
+      width: 100% !important;
+      margin: 0 !important;
+      justify-self: auto !important;
+    }
+
+    body .workflow-detail-actions button.action-btn.transfer-return-btn {
+      background: #b83a2f !important;
+      color: #ffffff !important;
+    }
+
+    body .workflow-detail-actions button.action-btn:active {
+      transform: translateY(1px) scale(0.99) !important;
+      filter: brightness(0.96) !important;
+    }
+
+    @media (max-width: 520px) {
+      body .workflow-detail-actions {
+        gap: 10px !important;
+      }
+
+      body .workflow-detail-actions .action-row {
+        gap: 10px !important;
+      }
+
+      body .workflow-detail-actions button.action-btn {
+        min-height: 56px !important;
+        border-radius: 18px !important;
+        font-size: 18px !important;
+      }
+    }
+  </style>
+
+
+  <style id="cl15l5_dispatch_button_color_tune_v1">
+    body .workflow-detail-actions button.action-btn.claim-btn,
+    body .workflow-detail-actions button.action-btn.claim-btn:disabled {
+      background: #15803d !important;
+      color: #ffffff !important;
+      opacity: 1 !important;
+      filter: none !important;
+    }
+
+    body .workflow-detail-actions button.action-btn.transfer-btn {
+      background: #f2c94c !important;
+      color: #ffffff !important;
+      opacity: 1 !important;
+      filter: none !important;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.28) !important;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -504,7 +1033,7 @@ def dispatch_mobile_app_page(request: _Request):
     </nav>
   </div>
 
-  <script src="/static/dispatch_app.js"></script>
+  <script src="/static/dispatch_app.js?v=cl15l4_20260515_024129"></script>
 </body>
 </html>
 """

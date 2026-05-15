@@ -7,8 +7,10 @@ from fastapi import APIRouter
 from fastapi import Request as _EmpRequest
 from fastapi.responses import HTMLResponse
 from fastapi.responses import RedirectResponse as _EmpRedirectResponse
+from sqlalchemy import text as _sql_text
 
 from app.routes.employee_auth import _employee_current_user_from_request
+from app.db import engine
 
 
 router = APIRouter(tags=["工程系統 APP"])
@@ -16,6 +18,143 @@ router = APIRouter(tags=["工程系統 APP"])
 
 _ENGINEERING_CASES = [{'id': 'ENG-FLOW-001', 'building': '東方紐約', 'project': '大樓網路建設', 'stage': 'initial_survey', 'owner_unit': '各區負責工務', 'owner_name': '北區工務', 'planned_date': '2026-05-03', 'startDate': '2026-05-03', 'endDate': '2026-06-15', 'amount': '', 'note': '初步了解社區需求、工程範圍、設備數量與樓層限制。'}, {'id': 'ENG-FLOW-002', 'building': '仁義新城', 'project': '攝影機增設', 'stage': 'business_review', 'owner_unit': '業務(公司)', 'owner_name': '業務部', 'planned_date': '2026-05-06', 'startDate': '2026-05-20', 'endDate': '2026-05-24', 'amount': '', 'note': '需評估合作條件與投資性，確認是否進入細勘。'}, {'id': 'ENG-FLOW-003', 'building': '北安御品', 'project': '網路與監視器整合', 'stage': 'detailed_survey', 'owner_unit': '維修、工程部', 'owner_name': '工程部', 'planned_date': '2026-05-08', 'startDate': '2026-05-10', 'endDate': '2026-05-18', 'amount': '', 'note': '勘驗場地、規劃線路與機器數量，訂定開工與完工時間。'}, {'id': 'ENG-FLOW-004', 'building': '永華麗景', 'project': '管道與機房改善', 'stage': 'outsourced_survey', 'owner_unit': '外包', 'owner_name': '外包廠商', 'planned_date': '2026-05-10', 'startDate': '2026-05-12', 'endDate': '2026-06-05', 'amount': '', 'note': '評估施工可能性並產出線路圖。'}, {'id': 'ENG-FLOW-005', 'building': '成功國宅', 'project': '網路設備更換', 'stage': 'quotation', 'owner_unit': '業務(公司)', 'owner_name': '業務部', 'planned_date': '2026-05-12', 'startDate': '2026-06-01', 'endDate': '2026-06-04', 'amount': '120000', 'note': '準備報價單、施工公告與完工公告。'}, {'id': 'ENG-FLOW-006', 'building': '小北世家', 'project': '停車場攝影機補點', 'stage': 'construction', 'owner_unit': '維修、工程、專案部', 'owner_name': '工程部', 'planned_date': '2026-05-14', 'startDate': '2026-06-10', 'endDate': '2026-06-13', 'amount': '', 'note': '施工中，需記錄材料領用、施工照片與日報。'}, {'id': 'ENG-FLOW-007', 'building': '嘉樂首府', 'project': '光纖主幹改善', 'stage': 'acceptance', 'owner_unit': '維修、工程、專案部', 'owner_name': '專案部', 'planned_date': '2026-05-16', 'startDate': '2026-05-02', 'endDate': '2026-05-12', 'amount': '', 'note': '需與當區工程師與社區共同驗收。'}, {'id': 'ENG-FLOW-008', 'building': '勝利雅築', 'project': '社區弱電箱整理', 'stage': 'billing', 'owner_unit': '業務(公司)', 'owner_name': '業務部', 'planned_date': '2026-05-20', 'startDate': '2026-04-20', 'endDate': '2026-05-01', 'amount': '85000', 'note': '確認請款是否入帳，以及合作條件是否實施。'}, {'id': 'ENG-FLOW-009', 'building': '安平國宅', 'project': '電梯口攝影機施工', 'stage': 'construction', 'owner_unit': '維修、工程、專案部', 'owner_name': '維修部', 'planned_date': '2026-05-22', 'startDate': '2026-05-05', 'endDate': '2026-05-28', 'amount': '', 'note': '施工跨月底，需持續追蹤進度。'}, {'id': 'ENG-FLOW-010', 'building': '中正名門', 'project': '機房設備移機', 'stage': 'closed', 'owner_unit': '業務(公司)', 'owner_name': '業務部', 'planned_date': '2026-05-25', 'startDate': '2026-04-20', 'endDate': '2026-04-30', 'amount': '60000', 'note': '已完成請款並結案。'}]
 _ENGINEERING_STAGES = [{'key': 'initial_survey', 'label': '初勘', 'unit': '各區負責工務'}, {'key': 'business_review', 'label': '業務評估', 'unit': '業務(公司)'}, {'key': 'detailed_survey', 'label': '細勘', 'unit': '維修、工程部'}, {'key': 'outsourced_survey', 'label': '外包細勘', 'unit': '外包'}, {'key': 'quotation', 'label': '報價', 'unit': '業務(公司)'}, {'key': 'construction', 'label': '施工', 'unit': '維修、工程、專案部'}, {'key': 'acceptance', 'label': '完工驗收', 'unit': '維修、工程、專案部'}, {'key': 'billing', 'label': '請款', 'unit': '業務(公司)'}, {'key': 'closed', 'label': '已結案', 'unit': '業務(公司)'}, {'key': 'ended', 'label': '已終止', 'unit': '業務(公司)'}]
+
+
+
+# CL15L7B_ENGINEERING_TRANSFER_TICKET_LOADER_START
+def _eng_safe_text(value) -> str:
+    return str(value or "").strip()
+
+
+def _eng_ticket_stage(status: str) -> str:
+    value = _eng_safe_text(status)
+
+    if value in {"\u5df2\u5b8c\u5de5", "\u5df2\u7d50\u6848"}:
+        return "closed"
+
+    if value in {"\u5df2\u9818\u53d6", "\u8655\u7406\u4e2d", "\u65bd\u5de5\u4e2d"}:
+        return "construction"
+
+    return "construction"
+
+
+def _load_engineering_transfer_cases():
+    dept = "\u5de5\u7a0b\u90e8"
+
+    try:
+        with engine.begin() as conn:
+            exists = conn.execute(
+                _sql_text("""
+                    SELECT COUNT(*)
+                    FROM sqlite_master
+                    WHERE type = 'table'
+                      AND name = 'tickets'
+                """)
+            ).scalar()
+
+            if not int(exists or 0):
+                return []
+
+            rows = conn.execute(
+                _sql_text("""
+                    SELECT
+                        t.id AS id,
+                        t.ticket_no AS ticket_no,
+                        t.case_type AS case_type,
+                        t.status AS status,
+                        t.customer_name AS customer_name,
+                        t.contact_name AS contact_name,
+                        t.service_address AS service_address,
+                        t.appointment_date AS appointment_date,
+                        t.appointment_time AS appointment_time,
+                        t.dispatch_area AS dispatch_area,
+                        t.description AS description,
+                        t.transfer_note AS transfer_note,
+                        t.transfer_origin_ticket_id AS transfer_origin_ticket_id,
+                        t.transfer_source_department AS transfer_source_department,
+                        t.transfer_target_department AS transfer_target_department,
+                        t.transfer_status AS transfer_status,
+                        t.created_at AS created_at,
+                        b.name AS building_name
+                    FROM tickets t
+                    LEFT JOIN buildings b
+                      ON b.building_no = t.building_no
+                    WHERE (
+                        COALESCE(t.dispatch_area, '') = :dept
+                        OR COALESCE(t.transfer_target_department, '') = :dept
+                    )
+                      AND COALESCE(t.status, '') NOT IN (
+                        '\u5df2\u53d6\u6d88',
+                        '\u4f4f\u6236\u53d6\u6d88',
+                        '\u9000\u56de'
+                      )
+                    ORDER BY t.id DESC
+                    LIMIT 80
+                """),
+                {"dept": dept},
+            ).mappings().fetchall()
+    except Exception:
+        return []
+
+    items = []
+
+    for row in rows:
+        ticket_id = int(row.get("id") or 0)
+        ticket_no = _eng_safe_text(row.get("ticket_no")) or ("T" + str(ticket_id))
+        case_type = _eng_safe_text(row.get("case_type")) or "\u8f49\u6d3e\u6848\u4ef6"
+        status = _eng_safe_text(row.get("status"))
+        building = (
+            _eng_safe_text(row.get("building_name"))
+            or _eng_safe_text(row.get("customer_name"))
+            or _eng_safe_text(row.get("service_address"))
+            or "\u8f49\u6d3e\u6848\u4ef6"
+        )
+
+        source = _eng_safe_text(row.get("transfer_source_department"))
+        note_parts = []
+
+        if source:
+            note_parts.append("\u4f86\u6e90\u55ae\u4f4d\uff1a" + source)
+
+        if _eng_safe_text(row.get("transfer_note")):
+            note_parts.append("\u8f49\u6d3e\u5099\u8a3b\uff1a" + _eng_safe_text(row.get("transfer_note")))
+
+        if _eng_safe_text(row.get("description")):
+            note_parts.append("\u6848\u4ef6\u8aaa\u660e\uff1a" + _eng_safe_text(row.get("description")))
+
+        if _eng_safe_text(row.get("service_address")):
+            note_parts.append("\u670d\u52d9\u5730\u5740\uff1a" + _eng_safe_text(row.get("service_address")))
+
+        planned = _eng_safe_text(row.get("appointment_date")) or _eng_safe_text(row.get("created_at"))[:10]
+
+        items.append({
+            "id": "TICKET-" + str(ticket_id),
+            "ticket_id": ticket_id,
+            "ticket_no": ticket_no,
+            "building": building,
+            "project": "\u8f49\u6d3e\uff1a" + case_type,
+            "stage": _eng_ticket_stage(status),
+            "owner_unit": dept,
+            "owner_name": dept,
+            "planned_date": planned,
+            "startDate": planned,
+            "endDate": planned,
+            "amount": "",
+            "note": "\n".join(note_parts) if note_parts else "\u7531\u6d3e\u5de5\u7cfb\u7d71\u8f49\u6d3e\u81f3\u5de5\u7a0b\u90e8\u3002",
+            "source": "tickets",
+            "status": status,
+            "transfer_status": _eng_safe_text(row.get("transfer_status")),
+        })
+
+    return items
+
+
+def _load_engineering_cases():
+    transfer_cases = _load_engineering_transfer_cases()
+    return transfer_cases + list(_ENGINEERING_CASES)
+
+
+# CL15L7B_ENGINEERING_TRANSFER_TICKET_LOADER_END
 
 
 def _current_user_line(user: dict) -> str:
@@ -29,7 +168,7 @@ def engineering_mobile_app_page(request: _EmpRequest):
     if not user:
         return _EmpRedirectResponse("/employee/login?next=/app/engineering", status_code=303)
 
-    cases_json = json.dumps(_ENGINEERING_CASES, ensure_ascii=False)
+    cases_json = json.dumps(_load_engineering_cases(), ensure_ascii=False)
     stages_json = json.dumps(_ENGINEERING_STAGES, ensure_ascii=False)
 
     html = """
@@ -1012,7 +1151,7 @@ def engineering_schedule_landscape_page(request: _EmpRequest):
     if not user:
         return _EmpRedirectResponse("/employee/login?next=/app/engineering/schedule", status_code=303)
 
-    cases_json = json.dumps(_ENGINEERING_CASES, ensure_ascii=False)
+    cases_json = json.dumps(_load_engineering_cases(), ensure_ascii=False)
 
     html = """
 <!doctype html>

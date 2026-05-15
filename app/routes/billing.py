@@ -2071,6 +2071,514 @@ def billing_page(request: Request):
 </style>
 
   <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
+
+  <style id="cl15j1_billing_layout_unify_v1">
+    body .web-title .web-title-user,
+    body .web-title-user,
+    body [data-web-title-user="1"] {
+      display: none !important;
+      visibility: hidden !important;
+      width: 0 !important;
+      height: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      overflow: hidden !important;
+    }
+
+    body .web-title.web-title-tech {
+      position: relative !important;
+      height: 150px !important;
+      min-height: 150px !important;
+      padding: 0 28px !important;
+      overflow: hidden !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+
+    body .web-title .web-title-main {
+      width: 100% !important;
+      height: 100% !important;
+      display: grid !important;
+      grid-template-columns: 210px minmax(420px, auto) 1fr !important;
+      grid-template-areas: "logo title spacer" !important;
+      align-items: center !important;
+      column-gap: 24px !important;
+      position: relative !important;
+      z-index: 10 !important;
+    }
+
+    body .web-title .web-title-logo-box {
+      grid-area: logo !important;
+      width: 190px !important;
+      min-width: 190px !important;
+      height: 118px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    body .web-title .web-title-logo {
+      width: 118px !important;
+      max-height: 92px !important;
+      object-fit: contain !important;
+    }
+
+    body .web-title .web-title-text {
+      grid-area: title !important;
+      min-width: 420px !important;
+      width: auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      align-items: flex-start !important;
+      gap: 8px !important;
+      white-space: nowrap !important;
+      overflow: visible !important;
+      transform: translateY(0) !important;
+    }
+
+    body .web-title .web-title-system {
+      margin: 0 !important;
+      padding: 0 !important;
+      font-size: 38px !important;
+      line-height: 1.02 !important;
+      letter-spacing: 2px !important;
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      overflow-wrap: normal !important;
+      max-width: none !important;
+    }
+
+    body .web-title .web-title-sub {
+      margin: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      gap: 12px !important;
+      font-size: 17px !important;
+      line-height: 1.1 !important;
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      max-width: none !important;
+    }
+
+    body .cl15j1-billing-header-actions {
+      position: absolute !important;
+      right: 38px !important;
+      bottom: 24px !important;
+      z-index: 50 !important;
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      gap: 7px !important;
+      white-space: nowrap !important;
+    }
+
+    body .cl15j1-billing-header-actions button {
+      flex: 0 0 auto !important;
+      height: 28px !important;
+      min-width: 68px !important;
+      padding: 0 10px !important;
+      border-radius: 9px !important;
+      border: 1px solid rgba(224, 201, 119, 0.82) !important;
+      background: #10361f !important;
+      color: #fff7d6 !important;
+      font-size: 12px !important;
+      font-weight: 1000 !important;
+      line-height: 1 !important;
+      box-shadow: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      white-space: nowrap !important;
+      cursor: pointer !important;
+    }
+
+    body .cl15j1-billing-header-actions button:hover {
+      background: #174a2a !important;
+      border-color: #ead27b !important;
+      transform: translateY(-1px);
+    }
+
+    body.cl15j1-billing-layout .toolbar {
+      display: grid !important;
+      grid-template-columns: 180px minmax(520px, 1fr) 70px 70px !important;
+      gap: 10px !important;
+      align-items: center !important;
+      width: 100% !important;
+      padding: 10px 12px !important;
+      border-radius: 18px !important;
+      margin: 12px 0 14px !important;
+      background: rgba(255,255,255,0.62) !important;
+      border: 1px solid #d7e1ef !important;
+      box-shadow: 0 8px 22px rgba(15,23,42,0.06) !important;
+    }
+
+    body.cl15j1-billing-layout .toolbar > button:first-child {
+      display: none !important;
+    }
+
+    body.cl15j1-billing-layout #area_filter {
+      width: 100% !important;
+      height: 40px !important;
+      min-height: 40px !important;
+      border-radius: 12px !important;
+      font-size: 15px !important;
+      font-weight: 900 !important;
+    }
+
+    body.cl15j1-billing-layout #global_search {
+      width: 100% !important;
+      height: 40px !important;
+      min-height: 40px !important;
+      border-radius: 12px !important;
+      font-size: 15px !important;
+      font-weight: 850 !important;
+    }
+
+    body.cl15j1-billing-layout #search_button,
+    body.cl15j1-billing-layout #clear_button,
+    body.cl15j1-billing-layout .billing-notice-send,
+    body.cl15j1-billing-layout .billing-notice-clear,
+    body.cl15j1-billing-layout .billing-notice-delete {
+      height: 30px !important;
+      min-height: 30px !important;
+      min-width: 62px !important;
+      padding: 0 10px !important;
+      border-radius: 9px !important;
+      font-size: 12px !important;
+      font-weight: 1000 !important;
+      box-shadow: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    body.cl15j1-billing-layout #search_button,
+    body.cl15j1-billing-layout .billing-notice-send {
+      background: #174a2a !important;
+      color: #fff7d6 !important;
+      border: 1px solid rgba(224,201,119,.82) !important;
+    }
+
+    body.cl15j1-billing-layout #clear_button,
+    body.cl15j1-billing-layout .billing-notice-clear {
+      background: #4b5563 !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(203,213,225,.9) !important;
+    }
+
+    body.cl15j1-billing-layout .billing-notice-delete {
+      background: #b63a2d !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(244,180,140,.82) !important;
+    }
+
+    body.cl15j1-billing-layout .tabs {
+      display: none !important;
+    }
+
+    body.cl15j1-billing-layout #billing_notice_panel {
+      margin-top: 14px !important;
+      border-radius: 18px !important;
+    }
+
+    body.cl15j1-billing-layout .billing-notice-input-box {
+      display: grid !important;
+      grid-template-columns: minmax(520px, 1fr) 70px 70px !important;
+      gap: 8px !important;
+      align-items: center !important;
+    }
+
+    body.cl15j1-billing-layout .billing-notice-input-box textarea {
+      min-height: 40px !important;
+      height: 40px !important;
+      border-radius: 12px !important;
+      padding: 8px 12px !important;
+    }
+
+    @media (max-width: 1100px) {
+      body .cl15j1-billing-header-actions {
+        right: 20px !important;
+        bottom: 16px !important;
+        gap: 5px !important;
+      }
+
+      body .cl15j1-billing-header-actions button {
+        height: 26px !important;
+        min-width: 58px !important;
+        padding: 0 7px !important;
+        font-size: 11px !important;
+      }
+
+      body.cl15j1-billing-layout .toolbar,
+      body.cl15j1-billing-layout .billing-notice-input-box {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+
+
+  <style id="cl15j5_billing_notice_three_column_fix_v1">
+    body #billing_notice_panel {
+      box-sizing: border-box !important;
+      border: 1px solid #fdba74 !important;
+      background: #fff7ed !important;
+      border-radius: 12px !important;
+      padding: 7px 10px !important;
+      margin: 8px 0 12px !important;
+      box-shadow: none !important;
+      min-height: 0 !important;
+      overflow: visible !important;
+    }
+
+    body #billing_notice_panel .billing-notice-title {
+      display: inline-flex !important;
+      align-items: center !important;
+      margin: 0 20px 5px 0 !important;
+      color: #c2410c !important;
+      font-size: 14px !important;
+      font-weight: 1000 !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    body #billing_notice_panel .billing-notice-subtitle {
+      display: inline-flex !important;
+      align-items: center !important;
+      margin: 0 0 5px 0 !important;
+      color: #9a3412 !important;
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    body #billing_notice_panel .billing-notice-input-box {
+      box-sizing: border-box !important;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) 52px 52px !important;
+      grid-auto-flow: column !important;
+      gap: 7px !important;
+      align-items: center !important;
+      height: 28px !important;
+      margin: 0 !important;
+      border: 1px solid #fdba74 !important;
+      border-radius: 8px !important;
+      background: #fff !important;
+      padding: 2px 4px 2px 8px !important;
+    }
+
+    body #billing_notice_input {
+      grid-column: 1 !important;
+      box-sizing: border-box !important;
+      width: 100% !important;
+      height: 22px !important;
+      min-height: 22px !important;
+      max-height: 22px !important;
+      border: 0 !important;
+      outline: 0 !important;
+      background: transparent !important;
+      color: #102348 !important;
+      font-size: 12px !important;
+      font-weight: 900 !important;
+      line-height: 1.1 !important;
+      resize: none !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+      overflow: hidden !important;
+    }
+
+    body #save_billing_notice_button {
+      grid-column: 2 !important;
+    }
+
+    body #clear_billing_notice_button {
+      grid-column: 3 !important;
+    }
+
+    body #save_billing_notice_button,
+    body #clear_billing_notice_button {
+      box-sizing: border-box !important;
+      width: 52px !important;
+      min-width: 52px !important;
+      max-width: 52px !important;
+      height: 22px !important;
+      min-height: 22px !important;
+      max-height: 22px !important;
+      padding: 0 !important;
+      border-radius: 6px !important;
+      border: 0 !important;
+      color: #fff !important;
+      font-size: 11px !important;
+      font-weight: 1000 !important;
+      line-height: 1 !important;
+      box-shadow: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      white-space: nowrap !important;
+      cursor: pointer !important;
+    }
+
+    body #save_billing_notice_button {
+      background: #16a34a !important;
+    }
+
+    body #clear_billing_notice_button {
+      background: #64748b !important;
+    }
+
+    body #billing_notice_display {
+      box-sizing: border-box !important;
+      margin-top: 5px !important;
+      border: 1px dashed #fb923c !important;
+      border-radius: 8px !important;
+      background: #fff !important;
+      overflow: hidden !important;
+    }
+
+    body #billing_notice_display .billing-notice-row {
+      box-sizing: border-box !important;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) 44px !important;
+      align-items: center !important;
+      gap: 6px !important;
+      height: 24px !important;
+      min-height: 24px !important;
+      max-height: 24px !important;
+      padding: 0 6px !important;
+      border-bottom: 1px dashed #fdba74 !important;
+      overflow: hidden !important;
+    }
+
+    body #billing_notice_display .billing-notice-text {
+      overflow: hidden !important;
+      white-space: nowrap !important;
+      text-overflow: ellipsis !important;
+      color: #102348 !important;
+      font-size: 12px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    body #billing_notice_display .billing-notice-delete {
+      width: 44px !important;
+      min-width: 44px !important;
+      height: 18px !important;
+      min-height: 18px !important;
+      padding: 0 !important;
+      border-radius: 5px !important;
+      border: 0 !important;
+      background: #dc2626 !important;
+      color: #fff !important;
+      font-size: 10px !important;
+      font-weight: 1000 !important;
+      line-height: 1 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: none !important;
+    }
+  </style>
+
+
+<style id="cl15j7_calculator_button_animation_v1">
+  .calculator button,
+  .calculator-grid button,
+  .calc button,
+  .calc-grid button,
+  .tool-calculator button,
+  .calculator-key,
+  .calc-key,
+  .calc-btn,
+  [data-calc-key],
+  [data-calculator-key] {
+    position: relative !important;
+    overflow: hidden !important;
+    transform: translateY(0) scale(1) !important;
+    transition:
+      transform 110ms ease,
+      box-shadow 130ms ease,
+      filter 130ms ease,
+      background-color 130ms ease !important;
+    will-change: transform, filter !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  .calculator button:hover,
+  .calculator-grid button:hover,
+  .calc button:hover,
+  .calc-grid button:hover,
+  .tool-calculator button:hover,
+  .calculator-key:hover,
+  .calc-key:hover,
+  .calc-btn:hover,
+  [data-calc-key]:hover,
+  [data-calculator-key]:hover {
+    transform: translateY(-2px) scale(1.015) !important;
+    filter: brightness(1.035) !important;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.16) !important;
+  }
+
+  .calculator button:active,
+  .calculator-grid button:active,
+  .calc button:active,
+  .calc-grid button:active,
+  .tool-calculator button:active,
+  .calculator-key:active,
+  .calc-key:active,
+  .calc-btn:active,
+  [data-calc-key]:active,
+  [data-calculator-key]:active,
+  .cl15j7-calc-pressed {
+    transform: translateY(2px) scale(0.965) !important;
+    filter: brightness(0.96) !important;
+    box-shadow: inset 0 4px 10px rgba(15, 23, 42, 0.18) !important;
+  }
+
+  .calculator button::after,
+  .calculator-grid button::after,
+  .calc button::after,
+  .calc-grid button::after,
+  .tool-calculator button::after,
+  .calculator-key::after,
+  .calc-key::after,
+  .calc-btn::after,
+  [data-calc-key]::after,
+  [data-calculator-key]::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    opacity: 0 !important;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.72), transparent 58%) !important;
+    transform: scale(0.2) !important;
+    transition: opacity 180ms ease, transform 180ms ease !important;
+    pointer-events: none !important;
+  }
+
+  .calculator button:active::after,
+  .calculator-grid button:active::after,
+  .calc button:active::after,
+  .calc-grid button:active::after,
+  .tool-calculator button:active::after,
+  .calculator-key:active::after,
+  .calc-key:active::after,
+  .calc-btn:active::after,
+  [data-calc-key]:active::after,
+  [data-calculator-key]:active::after,
+  .cl15j7-calc-pressed::after {
+    opacity: 0.38 !important;
+    transform: scale(1.15) !important;
+  }
+</style>
+
 </head>
 
 <body>
@@ -3053,11 +3561,139 @@ def billing_page(request: Request):
 })();
 </script>
 
+
+<script id="cl15j1_billing_layout_unify_script_v1">
+(function () {
+  if (!location.pathname.includes("/admin/billing")) return;
+
+  document.body.classList.add("cl15j1-billing-layout");
+
+  function textOf(el) {
+    return String(el && el.textContent ? el.textContent : "").replace(/\\s+/g, "");
+  }
+
+  function findButtonByText(labels) {
+    const buttons = Array.from(document.querySelectorAll("button"));
+    return buttons.find(function (btn) {
+      const t = textOf(btn);
+      return labels.some(function (label) { return t === label; });
+    }) || null;
+  }
+
+  function findTabByText(labels) {
+    const buttons = Array.from(document.querySelectorAll("button"));
+    return buttons.find(function (btn) {
+      const t = textOf(btn);
+      return labels.some(function (label) { return t === label; });
+    }) || null;
+  }
+
+  function cloneButton(source, label) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = label;
+
+    if (source) {
+      btn.onclick = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        source.click();
+      };
+    }
+
+    return btn;
+  }
+
+  function installHeaderActions() {
+    if (document.querySelector(".cl15j1-billing-header-actions")) return;
+
+    const header = document.querySelector(".web-title.web-title-tech") || document.querySelector(".web-title");
+    if (!header) return;
+
+    const homeBtn = findButtonByText(["\u8fd4\u56de\u9996\u9801"]);
+    const createBtn = document.getElementById("create_customer_button") || findTabByText(["\u5efa\u7acb\u8cc7\u6599"]);
+    const invoiceBtn = findTabByText(["\u958b\u7acb\u767c\u7968"]);
+    const customerBtn = findTabByText(["\u5ba2\u6236\u6e05\u55ae"]);
+
+    const box = document.createElement("div");
+    box.className = "cl15j1-billing-header-actions";
+
+    box.appendChild(cloneButton(homeBtn, "\u8fd4\u56de\u9996\u9801"));
+    box.appendChild(cloneButton(createBtn, "\u5efa\u7acb\u8cc7\u6599"));
+    box.appendChild(cloneButton(invoiceBtn, "\u958b\u7acb\u767c\u7968"));
+    box.appendChild(cloneButton(customerBtn, "\u5ba2\u6236\u6e05\u55ae"));
+
+    header.appendChild(box);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installHeaderActions);
+  } else {
+    installHeaderActions();
+  }
+
+  setTimeout(installHeaderActions, 300);
+  setTimeout(installHeaderActions, 900);
+})();
+</script>
+
+
+<script id="cl15j7_calculator_button_animation_script_v1">
+(function () {
+  function getCalcButtons() {
+    return Array.from(document.querySelectorAll([
+      ".calculator button",
+      ".calculator-grid button",
+      ".calc button",
+      ".calc-grid button",
+      ".tool-calculator button",
+      ".calculator-key",
+      ".calc-key",
+      ".calc-btn",
+      "[data-calc-key]",
+      "[data-calculator-key]"
+    ].join(",")));
+  }
+
+  function bindButton(btn) {
+    if (!btn || btn.dataset.cl15j7CalcBound === "1") return;
+    btn.dataset.cl15j7CalcBound = "1";
+
+    function press() {
+      btn.classList.add("cl15j7-calc-pressed");
+    }
+
+    function release() {
+      window.setTimeout(function () {
+        btn.classList.remove("cl15j7-calc-pressed");
+      }, 90);
+    }
+
+    btn.addEventListener("pointerdown", press, {passive: true});
+    btn.addEventListener("pointerup", release, {passive: true});
+    btn.addEventListener("pointerleave", release, {passive: true});
+    btn.addEventListener("blur", release, {passive: true});
+  }
+
+  function bindAll() {
+    getCalcButtons().forEach(bindButton);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindAll);
+  } else {
+    bindAll();
+  }
+
+  setTimeout(bindAll, 300);
+  setTimeout(bindAll, 900);
+})();
+</script>
+
 </body>
 </html>
 """
     return html.replace("__RECORDS_JSON__", records_json)
-
 
 
 

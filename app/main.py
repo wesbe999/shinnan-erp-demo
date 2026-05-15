@@ -30,6 +30,7 @@ from app.routes.sales_app import router as sales_app_router
 from app.modules.dispatch.module import register as register_dispatch_module
 from app.routes.billing_app import router as billing_app_router
 from app.routes.engineering_app import router as engineering_app_router
+from app.routes.maintenance_app import router as maintenance_app_router
 from app.routes.hr_admin import router as hr_admin_router
 from app.routes.hr_employee_adjust import router as hr_employee_adjust_router
 
@@ -99,6 +100,7 @@ register_dispatch_module(app)
 app.include_router(billing_router)
 app.include_router(billing_app_router)
 app.include_router(engineering_app_router)
+app.include_router(maintenance_app_router)
 app.include_router(hr_admin_router)
 app.include_router(hr_employee_adjust_router)
 

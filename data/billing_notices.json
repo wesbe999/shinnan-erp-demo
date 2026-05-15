@@ -1,16 +1,7 @@
 {
   "notices": [
     {
-      "title": "帳務通知",
-      "message": "記得檢查DM",
-      "level": "info",
-      "enabled": 1
-    },
-    {
-      "title": "帳務通知",
-      "message": "多多跟老闆聊聊天",
-      "level": "info",
-      "enabled": 1
+      "message": "多多跟老闆聊聊天"
     }
   ]
 }

@@ -1138,3 +1138,312 @@
   border-color: #c7c2be !important;
 }
 
+
+
+/* CL15L1_TRANSFER_STYLE_START */
+.action-btn.purple {
+  background: #7c3aed;
+}
+
+.workflow-detail-actions .action-row.single-right {
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+
+.workflow-detail-actions .action-row.single-right .action-btn {
+  width: calc(50% - 5px) !important;
+}
+
+.workflow-detail-actions .next-btn-right {
+  background: #16a34a !important;
+  width: calc(50% - 5px) !important;
+  justify-self: end !important;
+  margin-top: 4px !important;
+}
+
+.workflow-detail-actions .next-btn-right:active {
+  transform: translateY(1px);
+}
+/* CL15L1_TRANSFER_STYLE_END */
+
+
+/* CL15L2_DISPATCH_ACTION_BUTTON_COLOR_RULES_START */
+.workflow-detail-actions {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+.workflow-detail-actions .action-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+
+.workflow-detail-actions .action-row.single-full {
+  grid-template-columns: 1fr !important;
+}
+
+.workflow-detail-actions .action-btn {
+  width: 100% !important;
+  min-height: 62px !important;
+  border-radius: 22px !important;
+  font-weight: 1000 !important;
+  letter-spacing: 1px !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.10) !important;
+}
+
+.workflow-detail-actions .dial-btn {
+  background: #8b5e34 !important;
+}
+
+.workflow-detail-actions .nav-btn {
+  background: #e47a24 !important;
+}
+
+.workflow-detail-actions .claim-btn {
+  background: #0f3d2e !important;
+  color: #f8fff8 !important;
+}
+
+.workflow-detail-actions .claim-btn:disabled {
+  background: #0f3d2e !important;
+  color: rgba(255,255,255,0.72) !important;
+  opacity: 0.72 !important;
+}
+
+.workflow-detail-actions .transfer-btn {
+  background: #f2c94c !important;
+  color: #3b2f00 !important;
+}
+
+.workflow-detail-actions .list-btn {
+  background: #475569 !important;
+  color: #ffffff !important;
+}
+
+.workflow-detail-actions .action-next-blue,
+.workflow-detail-actions .next-btn,
+.workflow-detail-actions .next-btn-right {
+  background: #365ee8 !important;
+  color: #ffffff !important;
+  width: 100% !important;
+  min-height: 62px !important;
+  margin-top: 0 !important;
+  justify-self: auto !important;
+}
+
+.workflow-detail-actions .transfer-return-btn {
+  background: #b83a2f !important;
+  color: #ffffff !important;
+}
+
+.workflow-detail-actions .action-btn:active {
+  transform: translateY(1px) scale(0.99) !important;
+  filter: brightness(0.96) !important;
+}
+
+@media (max-width: 520px) {
+  .workflow-detail-actions {
+    gap: 10px !important;
+  }
+
+  .workflow-detail-actions .action-row {
+    gap: 10px !important;
+  }
+
+  .workflow-detail-actions .action-btn {
+    min-height: 56px !important;
+    border-radius: 18px !important;
+    font-size: 18px !important;
+  }
+}
+/* CL15L2_DISPATCH_ACTION_BUTTON_COLOR_RULES_END */
+
+
+/* CL15L3_FORCE_DISPATCH_ACTION_BUTTON_COLORS_START */
+.workflow-detail-actions .action-btn,
+.workflow-detail-actions button.action-btn {
+  opacity: 1 !important;
+  filter: none !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12) !important;
+}
+
+.workflow-detail-actions .dial-btn,
+.workflow-detail-actions button.dial-btn,
+.workflow-detail-actions .action-btn.dial-btn {
+  background: #8b5e34 !important;
+  color: #ffffff !important;
+}
+
+.workflow-detail-actions .nav-btn,
+.workflow-detail-actions button.nav-btn,
+.workflow-detail-actions .action-btn.nav-btn {
+  background: #e47a24 !important;
+  color: #ffffff !important;
+}
+
+.workflow-detail-actions .claim-btn,
+.workflow-detail-actions button.claim-btn,
+.workflow-detail-actions .action-btn.claim-btn,
+.workflow-detail-actions .claim-btn:disabled,
+.workflow-detail-actions button.claim-btn:disabled,
+.workflow-detail-actions .action-btn.claim-btn:disabled {
+  background: #0f3d2e !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.workflow-detail-actions .claim-btn:disabled {
+  cursor: not-allowed !important;
+}
+
+.workflow-detail-actions .transfer-btn,
+.workflow-detail-actions button.transfer-btn,
+.workflow-detail-actions .action-btn.transfer-btn {
+  background: #f2c94c !important;
+  color: #3b2f00 !important;
+  opacity: 1 !important;
+}
+
+.workflow-detail-actions .list-btn,
+.workflow-detail-actions button.list-btn,
+.workflow-detail-actions .action-btn.list-btn {
+  background: #475569 !important;
+  color: #ffffff !important;
+}
+
+.workflow-detail-actions .action-next-blue,
+.workflow-detail-actions button.action-next-blue,
+.workflow-detail-actions .action-btn.action-next-blue,
+.workflow-detail-actions .next-btn.action-next-blue {
+  background: #365ee8 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  width: 100% !important;
+}
+
+.workflow-detail-actions .transfer-return-btn,
+.workflow-detail-actions button.transfer-return-btn,
+.workflow-detail-actions .action-btn.transfer-return-btn {
+  background: #b83a2f !important;
+  color: #ffffff !important;
+}
+
+.workflow-detail-actions .action-btn[disabled]:not(.claim-btn) {
+  background: #cbd5e1 !important;
+  color: #64748b !important;
+  opacity: 0.9 !important;
+}
+
+.workflow-detail-actions .action-btn:active {
+  transform: translateY(1px) scale(0.99) !important;
+  filter: brightness(0.96) !important;
+}
+/* CL15L3_FORCE_DISPATCH_ACTION_BUTTON_COLORS_END */
+
+
+/* CL15L6_TRANSFER_MODAL_SELECT_START */
+.cl15l6-transfer-modal-mask {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  background: rgba(15, 23, 42, 0.48) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 22px !important;
+}
+
+.cl15l6-transfer-modal {
+  width: min(92vw, 430px) !important;
+  background: #ffffff !important;
+  border-radius: 22px !important;
+  border: 1px solid #d7e1ef !important;
+  box-shadow: 0 22px 58px rgba(15, 23, 42, 0.24) !important;
+  padding: 20px !important;
+  color: #102348 !important;
+}
+
+.cl15l6-transfer-title {
+  font-size: 24px !important;
+  font-weight: 1000 !important;
+  margin-bottom: 6px !important;
+}
+
+.cl15l6-transfer-sub {
+  font-size: 14px !important;
+  font-weight: 850 !important;
+  color: #64748b !important;
+  line-height: 1.45 !important;
+  margin-bottom: 14px !important;
+}
+
+.cl15l6-transfer-label {
+  display: block !important;
+  font-size: 14px !important;
+  font-weight: 1000 !important;
+  color: #475569 !important;
+  margin: 12px 0 6px !important;
+}
+
+.cl15l6-transfer-select,
+.cl15l6-transfer-note {
+  width: 100% !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 14px !important;
+  background: #f8fafc !important;
+  color: #102348 !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  padding: 10px 12px !important;
+  outline: none !important;
+}
+
+.cl15l6-transfer-select {
+  min-height: 48px !important;
+}
+
+.cl15l6-transfer-note {
+  min-height: 86px !important;
+  resize: vertical !important;
+}
+
+.cl15l6-transfer-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  margin-top: 16px !important;
+}
+
+.cl15l6-transfer-actions button {
+  height: 48px !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+  font-size: 16px !important;
+  font-weight: 1000 !important;
+}
+
+.cl15l6-transfer-cancel {
+  background: #64748b !important;
+  color: #ffffff !important;
+}
+
+.cl15l6-transfer-submit {
+  background: #f2c94c !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.28) !important;
+}
+
+.cl15l6-transfer-submit:disabled {
+  background: #cbd5e1 !important;
+  color: #64748b !important;
+  text-shadow: none !important;
+}
+/* CL15L6_TRANSFER_MODAL_SELECT_END */
