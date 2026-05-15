@@ -7,6 +7,7 @@ from urllib.parse import parse_qs as _emp_parse_qs
 
 from fastapi import APIRouter
 from fastapi import Request as _EmpRequest
+from fastapi import Body
 from fastapi.responses import HTMLResponse
 from fastapi.responses import Response as _ManagersResponse
 from fastapi.responses import Response as _SalesResponse
@@ -141,9 +142,498 @@ def api_admin_sales_business_records():
     )
 
 
+def _sales_completed_statuses() -> set[str]:
+    return {
+        "\u5df2\u5b8c\u6210",
+        "\u5df2\u7d50\u6848",
+        "\u5df2\u95dc\u9589",
+    }
+
+
+def _sales_is_admin_scope(user: dict | None) -> bool:
+    if not user:
+        return False
+
+    role = str(user.get("role") or "").strip().lower()
+    display_name = str(user.get("display_name") or "").strip()
+    staff_code = str(user.get("staff_code") or user.get("username") or "").strip().lower()
+    department = str(user.get("department") or "").strip()
+
+    admin_roles = {"admin", "boss", "manager", "management", "system_admin"}
+    admin_names = {
+        "\u7cfb\u7d71\u7ba1\u7406\u54e1",
+        "\u8001\u95c6",
+        "\u7ba1\u7406\u5c64",
+        "admin",
+    }
+    admin_departments = {
+        "\u7ba1\u7406\u5c64",
+        "\u4eba\u4e8b\u90e8",
+        "\u8001\u95c6 / \u6700\u9ad8\u7ba1\u7406",
+        "\u6700\u9ad8\u7ba1\u7406",
+    }
+
+    return (
+        role in admin_roles
+        or staff_code == "admin"
+        or display_name in admin_names
+        or department in admin_departments
+    )
+
+
+def _sales_business_records_for_app(user: dict) -> list[dict]:
+    _sales_business_records_init()
+    _buildings_db_init()
+
+    completed = tuple(_sales_completed_statuses())
+    params = {
+        "done_1": completed[0],
+        "done_2": completed[1],
+        "done_3": completed[2],
+    }
+
+    where = """
+            WHERE COALESCE(s.status, '') NOT IN (:done_1, :done_2, :done_3)
+        """
+
+    if not _sales_is_admin_scope(user):
+        where += " AND COALESCE(s.owner, '') = :owner"
+        params["owner"] = str(user.get("display_name") or "").strip()
+
+    with _sales_engine.begin() as conn:
+        rows = conn.execute(_sales_sql_text("""
+            SELECT
+                s.id AS id,
+                s.building_no AS building_no,
+                b.name AS building_name,
+                b.area AS area,
+                b.address AS building_address,
+                b.management_company AS management_company,
+                b.management_phone AS management_phone,
+                b.manager_name AS manager_name,
+                b.manager_phone AS manager_phone,
+                b.manager_age AS manager_age,
+                b.manager_experience AS manager_experience,
+                b.manager_interest AS manager_interest,
+                b.visit_time AS visit_time,
+                b.committee_time AS committee_time,
+                b.resident_meeting_time AS resident_meeting_time,
+                s.business_type AS business_type,
+                s.status AS status,
+                s.contract_status AS contract_status,
+                s.contract_end_date AS contract_end_date,
+                s.feedback_type AS feedback_type,
+                s.feedback_status AS feedback_status,
+                s.event_type AS event_type,
+                s.event_status AS event_status,
+                s.event_schedule_date AS event_schedule_date,
+                s.important_schedule AS important_schedule,
+                s.next_visit AS next_visit,
+                s.owner AS owner,
+                s.business_note AS business_note,
+                s.demo_type AS demo_type,
+                s.created_at AS created_at,
+                s.updated_at AS updated_at
+            FROM sales_business_records s
+            LEFT JOIN buildings b ON b.building_no = s.building_no
+        """ + where + """
+            ORDER BY
+                COALESCE(s.important_schedule, 0) DESC,
+                COALESCE(NULLIF(s.next_visit, ''), NULLIF(s.event_schedule_date, ''), '9999-12-31') ASC,
+                s.id DESC
+        """), params).mappings().fetchall()
+
+    records = []
+    for row in rows:
+        item = dict(row)
+        item["important_schedule"] = bool(item.get("important_schedule"))
+        item["management_note"] = (
+            "\u5927\u6a13\u5730\u5740\uff1a" + str(item.get("building_address") or "") + "\n"
+            "\u7ba1\u7406\u516c\u53f8\uff1a" + str(item.get("management_company") or "") + "\n"
+            "\u7ba1\u59d4\u96fb\u8a71\uff1a" + str(item.get("management_phone") or "")
+        )
+        records.append(item)
+
+    return records
+
+
+
+# CL15N1_SALES_DISPATCH_REQUEST_API_START
+def _sales_safe_text(value) -> str:
+    return str(value or "").strip()
+
+
+def _sales_now_text() -> str:
+    from datetime import datetime
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def _sales_table_exists(conn, table_name: str) -> bool:
+    row = conn.execute(
+        _sales_sql_text("""
+            SELECT COUNT(*)
+            FROM sqlite_master
+            WHERE type = 'table'
+              AND name = :name
+        """),
+        {"name": table_name},
+    ).scalar()
+    return int(row or 0) > 0
+
+
+def _sales_table_columns(conn, table_name: str) -> set:
+    if not _sales_table_exists(conn, table_name):
+        return set()
+    rows = conn.execute(_sales_sql_text("PRAGMA table_info(" + table_name + ")")).mappings().fetchall()
+    return {str(r["name"]) for r in rows}
+
+
+def _sales_ensure_tickets_table(conn):
+    conn.execute(_sales_sql_text("""
+        CREATE TABLE IF NOT EXISTS tickets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ticket_no TEXT DEFAULT '',
+            dispatch_area TEXT DEFAULT '',
+            case_type TEXT DEFAULT '',
+            status TEXT DEFAULT '',
+            customer_name TEXT DEFAULT '',
+            contact_name TEXT DEFAULT '',
+            contact_phone TEXT DEFAULT '',
+            service_address TEXT DEFAULT '',
+            appointment_date TEXT DEFAULT '',
+            appointment_time TEXT DEFAULT '',
+            assigned_engineer TEXT DEFAULT '',
+            assigned_engineer_staff_code TEXT DEFAULT '',
+            customer_no TEXT DEFAULT '',
+            building_no TEXT DEFAULT '',
+            description TEXT DEFAULT '',
+            internal_note TEXT DEFAULT '',
+            completion_note TEXT DEFAULT '',
+            created_at TEXT DEFAULT ''
+        )
+    """))
+
+    cols = _sales_table_columns(conn, "tickets")
+    wanted = {
+        "ticket_no": "TEXT DEFAULT ''",
+        "dispatch_area": "TEXT DEFAULT ''",
+        "case_type": "TEXT DEFAULT ''",
+        "status": "TEXT DEFAULT ''",
+        "customer_name": "TEXT DEFAULT ''",
+        "contact_name": "TEXT DEFAULT ''",
+        "contact_phone": "TEXT DEFAULT ''",
+        "service_address": "TEXT DEFAULT ''",
+        "appointment_date": "TEXT DEFAULT ''",
+        "appointment_time": "TEXT DEFAULT ''",
+        "assigned_engineer": "TEXT DEFAULT ''",
+        "assigned_engineer_staff_code": "TEXT DEFAULT ''",
+        "customer_no": "TEXT DEFAULT ''",
+        "building_no": "TEXT DEFAULT ''",
+        "description": "TEXT DEFAULT ''",
+        "internal_note": "TEXT DEFAULT ''",
+        "completion_note": "TEXT DEFAULT ''",
+        "created_at": "TEXT DEFAULT ''",
+        "source_channel": "TEXT DEFAULT ''",
+        "is_public_facility": "INTEGER DEFAULT 0",
+        "is_non_general_repair": "INTEGER DEFAULT 0",
+        "boss_review_required": "INTEGER DEFAULT 0",
+        "transfer_origin_ticket_id": "INTEGER DEFAULT 0",
+        "transfer_child_ticket_id": "INTEGER DEFAULT 0",
+        "transfer_target_department": "TEXT DEFAULT ''",
+        "transfer_source_department": "TEXT DEFAULT ''",
+        "transfer_status": "TEXT DEFAULT ''",
+        "transfer_note": "TEXT DEFAULT ''",
+        "transfer_created_at": "TEXT DEFAULT ''",
+        "transfer_updated_at": "TEXT DEFAULT ''",
+    }
+
+    for col, col_type in wanted.items():
+        if col not in cols:
+            conn.execute(_sales_sql_text("ALTER TABLE tickets ADD COLUMN " + col + " " + col_type))
+
+
+def _sales_dispatch_departments():
+    return [
+        "\u5de5\u52d9\u90e8",
+        "\u7dad\u4fee\u90e8",
+        "\u5de5\u7a0b\u90e8",
+        "\u5ba2\u670d\u90e8",
+        "\u5e33\u52d9\u90e8",
+        "\u696d\u52d9\u90e8",
+        "\u63a1\u8cfc\u90e8",
+        "\u7522\u54c1\u63a8\u5ee3\u90e8",
+        "\u5c08\u6848\u90e8",
+    ]
+
+
+@router.get("/api/app/sales/dispatch/departments")
+def api_app_sales_dispatch_departments(request: _EmpRequest):
+    user = _employee_current_user_from_request(request)
+
+    if not user:
+        return _ManagersResponse(
+            content=_managers_json.dumps({"ok": False, "error": "login required"}, ensure_ascii=False),
+            media_type="application/json; charset=utf-8",
+            status_code=401,
+        )
+
+    return _ManagersResponse(
+        content=_managers_json.dumps({"ok": True, "items": _sales_dispatch_departments()}, ensure_ascii=False),
+        media_type="application/json; charset=utf-8",
+    )
+
+
+
+# CL15N2_SALES_DISPATCH_BUILDING_PICKER_API_START
+@router.get("/api/app/sales/dispatch/buildings")
+def api_app_sales_dispatch_buildings(request: _EmpRequest):
+    user = _employee_current_user_from_request(request)
+
+    if not user:
+        return _ManagersResponse(
+            content=_managers_json.dumps({"ok": False, "error": "login required"}, ensure_ascii=False),
+            media_type="application/json; charset=utf-8",
+            status_code=401,
+        )
+
+    _buildings_db_init()
+
+    with _sales_engine.begin() as conn:
+        rows = conn.execute(_sales_sql_text("""
+            SELECT
+                building_no,
+                name,
+                area,
+                address,
+                raw_address,
+                display_address,
+                management_company,
+                management_phone,
+                manager_name,
+                manager_phone
+            FROM buildings
+            ORDER BY area, name, building_no
+        """)).mappings().fetchall()
+
+    items = []
+
+    for row in rows:
+        address = (
+            _sales_safe_text(row.get("display_address"))
+            or _sales_safe_text(row.get("address"))
+            or _sales_safe_text(row.get("raw_address"))
+        )
+
+        phone = (
+            _sales_safe_text(row.get("manager_phone"))
+            or _sales_safe_text(row.get("management_phone"))
+        )
+
+        items.append({
+            "building_no": _sales_safe_text(row.get("building_no")),
+            "name": _sales_safe_text(row.get("name")),
+            "area": _sales_safe_text(row.get("area")),
+            "address": address,
+            "management_company": _sales_safe_text(row.get("management_company")),
+            "manager_name": _sales_safe_text(row.get("manager_name")),
+            "phone": phone,
+        })
+
+    return _ManagersResponse(
+        content=_managers_json.dumps({"ok": True, "items": items}, ensure_ascii=False),
+        media_type="application/json; charset=utf-8",
+    )
+
+
+# CL15N2_SALES_DISPATCH_BUILDING_PICKER_API_END
+
+
+@router.post("/api/app/sales/dispatch/create")
+def api_app_sales_dispatch_create(request: _EmpRequest, payload: dict = Body(default_factory=dict)):
+    user = _employee_current_user_from_request(request)
+
+    if not user:
+        return _ManagersResponse(
+            content=_managers_json.dumps({"ok": False, "error": "login required"}, ensure_ascii=False),
+            media_type="application/json; charset=utf-8",
+            status_code=401,
+        )
+
+    target_department = _sales_safe_text(payload.get("target_department"))
+    request_unit = _sales_safe_text(payload.get("request_unit"))
+    request_type = _sales_safe_text(payload.get("request_type")) or "\u516c\u8a2d"
+    building_no = _sales_safe_text(payload.get("building_no"))
+    building_name = _sales_safe_text(payload.get("building_name"))
+    service_address = _sales_safe_text(payload.get("service_address"))
+    contact_name = _sales_safe_text(payload.get("contact_name"))
+    contact_phone = _sales_safe_text(payload.get("contact_phone"))
+    description = _sales_safe_text(payload.get("description"))
+
+    if not target_department:
+        return _ManagersResponse(
+            content=_managers_json.dumps({"ok": False, "error": "\u8acb\u9078\u64c7\u6d3e\u5de5\u55ae\u4f4d"}, ensure_ascii=False),
+            media_type="application/json; charset=utf-8",
+            status_code=400,
+        )
+
+    if target_department not in _sales_dispatch_departments():
+        return _ManagersResponse(
+            content=_managers_json.dumps({"ok": False, "error": "\u6d3e\u5de5\u55ae\u4f4d\u4e0d\u6b63\u78ba"}, ensure_ascii=False),
+            media_type="application/json; charset=utf-8",
+            status_code=400,
+        )
+
+    if not request_unit:
+        return _ManagersResponse(
+            content=_managers_json.dumps({"ok": False, "error": "\u8acb\u586b\u5beb\u8981\u6c42\u55ae\u4f4d"}, ensure_ascii=False),
+            media_type="application/json; charset=utf-8",
+            status_code=400,
+        )
+
+    if not building_name:
+        return _ManagersResponse(
+            content=_managers_json.dumps({"ok": False, "error": "\u8acb\u586b\u5beb\u5927\u6a13\u540d\u7a31"}, ensure_ascii=False),
+            media_type="application/json; charset=utf-8",
+            status_code=400,
+        )
+
+    if not description:
+        return _ManagersResponse(
+            content=_managers_json.dumps({"ok": False, "error": "\u8acb\u586b\u5beb\u9700\u6c42\u5167\u5bb9"}, ensure_ascii=False),
+            media_type="application/json; charset=utf-8",
+            status_code=400,
+        )
+
+    owner = _sales_safe_text(user.get("display_name") or user.get("staff_code"))
+    now_text = _sales_now_text()
+
+    _buildings_db_init()
+
+    with _sales_engine.begin() as conn:
+        _sales_ensure_tickets_table(conn)
+        ticket_cols = _sales_table_columns(conn, "tickets")
+
+        building = None
+        if building_no:
+            building = conn.execute(
+                _sales_sql_text("""
+                    SELECT *
+                    FROM buildings
+                    WHERE building_no = :building_no
+                    LIMIT 1
+                """),
+                {"building_no": building_no},
+            ).mappings().first()
+
+        if not building and building_name:
+            building = conn.execute(
+                _sales_sql_text("""
+                    SELECT *
+                    FROM buildings
+                    WHERE name = :name
+                    LIMIT 1
+                """),
+                {"name": building_name},
+            ).mappings().first()
+
+        if building:
+            building_no = _sales_safe_text(building.get("building_no")) or building_no
+            building_name = _sales_safe_text(building.get("name")) or building_name
+            service_address = (
+                _sales_safe_text(building.get("display_address"))
+                or _sales_safe_text(building.get("address"))
+                or _sales_safe_text(building.get("raw_address"))
+                or service_address
+            )
+            if not contact_name:
+                contact_name = _sales_safe_text(building.get("manager_name"))
+            if not contact_phone:
+                contact_phone = _sales_safe_text(building.get("manager_phone")) or _sales_safe_text(building.get("management_phone"))
+
+        if not building_name:
+            building_name = service_address or "\u696d\u52d9\u6d3e\u5de5"
+
+        max_id = conn.execute(_sales_sql_text("SELECT COALESCE(MAX(id), 0) FROM tickets")).scalar() or 0
+        ticket_no = "SREQ" + now_text[:10].replace("-", "") + str(int(max_id) + 1).zfill(4)
+
+        case_type = request_type
+        if request_type in ["\u516c\u8a2d", "\u516c\u8a2d\u9700\u6c42"]:
+            case_type = "\u516c\u8a2d"
+        elif request_type in ["\u56de\u994b", "\u5ba2\u6236\u56de\u994b"]:
+            case_type = "\u56de\u994b"
+        elif request_type in ["\u793e\u5340\u9700\u6c42"]:
+            case_type = "\u793e\u5340\u9700\u6c42"
+
+        full_description = (
+            "\u696d\u52d9\u6d3e\u5de5\u9700\u6c42\n"
+            "\u8981\u6c42\u55ae\u4f4d\uff1a" + request_unit + "\n"
+            "\u6d3e\u5de5\u55ae\u4f4d\uff1a" + target_department + "\n"
+            "\u9700\u6c42\u985e\u578b\uff1a" + request_type + "\n"
+            "\u767c\u8d77\u696d\u52d9\uff1a" + owner + "\n"
+            "\u5927\u6a13\uff1a" + building_name + "\n"
+            "\u5167\u5bb9\uff1a" + description
+        )
+
+        data = {
+            "ticket_no": ticket_no,
+            "dispatch_area": target_department,
+            "case_type": case_type,
+            "status": "\u672a\u9818\u53d6",
+            "customer_name": building_name,
+            "contact_name": contact_name,
+            "contact_phone": contact_phone,
+            "service_address": service_address,
+            "appointment_date": "",
+            "appointment_time": "",
+            "assigned_engineer": "",
+            "assigned_engineer_staff_code": "",
+            "customer_no": "",
+            "building_no": building_no,
+            "description": full_description,
+            "internal_note": "\u696d\u52d9APP\u5efa\u7acb\uff1b\u8981\u6c42\u55ae\u4f4d\uff1a" + request_unit,
+            "completion_note": "",
+            "created_at": now_text,
+            "source_channel": "\u696d\u52d9APP",
+            "is_public_facility": 1 if "\u516c\u8a2d" in request_type else 0,
+            "is_non_general_repair": 1 if target_department in ["\u7dad\u4fee\u90e8", "\u5de5\u7a0b\u90e8"] else 0,
+            "boss_review_required": 1 if target_department in ["\u7dad\u4fee\u90e8", "\u5de5\u7a0b\u90e8"] else 0,
+            "transfer_origin_ticket_id": 0,
+            "transfer_child_ticket_id": 0,
+            "transfer_target_department": target_department,
+            "transfer_source_department": "\u696d\u52d9\u90e8",
+            "transfer_status": "\u696d\u52d9\u65b0\u589e\u6d3e\u5de5",
+            "transfer_note": description,
+            "transfer_created_at": now_text,
+            "transfer_updated_at": now_text,
+        }
+
+        insert_cols = [c for c in data.keys() if c in ticket_cols]
+        insert_sql = "INSERT INTO tickets (" + ", ".join(insert_cols) + ") VALUES (" + ", ".join([":" + c for c in insert_cols]) + ")"
+        result = conn.execute(_sales_sql_text(insert_sql), {c: data[c] for c in insert_cols})
+        ticket_id = int(result.lastrowid)
+
+    return _ManagersResponse(
+        content=_managers_json.dumps({
+            "ok": True,
+            "ticket_id": ticket_id,
+            "ticket_no": ticket_no,
+            "target_department": target_department,
+        }, ensure_ascii=False),
+        media_type="application/json; charset=utf-8",
+    )
+
+
+# CL15N1_SALES_DISPATCH_REQUEST_API_END
+
+
 # SHINNAN_SALES_MOBILE_APP_START
 @router.get("/app/sales", response_class=HTMLResponse)
-def sales_mobile_app_page():
+def sales_mobile_app_page(request: _EmpRequest):
+    user = _employee_current_user_from_request(request)
+
+    if not user:
+        return _EmpRedirectResponse("/employee/login?next=/app/sales", status_code=303)
+
     return """
 <!doctype html>
 <html lang="zh-Hant">
@@ -591,6 +1081,439 @@ def sales_mobile_app_page():
 
 
   <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+
+<style id="cl15n1_sales_dispatch_card_modal_style_v1">
+  .sales-action-card {
+    margin: 12px 14px 0;
+    padding: 14px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #0f3d2e, #166534);
+    color: #ffffff;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+  }
+
+  .sales-action-card-title {
+    font-size: 22px;
+    font-weight: 1000;
+    letter-spacing: 1px;
+  }
+
+  .sales-action-card-sub {
+    margin-top: 4px;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 850;
+    opacity: 0.92;
+  }
+
+  .sales-action-card button {
+    margin-top: 12px;
+    width: 100%;
+    height: 48px;
+    border: 0;
+    border-radius: 16px;
+    background: #f2c94c;
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 1000;
+    text-shadow: 0 1px 2px rgba(0,0,0,.28);
+  }
+
+  .bottom-nav {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+
+  .bottom-nav button.dispatch-entry {
+    background: #15803d !important;
+    color: #ffffff !important;
+  }
+
+  .sales-dispatch-mask {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: none;
+    align-items: flex-end;
+    background: rgba(15, 23, 42, 0.45);
+  }
+
+  .sales-dispatch-mask.show {
+    display: flex !important;
+  }
+
+  .sales-dispatch-modal {
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: #ffffff;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 16px;
+    box-shadow: 0 -16px 44px rgba(15, 23, 42, 0.24);
+  }
+
+  .sales-dispatch-title {
+    font-size: 23px;
+    font-weight: 1000;
+    margin-bottom: 4px;
+    color: #102348;
+  }
+
+  .sales-dispatch-sub {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+
+  .sales-dispatch-modal label {
+    display: block;
+    margin: 10px 0 5px;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 1000;
+  }
+
+  .sales-dispatch-modal input,
+  .sales-dispatch-modal select,
+  .sales-dispatch-modal textarea {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #102348;
+    font-size: 15px;
+    font-weight: 850;
+    padding: 10px 12px;
+    outline: none;
+  }
+
+  .sales-dispatch-modal input,
+  .sales-dispatch-modal select {
+    min-height: 46px;
+  }
+
+  .sales-dispatch-modal textarea {
+    min-height: 92px;
+    resize: vertical;
+  }
+
+  .sales-dispatch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .sales-dispatch-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .sales-dispatch-actions button {
+    height: 46px;
+    border: 0;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 1000;
+  }
+
+  .sales-dispatch-cancel {
+    background: #64748b;
+    color: #ffffff;
+  }
+
+  .sales-dispatch-submit {
+    background: #15803d;
+    color: #ffffff;
+  }
+
+  @media (min-width: 760px) {
+    .sales-dispatch-mask {
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .sales-dispatch-modal {
+      max-width: 520px;
+      border-radius: 24px;
+    }
+  }
+</style>
+
+
+<style id="cl15n2_sales_dispatch_building_picker_style_v1">
+
+  .sales-dispatch-manual-hint {
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 1.4;
+  }
+</style>
+
+
+<style id="cl15n4_sales_building_area_card_style_v1">
+  .sales-building-mask {
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    display: none;
+    align-items: flex-end;
+    background: rgba(15, 23, 42, 0.45);
+  }
+
+  .sales-building-mask.show {
+    display: flex;
+  }
+
+  .sales-building-sheet {
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: #eef3f9;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 14px;
+    box-shadow: 0 -16px 44px rgba(15, 23, 42, 0.24);
+  }
+
+  .sales-building-head {
+    background: #ffffff;
+    border: 1px solid #d7e1ef;
+    border-radius: 20px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+
+  .sales-building-title {
+    font-size: 23px;
+    font-weight: 1000;
+    color: #102348;
+  }
+
+  .sales-building-sub {
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.45;
+  }
+
+  .sales-building-filters {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .sales-building-filters select,
+  .sales-building-filters input {
+    min-height: 44px;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #102348;
+    font-size: 14px;
+    font-weight: 850;
+    padding: 8px 10px;
+  }
+
+  .sales-building-card {
+    background: #ffffff;
+    border: 1px solid #d7e1ef;
+    border-radius: 18px;
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+  }
+
+  .sales-building-card-title {
+    font-size: 18px;
+    font-weight: 1000;
+    color: #102348;
+  }
+
+  .sales-building-card-meta {
+    margin-top: 6px;
+    white-space: pre-wrap;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 850;
+    line-height: 1.45;
+  }
+
+  .sales-building-card-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .sales-building-card-actions button,
+  .sales-building-close {
+    min-height: 42px;
+    border: 0;
+    border-radius: 14px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 1000;
+  }
+
+  .sales-building-use {
+    background: #15803d;
+  }
+
+  .sales-building-close {
+    background: #64748b;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .sales-building-empty {
+    padding: 18px;
+    text-align: center;
+    color: #64748b;
+    font-weight: 900;
+  }
+
+  @media (min-width: 760px) {
+    .sales-building-mask {
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .sales-building-sheet {
+      max-width: 560px;
+      border-radius: 24px;
+    }
+  }
+</style>
+
+
+<style id="cl15n6_sales_dispatch_area_building_same_row_style_v1">
+  .sales-dispatch-building-row {
+    grid-template-columns: 0.82fr 1.18fr !important;
+    align-items: end !important;
+  }
+
+  .sales-dispatch-building-row label {
+    min-height: 20px;
+  }
+
+  @media (max-width: 420px) {
+    .sales-dispatch-building-row {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
+
+
+<style id="cl15n7b_sales_app_new_button_style_v1">
+  .bottom-nav {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+
+  .bottom-nav button.new-entry {
+    background: #365ee8 !important;
+    color: #ffffff !important;
+  }
+
+  @media (max-width: 520px) {
+    .bottom-nav {
+      grid-template-columns: repeat(5, 1fr) !important;
+      gap: 8px !important;
+    }
+
+    .bottom-nav button {
+      min-width: 0 !important;
+      padding-left: 6px !important;
+      padding-right: 6px !important;
+      font-size: 16px !important;
+    }
+  }
+</style>
+
+
+<style id="cl15n7c_sales_bottom_nav_force_style_v1">
+  .bottom-nav {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+
+  .bottom-nav button.new-entry {
+    background: #365ee8 !important;
+    color: #ffffff !important;
+  }
+
+  .bottom-nav button.dispatch-entry {
+    background: #15803d !important;
+    color: #ffffff !important;
+  }
+
+  @media (max-width: 520px) {
+    .bottom-nav {
+      grid-template-columns: repeat(5, 1fr) !important;
+      gap: 8px !important;
+    }
+
+    .bottom-nav button {
+      min-width: 0 !important;
+      padding-left: 6px !important;
+      padding-right: 6px !important;
+      font-size: 16px !important;
+    }
+  }
+</style>
+
+
+<style id="cl15n7d_sales_new_button_route_style_v1">
+  .bottom-nav {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+
+  .bottom-nav button.new-entry {
+    background: #365ee8 !important;
+    color: #ffffff !important;
+  }
+
+  @media (max-width: 520px) {
+    .bottom-nav {
+      grid-template-columns: repeat(5, 1fr) !important;
+      gap: 8px !important;
+    }
+
+    .bottom-nav button {
+      min-width: 0 !important;
+      padding-left: 6px !important;
+      padding-right: 6px !important;
+      font-size: 16px !important;
+    }
+  }
+</style>
+
+
+<style id="cl15n8_sales_complete_button_style_v1">
+  .modal-actions button.complete {
+    background: #15803d !important;
+    color: #ffffff !important;
+  }
+
+  .modal-actions.three-actions {
+    grid-template-columns: 1fr 1fr 1fr !important;
+  }
+
+  @media (max-width: 520px) {
+    .modal-actions.three-actions {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
+
 </head>
 
 <body>
@@ -638,28 +1561,130 @@ def sales_mobile_app_page():
     <div id="section_title" class="section-title">全部業務工作</div>
     <main id="list" class="list"></main>
 
+    <div class="sales-action-card">
+      <div class="sales-action-card-title">\u696d\u52d9\u6d3e\u5de5</div>
+      <div class="sales-action-card-sub">\u91dd\u5c0d\u5927\u6a13\u516c\u8a2d\u3001\u793e\u5340\u56de\u994b\u3001\u7ba1\u59d4\u6703\u9700\u6c42\uff0c\u5efa\u7acb\u8de8\u90e8\u9580\u6d3e\u5de5\u55ae\u3002</div>
+      <button type="button" data-sales-dispatch-open="1" onclick="openSalesDispatchModal()">\u5efa\u7acb\u6d3e\u5de5</button>
+    </div>
+
     <div class="bottom-nav">
-      <button type="button" onclick="location.href='/app'">APP首頁</button>
-      <button type="button" onclick="location.href='/admin/buildings?from=sales_app&ts=' + Date.now()">大樓名錄</button>
-      <button type="button" onclick="reloadData()">整理</button>
-      <button type="button" class="danger" onclick="location.href='/employee/logout?next=/'">登出</button>
+      <button type="button" onclick="location.href='/app'">APP\u9996\u9801</button>
+      <button type="button" onclick="openSalesBuildingCards()">\u5927\u6a13\u540d\u9304</button>
+      <button type="button" class="dispatch-entry" data-sales-dispatch-open="1" onclick="openSalesDispatchModal()">\u6d3e\u5de5</button>
+      <button type="button" class="new-entry" onclick="cl15n7dOpenSalesNewCard()">\u65b0\u589e</button>
+      <button type="button" class="danger" onclick="location.href='/employee/logout?next=/'">\u767b\u51fa</button>
     </div>
   </div>
 
-  <div id="detail_mask" class="modal-mask" onclick="closeDetail(event)">
+  
+  <div id="sales_dispatch_mask" class="sales-dispatch-mask" onclick="closeSalesDispatchModal(event)">
+    <div class="sales-dispatch-modal" onclick="event.stopPropagation()">
+      <div class="sales-dispatch-title">\u696d\u52d9\u6d3e\u5de5</div>
+      <div class="sales-dispatch-sub">\u5efa\u7acb\u516c\u8a2d\u3001\u56de\u994b\u6216\u793e\u5340\u9700\u6c42\u7684\u8de8\u90e8\u9580\u6d3e\u5de5\u55ae\u3002</div>
+
+      <div class="sales-dispatch-grid">
+        <div>
+          <label>\u6d3e\u5de5\u55ae\u4f4d</label>
+          <select id="sales_dispatch_target_department"></select>
+        </div>
+        <div>
+          <label>\u9700\u6c42\u985e\u578b</label>
+          <select id="sales_dispatch_request_type">
+            <option value="\u516c\u8a2d">\u516c\u8a2d</option>
+            <option value="\u56de\u994b">\u56de\u994b</option>
+            <option value="\u793e\u5340\u9700\u6c42">\u793e\u5340\u9700\u6c42</option>
+            <option value="\u5176\u4ed6">\u5176\u4ed6</option>
+          </select>
+        </div>
+      </div>
+
+      <label>\u8981\u6c42\u55ae\u4f4d</label>
+      <input id="sales_dispatch_request_unit" list="sales_dispatch_request_unit_list" placeholder="\u53ef\u5f9e\u4e0b\u62c9\u9078\u64c7\uff0c\u6216\u76f4\u63a5\u624b\u52d5\u8f38\u5165">
+      <datalist id="sales_dispatch_request_unit_list">
+        <option value="\u7ba1\u59d4\u6703"></option>
+        <option value="\u7ba1\u7406\u5ba4"></option>
+        <option value="\u696d\u52d9\u90e8"></option>
+        <option value="\u8001\u95c6\u6307\u793a"></option>
+        <option value="\u793e\u5340\u4e3b\u59d4"></option>
+        <option value="\u7e3d\u5e79\u4e8b"></option>
+        <option value="\u5ba2\u6236\u56de\u994b"></option>
+      </datalist>
+
+      <input type="hidden" id="sales_dispatch_building_no">
+
+      <div class="sales-dispatch-grid sales-dispatch-building-row">
+        <div>
+          <label>\u5340\u57df</label>
+          <select id="sales_dispatch_building_area" onchange="populateSalesDispatchBuildingNameList()">
+            <option value="">\u5168\u90e8\u5340\u57df</option>
+          </select>
+        </div>
+        <div>
+          <label>\u5927\u6a13\u540d\u7a31</label>
+          <input id="sales_dispatch_building_name" list="sales_dispatch_building_name_list" placeholder="\u53ef\u5f9e\u540d\u518a\u9078\u64c7\uff0c\u6216\u624b\u52d5\u8f38\u5165" oninput="applySalesDispatchBuildingByName()">
+          <datalist id="sales_dispatch_building_name_list"></datalist>
+        </div>
+      </div>
+      <div class="sales-dispatch-manual-hint">\u9078\u5340\u57df\u53ef\u7e2e\u5c0f\u540d\u518a\u5019\u9078\uff1b\u82e5\u662f\u65b0\u5927\u6a13\uff0c\u53ef\u76f4\u63a5\u624b\u52d5\u8f38\u5165\u4e0b\u65b9\u8cc7\u6599\u3002</div>
+
+      <label>\u5730\u5740</label>
+      <input id="sales_dispatch_service_address" placeholder="\u540d\u518a\u5167\u5927\u6a13\u6703\u81ea\u52d5\u5e36\u5165\uff1b\u65b0\u5927\u6a13\u8acb\u624b\u52d5\u586b\u5beb">
+
+      <div class="sales-dispatch-grid">
+        <div>
+          <label>\u806f\u7d61\u4eba</label>
+          <input id="sales_dispatch_contact_name" placeholder="\u540d\u518a\u6703\u81ea\u52d5\u5e36\u5165\uff1b\u4e5f\u53ef\u624b\u52d5\u8f38\u5165">
+        </div>
+        <div>
+          <label>\u96fb\u8a71</label>
+          <input id="sales_dispatch_contact_phone" placeholder="\u540d\u518a\u6703\u81ea\u52d5\u5e36\u5165\uff1b\u4e5f\u53ef\u624b\u52d5\u8f38\u5165">
+        </div>
+      </div>
+
+      <label>\u9700\u6c42\u5167\u5bb9</label>
+      <textarea id="sales_dispatch_description" placeholder="\u8acb\u8aaa\u660e\u516c\u8a2d\u9700\u6c42\u3001\u793e\u5340\u56de\u994b\u6216\u9700\u5354\u52a9\u4e8b\u9805"></textarea>
+
+      <div class="sales-dispatch-actions">
+        <button class="sales-dispatch-cancel" type="button" onclick="hideSalesDispatchModal()">\u53d6\u6d88</button>
+        <button class="sales-dispatch-submit" type="button" onclick="submitSalesDispatchRequest()">\u9001\u51fa\u6d3e\u5de5</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="sales_building_mask" class="sales-building-mask" onclick="closeSalesBuildingCards(event)">
+    <div class="sales-building-sheet" onclick="event.stopPropagation()">
+      <div class="sales-building-head">
+        <div class="sales-building-title">\u5927\u6a13\u540d\u9304</div>
+        <div class="sales-building-sub">\u624b\u6a5f APP \u5361\u7247\u7248\uff0c\u53ef\u4f9d\u5340\u57df\u8207\u95dc\u9375\u5b57\u67e5\u8a62\u3002</div>
+        <div class="sales-building-filters">
+          <select id="sales_building_area_filter" onchange="renderSalesBuildingCards()">
+            <option value="">\u5168\u90e8\u5340\u57df</option>
+          </select>
+          <input id="sales_building_keyword" placeholder="\u641c\u5c0b\u5927\u6a13\u540d\u7a31\uff0f\u5730\u5740" oninput="renderSalesBuildingCards()">
+        </div>
+        <button class="sales-building-close" type="button" onclick="hideSalesBuildingCards()">\u95dc\u9589</button>
+      </div>
+      <div id="sales_building_card_list"></div>
+    </div>
+  </div>
+
+<div id="detail_mask" class="modal-mask" onclick="closeDetail(event)">
     <div class="modal" onclick="event.stopPropagation()">
       <div id="detail_title" class="modal-title"></div>
       <div id="detail_body"></div>
 
-      <div class="modal-actions">
-        <button class="close" onclick="hideDetail()">關閉</button>
-        <button id="call_button" class="call">撥打總幹事</button>
+            <div class="modal-actions three-actions">
+        <button class="close" onclick="hideDetail()">\u95dc\u9589</button>
+        <button class="complete" onclick="completeSalesBusinessRecord()">\u5df2\u5b8c\u6210</button>
+        <button id="call_button" class="call">\u64a5\u6253\u7e3d\u5e79\u4e8b</button>
       </div>
     </div>
   </div>
 
   <script>
     let records = [];
+    let currentSalesDetailId = null;
     let currentFilter = "全部";
 
     function todayText() {
@@ -817,6 +1842,7 @@ def sales_mobile_app_page():
     function showDetail(index) {
       const item = records[index];
       if (!item) return;
+      currentSalesDetailId = item.id;
 
       document.getElementById("detail_title").textContent = item.building_name || "業務資料";
 
@@ -901,8 +1927,37 @@ def sales_mobile_app_page():
       document.getElementById("detail_mask").classList.add("show");
     }
 
+
+    async function completeSalesBusinessRecord() {
+      if (!currentSalesDetailId) {
+        alert("\u627e\u4e0d\u5230\u76ee\u524d\u696d\u52d9\u6848\u4ef6");
+        return;
+      }
+
+      if (!confirm("\u78ba\u8a8d\u5c07\u6b64\u696d\u52d9\u6848\u4ef6\u6a19\u8a18\u70ba\u5df2\u5b8c\u6210\uff1f\n\u5b8c\u6210\u5f8c\u5c07\u5f9e APP \u5217\u8868\u79fb\u9664\u3002")) {
+        return;
+      }
+
+      const res = await fetch("/api/app/sales/business-records/" + encodeURIComponent(currentSalesDetailId) + "/complete", {
+        method: "POST",
+        credentials: "same-origin"
+      });
+
+      const data = await res.json().catch(function () { return {}; });
+
+      if (!res.ok || !data.ok) {
+        alert(data.error || "\u66f4\u65b0\u5931\u6557");
+        return;
+      }
+
+      alert("\u5df2\u6a19\u8a18\u70ba\u5df2\u5b8c\u6210\u3002");
+      hideDetail();
+      await reloadData();
+    }
+
     function hideDetail() {
       document.getElementById("detail_mask").classList.remove("show");
+      currentSalesDetailId = null;
     }
 
     function closeDetail(event) {
@@ -911,32 +1966,421 @@ def sales_mobile_app_page():
 
     async function reloadData() {
       const box = document.getElementById("list");
-      box.innerHTML = '<div class="empty">資料載入中...</div>';
+      box.innerHTML = '<div class="empty">\u8cc7\u6599\u8f09\u5165\u4e2d...</div>';
 
-      const res = await fetch("/api/app/sales/business-records?ts=" + Date.now(), {
-        cache: "no-store"
+      try {
+        const res = await fetch("/api/app/sales/business-records?ts=" + Date.now(), {
+          cache: "no-store",
+          credentials: "same-origin"
+        });
+
+        const data = await res.json().catch(function () {
+          return null;
+        });
+
+        if (!res.ok) {
+          const msg = data && data.error ? data.error : ("\u696d\u52d9 API \u8b80\u53d6\u5931\u6557\uff1a" + res.status);
+          records = [];
+          renderList();
+          box.innerHTML = '<div class="empty">' + esc(msg) + '</div>';
+          return;
+        }
+
+        if (data && data.ok === false) {
+          records = [];
+          renderList();
+          box.innerHTML = '<div class="empty">' + esc(data.error || "\u696d\u52d9 API \u56de\u50b3\u932f\u8aa4") + '</div>';
+          return;
+        } else if (Array.isArray(data)) {
+          records = data;
+        } else if (data && Array.isArray(data.items)) {
+          records = data.items;
+        } else if (data && Array.isArray(data.records)) {
+          records = data.records;
+        } else {
+          records = [];
+          renderList();
+          box.innerHTML = '<div class="empty">\u696d\u52d9 API \u56de\u50b3\u683c\u5f0f\u4e0d\u7b26\u5408\u9810\u671f\u3002</div>';
+          return;
+        }
+
+        records.sort((a, b) => {
+          const ai = a.important_schedule ? 0 : 1;
+          const bi = b.important_schedule ? 0 : 1;
+          if (ai !== bi) return ai - bi;
+
+          const ad = a.next_visit || a.event_schedule_date || "9999-12-31";
+          const bd = b.next_visit || b.event_schedule_date || "9999-12-31";
+
+          return String(ad).localeCompare(String(bd));
+        });
+
+        renderList();
+      } catch (err) {
+        records = [];
+        renderList();
+        box.innerHTML = '<div class="empty">\u696d\u52d9 APP \u8b80\u53d6\u932f\u8aa4\uff1a' + esc(err && err.message ? err.message : String(err)) + '</div>';
+      }
+    }
+
+
+
+    let salesDispatchBuildings = [];
+
+    function uniqueSalesAreas(items) {
+      const seen = {};
+      const out = [];
+
+      (items || []).forEach(function (b) {
+        const area = String(b.area || "").trim();
+        if (!area || seen[area]) return;
+        seen[area] = true;
+        out.push(area);
       });
 
-      if (!res.ok) {
-        box.innerHTML = '<div class="empty">業務 API 讀取失敗：' + res.status + '</div>';
+      return out.sort();
+    }
+
+    async function loadSalesDispatchBuildings() {
+      try {
+        const res = await fetch("/api/app/sales/dispatch/buildings?ts=" + Date.now(), {
+          cache: "no-store",
+          credentials: "same-origin"
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          salesDispatchBuildings = [];
+          return;
+        }
+
+        salesDispatchBuildings = data.items || [];
+        populateSalesDispatchBuildingAreas();
+        populateSalesDispatchBuildingNameList();
+      } catch (err) {
+        salesDispatchBuildings = [];
+      }
+    }
+
+    function populateSalesDispatchBuildingAreas() {
+      const areaSelect = document.getElementById("sales_dispatch_building_area");
+      if (!areaSelect) return;
+
+      const areas = uniqueSalesAreas(salesDispatchBuildings);
+      const current = areaSelect.value;
+
+      areaSelect.innerHTML = '<option value="">\u5168\u90e8\u5340\u57df</option>' + areas.map(function (area) {
+        return '<option value="' + esc(area) + '">' + esc(area) + '</option>';
+      }).join("");
+
+      if (current && areas.includes(current)) {
+        areaSelect.value = current;
+      }
+    }
+
+    function filteredSalesDispatchBuildingsForArea() {
+      const areaSelect = document.getElementById("sales_dispatch_building_area");
+      const area = areaSelect ? String(areaSelect.value || "").trim() : "";
+
+      return (salesDispatchBuildings || []).filter(function (b) {
+        if (!area) return true;
+        return String(b.area || "").trim() === area;
+      });
+    }
+
+    function populateSalesDispatchBuildingNameList() {
+      const list = document.getElementById("sales_dispatch_building_name_list");
+      if (!list) return;
+
+      const items = filteredSalesDispatchBuildingsForArea();
+
+      list.innerHTML = items.map(function (b) {
+        return '<option value="' + esc(b.name || "") + '"></option>';
+      }).join("");
+
+      applySalesDispatchBuildingByName();
+    }
+
+    function findSalesDispatchBuildingByNo(buildingNo) {
+      const value = String(buildingNo || "").trim();
+
+      if (!value) return null;
+
+      return salesDispatchBuildings.find(function (b) {
+        return String(b.building_no || "").trim() === value;
+      }) || null;
+    }
+
+    function findSalesDispatchBuildingByName(name) {
+      const value = String(name || "").trim();
+      const areaSelect = document.getElementById("sales_dispatch_building_area");
+      const area = areaSelect ? String(areaSelect.value || "").trim() : "";
+
+      if (!value) return null;
+
+      return (salesDispatchBuildings || []).find(function (b) {
+        const nameOk = String(b.name || "").trim() === value;
+        const areaOk = !area || String(b.area || "").trim() === area;
+        return nameOk && areaOk;
+      }) || (salesDispatchBuildings || []).find(function (b) {
+        return String(b.name || "").trim() === value;
+      }) || null;
+    }
+
+    function applySalesDispatchBuildingByName() {
+      const noEl = document.getElementById("sales_dispatch_building_no");
+      const nameEl = document.getElementById("sales_dispatch_building_name");
+      const addressEl = document.getElementById("sales_dispatch_service_address");
+      const contactEl = document.getElementById("sales_dispatch_contact_name");
+      const phoneEl = document.getElementById("sales_dispatch_contact_phone");
+
+      if (!noEl || !nameEl) return;
+
+      const b = findSalesDispatchBuildingByName(nameEl.value);
+
+      if (!b) {
+        noEl.value = "";
         return;
       }
 
-      records = await res.json();
+      noEl.value = b.building_no || "";
 
-      records.sort((a, b) => {
-        const ai = a.important_schedule ? 0 : 1;
-        const bi = b.important_schedule ? 0 : 1;
-        if (ai !== bi) return ai - bi;
+      if (addressEl && !String(addressEl.value || "").trim()) addressEl.value = b.address || "";
+      if (contactEl && !String(contactEl.value || "").trim()) contactEl.value = b.manager_name || "";
+      if (phoneEl && !String(phoneEl.value || "").trim()) phoneEl.value = b.phone || "";
 
-        const ad = a.next_visit || a.event_schedule_date || "9999-12-31";
-        const bd = b.next_visit || b.event_schedule_date || "9999-12-31";
+      if (addressEl && b.address) addressEl.value = b.address || "";
+      if (contactEl && b.manager_name) contactEl.value = b.manager_name || "";
+      if (phoneEl && b.phone) phoneEl.value = b.phone || "";
+    }
 
-        return String(ad).localeCompare(String(bd));
+    function getFilteredSalesBuildingCards() {
+      const area = String((document.getElementById("sales_building_area_filter") || {}).value || "").trim();
+      const keyword = String((document.getElementById("sales_building_keyword") || {}).value || "").trim().toLowerCase();
+
+      return (salesDispatchBuildings || []).filter(function (b) {
+        const areaOk = !area || String(b.area || "") === area;
+        const hay = [b.name, b.address, b.area, b.management_company, b.manager_name, b.phone].join(" ").toLowerCase();
+        const keyOk = !keyword || hay.includes(keyword);
+        return areaOk && keyOk;
+      });
+    }
+
+    function populateSalesBuildingCardAreas() {
+      const select = document.getElementById("sales_building_area_filter");
+      if (!select) return;
+
+      const areas = uniqueSalesAreas(salesDispatchBuildings);
+      const current = select.value;
+
+      select.innerHTML = '<option value="">\u5168\u90e8\u5340\u57df</option>' + areas.map(function (area) {
+        return '<option value="' + esc(area) + '">' + esc(area) + '</option>';
+      }).join("");
+
+      if (current && areas.includes(current)) select.value = current;
+    }
+
+    function renderSalesBuildingCards() {
+      const list = document.getElementById("sales_building_card_list");
+      if (!list) return;
+
+      const items = getFilteredSalesBuildingCards();
+
+      if (!items.length) {
+        list.innerHTML = '<div class="sales-building-empty">\u627e\u4e0d\u5230\u7b26\u5408\u689d\u4ef6\u7684\u5927\u6a13\u3002</div>';
+        return;
+      }
+
+      list.innerHTML = items.slice(0, 120).map(function (b) {
+        const meta = [
+          b.area ? "\u5340\u57df\uff1a" + b.area : "",
+          b.address ? "\u5730\u5740\uff1a" + b.address : "",
+          b.manager_name ? "\u806f\u7d61\u4eba\uff1a" + b.manager_name : "",
+          b.phone ? "\u96fb\u8a71\uff1a" + b.phone : ""
+        ].filter(Boolean).join("\\n");
+
+        return '<div class="sales-building-card">' +
+          '<div class="sales-building-card-title">' + esc(b.name || "") + '</div>' +
+          '<div class="sales-building-card-meta">' + esc(meta) + '</div>' +
+          '<div class="sales-building-card-actions">' +
+            '<button class="sales-building-use" type="button" data-building-no="' + esc(b.building_no || "") + '" onclick="useBuildingCardForDispatch(this.dataset.buildingNo)">\u5e36\u5165\u6d3e\u5de5</button>' +
+            '<button class="sales-building-close" type="button" onclick="hideSalesBuildingCards()">\u95dc\u9589</button>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+    }
+
+    async function openSalesBuildingCards() {
+      const mask = document.getElementById("sales_building_mask");
+      if (!mask) return;
+
+      mask.classList.add("show");
+
+      if (!salesDispatchBuildings.length) {
+        await loadSalesDispatchBuildings();
+      }
+
+      populateSalesBuildingCardAreas();
+      renderSalesBuildingCards();
+    }
+
+    function hideSalesBuildingCards() {
+      const mask = document.getElementById("sales_building_mask");
+      if (mask) mask.classList.remove("show");
+    }
+
+    function closeSalesBuildingCards(event) {
+      if (event && event.target && event.target.id === "sales_building_mask") {
+        hideSalesBuildingCards();
+      }
+    }
+
+    function useBuildingCardForDispatch(buildingNo) {
+      const b = findSalesDispatchBuildingByNo(buildingNo);
+      if (!b) return;
+
+      hideSalesBuildingCards();
+      openSalesDispatchModal();
+
+      setTimeout(function () {
+        const areaSelect = document.getElementById("sales_dispatch_building_area");
+        const nameEl = document.getElementById("sales_dispatch_building_name");
+        const noEl = document.getElementById("sales_dispatch_building_no");
+        const addressEl = document.getElementById("sales_dispatch_service_address");
+        const contactEl = document.getElementById("sales_dispatch_contact_name");
+        const phoneEl = document.getElementById("sales_dispatch_contact_phone");
+
+        if (areaSelect) {
+          areaSelect.value = b.area || "";
+          populateSalesDispatchBuildingNameList();
+        }
+
+        if (noEl) noEl.value = b.building_no || "";
+        if (nameEl) nameEl.value = b.name || "";
+        if (addressEl) addressEl.value = b.address || "";
+        if (contactEl) contactEl.value = b.manager_name || "";
+        if (phoneEl) phoneEl.value = b.phone || "";
+      }, 120);
+    }
+
+    async function loadSalesDispatchDepartments() {
+      const select = document.getElementById("sales_dispatch_target_department");
+      if (!select) return;
+
+      select.innerHTML = '<option value="">\u8f09\u5165\u4e2d...</option>';
+
+      try {
+        const res = await fetch("/api/app/sales/dispatch/departments?ts=" + Date.now(), {
+          cache: "no-store",
+          credentials: "same-origin"
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          select.innerHTML = '<option value="">\u8b80\u53d6\u5931\u6557</option>';
+          return;
+        }
+
+        select.innerHTML = '<option value="">\u8acb\u9078\u64c7\u6d3e\u5de5\u55ae\u4f4d</option>' + (data.items || []).map(function (name) {
+          return '<option value="' + esc(name) + '">' + esc(name) + '</option>';
+        }).join("");
+      } catch (err) {
+        select.innerHTML = '<option value="">\u8b80\u53d6\u5931\u6557</option>';
+      }
+    }
+
+    function openSalesDispatchModal() {
+      const mask = document.getElementById("sales_dispatch_mask");
+      if (!mask) return;
+
+      const selected = records.find(function (item) {
+        return item && item.__selected_for_dispatch;
       });
 
-      renderList();
+      mask.classList.add("show");
+      loadSalesDispatchDepartments();
+      loadSalesDispatchBuildings();
     }
+
+    function hideSalesDispatchModal() {
+      const mask = document.getElementById("sales_dispatch_mask");
+      if (mask) mask.classList.remove("show");
+    }
+
+    function closeSalesDispatchModal(event) {
+      if (event && event.target && event.target.id === "sales_dispatch_mask") {
+        hideSalesDispatchModal();
+      }
+    }
+
+    function getValue(id) {
+      const el = document.getElementById(id);
+      return el ? String(el.value || "").trim() : "";
+    }
+
+    async function submitSalesDispatchRequest() {
+      const payload = {
+        target_department: getValue("sales_dispatch_target_department"),
+        request_unit: getValue("sales_dispatch_request_unit"),
+        request_type: getValue("sales_dispatch_request_type"),
+        building_no: getValue("sales_dispatch_building_no"),
+        building_name: getValue("sales_dispatch_building_name"),
+        service_address: getValue("sales_dispatch_service_address"),
+        contact_name: getValue("sales_dispatch_contact_name"),
+        contact_phone: getValue("sales_dispatch_contact_phone"),
+        description: getValue("sales_dispatch_description")
+      };
+
+      const res = await fetch("/api/app/sales/dispatch/create", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json().catch(function () { return {}; });
+
+      if (!res.ok || !data.ok) {
+        alert(data.error || "\u6d3e\u5de5\u5efa\u7acb\u5931\u6557");
+        return;
+      }
+
+      alert("\u6d3e\u5de5\u5df2\u5efa\u7acb\uff1a" + data.ticket_no);
+      hideSalesDispatchModal();
+      reloadData();
+    }
+
+
+    function cl15n7dOpenSalesNewCard() {
+      location.href = "/app/sales/new?return_to=/app/sales";
+    }
+
+    window.reloadData = reloadData;
+    window.renderList = renderList;
+    window.showDetail = showDetail;
+    window.hideDetail = hideDetail;
+    window.closeDetail = closeDetail;
+    window.completeSalesBusinessRecord = completeSalesBusinessRecord;
+    window.openSalesBuildingCards = openSalesBuildingCards;
+    window.hideSalesBuildingCards = hideSalesBuildingCards;
+    window.closeSalesBuildingCards = closeSalesBuildingCards;
+    window.useBuildingCardForDispatch = useBuildingCardForDispatch;
+    window.openSalesDispatchModal = openSalesDispatchModal;
+    window.hideSalesDispatchModal = hideSalesDispatchModal;
+    window.closeSalesDispatchModal = closeSalesDispatchModal;
+    window.applySalesDispatchBuildingByName = applySalesDispatchBuildingByName;
+    window.populateSalesDispatchBuildingNameList = populateSalesDispatchBuildingNameList;
+    window.submitSalesDispatchRequest = submitSalesDispatchRequest;
+    window.cl15n7dOpenSalesNewCard = cl15n7dOpenSalesNewCard;
+
+    document.addEventListener("click", function (event) {
+      const opener = event.target && event.target.closest ? event.target.closest("[data-sales-dispatch-open]") : null;
+      if (!opener) return;
+      event.preventDefault();
+      openSalesDispatchModal();
+    });
 
     reloadData();
   </script>
@@ -1028,18 +2472,125 @@ def api_app_sales_business_records(request: _EmpRequest):
             status_code=401,
         )
 
-    admin_response = api_admin_sales_business_records()
-    raw = admin_response.body.decode("utf-8")
-    rows = _managers_json.loads(raw)
-
-    if user.get("role") != "admin":
-        owner_name = user.get("display_name") or ""
-        rows = [item for item in rows if item.get("owner") == owner_name]
+    rows = _sales_business_records_for_app(user)
 
     return _ManagersResponse(
-        content=_managers_json.dumps(rows, ensure_ascii=False),
+        content=_managers_json.dumps({
+            "ok": True,
+            "items": rows,
+            "count": len(rows),
+            "scope": "all" if _sales_is_admin_scope(user) else "self",
+        }, ensure_ascii=False),
         media_type="application/json; charset=utf-8",
     )
+
+
+
+# CL15N8_SALES_COMPLETE_CASE_API_START
+def _sales_complete_now_text() -> str:
+    from datetime import datetime
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def _sales_complete_columns(conn, table_name: str) -> set:
+    rows = conn.execute(_sales_sql_text("PRAGMA table_info(" + table_name + ")")).mappings().fetchall()
+    return {str(r["name"]) for r in rows}
+
+
+@router.post("/api/app/sales/business-records/{record_id}/complete")
+def api_app_sales_business_record_complete(record_id: int, request: _EmpRequest):
+    user = _employee_current_user_from_request(request)
+
+    if not user:
+        return _ManagersResponse(
+            content=_managers_json.dumps({"ok": False, "error": "login required"}, ensure_ascii=False),
+            media_type="application/json; charset=utf-8",
+            status_code=401,
+        )
+
+    _sales_business_records_init()
+
+    now_text = _sales_complete_now_text()
+    staff_name = str(user.get("display_name") or user.get("staff_code") or "").strip()
+    role = str(user.get("role") or "").strip()
+
+    with _sales_engine.begin() as conn:
+        cols = _sales_complete_columns(conn, "sales_business_records")
+
+        if "completed_at" not in cols:
+            conn.execute(_sales_sql_text("ALTER TABLE sales_business_records ADD COLUMN completed_at TEXT DEFAULT ''"))
+        if "completed_by" not in cols:
+            conn.execute(_sales_sql_text("ALTER TABLE sales_business_records ADD COLUMN completed_by TEXT DEFAULT ''"))
+
+        cols = _sales_complete_columns(conn, "sales_business_records")
+
+        row = conn.execute(
+            _sales_sql_text("""
+                SELECT id, owner, status
+                FROM sales_business_records
+                WHERE id = :id
+                LIMIT 1
+            """),
+            {"id": record_id},
+        ).mappings().first()
+
+        if not row:
+            return _ManagersResponse(
+                content=_managers_json.dumps({"ok": False, "error": "record not found"}, ensure_ascii=False),
+                media_type="application/json; charset=utf-8",
+                status_code=404,
+            )
+
+        display_name = str(user.get("display_name") or "").strip()
+        is_admin_scope = _sales_is_admin_scope(user)
+
+        if not is_admin_scope:
+            owner_name = display_name
+            if str(row.get("owner") or "").strip() != owner_name:
+                return _ManagersResponse(
+                    content=_managers_json.dumps({"ok": False, "error": "permission denied"}, ensure_ascii=False),
+                    media_type="application/json; charset=utf-8",
+                    status_code=403,
+                )
+
+        sets = []
+        params = {
+            "id": record_id,
+            "status": "\u5df2\u5b8c\u6210",
+            "completed_at": now_text,
+            "completed_by": staff_name,
+        }
+
+        if "status" in cols:
+            sets.append("status = :status")
+        if "completed_at" in cols:
+            sets.append("completed_at = :completed_at")
+        if "completed_by" in cols:
+            sets.append("completed_by = :completed_by")
+
+        if not sets:
+            return _ManagersResponse(
+                content=_managers_json.dumps({"ok": False, "error": "no editable columns"}, ensure_ascii=False),
+                media_type="application/json; charset=utf-8",
+                status_code=500,
+            )
+
+        conn.execute(
+            _sales_sql_text("UPDATE sales_business_records SET " + ", ".join(sets) + " WHERE id = :id"),
+            params,
+        )
+
+    return _ManagersResponse(
+        content=_managers_json.dumps({
+            "ok": True,
+            "id": record_id,
+            "status": "\u5df2\u5b8c\u6210",
+        }, ensure_ascii=False),
+        media_type="application/json; charset=utf-8",
+    )
+
+
+# CL15N8_SALES_COMPLETE_CASE_API_END
 
 
 # SHINNAN_SALES_MOBILE_NEW_CASE_START
@@ -1583,5 +3134,3 @@ async def api_app_sales_business_records_create(request: _EmpRequest):
 
 
 # SHINNAN_EMPLOYEE_LOGIN_ROUTES_END
-
-
