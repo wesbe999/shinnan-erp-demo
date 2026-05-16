@@ -369,6 +369,36 @@ def api_admin_building_status():
 
 @router.get("/admin/buildings", response_class=HTMLResponse)
 def admin_buildings_page():
+    import html as _buildings_html
+
+    def _cell(value):
+        return _buildings_html.escape(str(value or ""), quote=True)
+
+    initial_rows = []
+    for b in _fetch_buildings_from_db():
+        building_no = _cell(b.get("building_no"))
+        name = _cell(b.get("name"))
+        area = _cell(b.get("area"))
+        address = _cell(b.get("address"))
+        company = _cell(b.get("management_company"))
+        active_users = _cell(b.get("active_users"))
+        total_households = _cell(b.get("total_households"))
+        ip = _cell(b.get("ip"))
+        initial_rows.append(f"""
+          <tr data-building-no="{building_no}">
+            <td>{building_no}</td>
+            <td contenteditable="true" data-field="name">{name}</td>
+            <td contenteditable="true" data-field="area"><span class="pill">{area}</span></td>
+            <td contenteditable="true" data-field="address">{address}</td>
+            <td contenteditable="true" data-field="management_company">{company}</td>
+            <td contenteditable="true" data-field="active_users">{active_users}</td>
+            <td contenteditable="true" data-field="total_households">{total_households}</td>
+            <td contenteditable="true" data-field="ip">{ip}</td>
+            <td><button class="btn-small" type="button" onclick="hostLogin('{ip}')">主機登入</button></td>
+            <td><button class="btn-small btn-danger" type="button" onclick="deleteBuilding('{building_no}', '{name}')">刪除</button></td>
+          </tr>
+        """)
+
     return """
 <!doctype html>
 <html lang="zh-Hant">
@@ -1054,7 +1084,7 @@ def admin_buildings_page():
             <th>刪除</th>
           </tr>
         </thead>
-        <tbody id="rows"></tbody>
+        <tbody id="rows">__INITIAL_BUILDING_ROWS__</tbody>
       </table>
     </section>
   </main>
@@ -1172,11 +1202,13 @@ def admin_buildings_page():
     }
 
     function getFiltered() {
-      const area = document.getElementById("area_filter").value;
+      const areaEl = document.getElementById("area_filter");
+      const area = areaEl.value;
+      const isAllArea = !area || areaEl.selectedIndex === 0;
       const keyword = document.getElementById("keyword").value.trim().toLowerCase();
 
       return buildings.filter(function (b) {
-        if (area !== "全部" && b.area !== area) return false;
+        if (!isAllArea && b.area !== area) return false;
         if (!keyword) return true;
 
         return [
@@ -1291,7 +1323,7 @@ def admin_buildings_page():
     }
 
     async function deleteBuilding(buildingNo, name) {
-      if (!confirm("確定要刪除「" + name + "」（" + buildingNo + "）？\n此操作無法復原。")) return;
+      if (!confirm("確定要刪除「" + name + "」（" + buildingNo + "）？\\n刪除後無法復原。")) return;
       try {
         const res = await fetch("/api/admin/buildings/" + encodeURIComponent(buildingNo), {
           method: "DELETE",
@@ -1308,7 +1340,6 @@ def admin_buildings_page():
         alert("刪除失敗：" + e.message);
       }
     }
-
     function chooseBuilding(buildingNo) {
       const b = buildings.find(item => item.building_no === buildingNo);
       if (!b) return;
@@ -2426,5 +2457,5 @@ def admin_buildings_page():
 
 </body>
 </html>
-"""
+""".replace("__INITIAL_BUILDING_ROWS__", "\n".join(initial_rows))
 # SHINNAN_BUILDINGS_PAGE_RESTORE_END
