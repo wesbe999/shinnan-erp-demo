@@ -186,7 +186,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       z-index: 2;
       width: 60.2vh;
       max-width: calc(100vw - 32px);
-      height: 93.1vh;
+      height: calc(93.1vh - 50px);
       background: #ffffff;
       border-radius: 20px;
       padding: 20px 22px;
