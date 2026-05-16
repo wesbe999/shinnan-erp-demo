@@ -175,11 +175,11 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
       padding: 18px;
       overflow: hidden;
-      background-image: url("/static/login_bg_gold_green.png?v=cl16i2");
-      background-size: cover;
+      background-color: #04120e;
+      background-image: url("/static/login_bg_gold_green.png?v=cl16i3");
+      background-size: auto 100vh;
       background-position: center center;
       background-repeat: no-repeat;
-      background-attachment: fixed;
     }}
 
     .card {{
