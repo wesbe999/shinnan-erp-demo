@@ -711,7 +711,7 @@ def engineering_mobile_app_page(request: _EmpRequest):
     </div>
 
     <nav class="bottom-nav">
-      <button type="button" onclick="location.href='/app/employee/settings?return_to=/app/engineering'">員工設定</button>
+      <button type="button" onclick="location.href='/app'">APP首頁</button>
       <button type="button" class="primary" onclick="openCurrentFlow()">流程</button>
       <button type="button" class="orange" onclick="quickNextFromSelected()">下一步</button>
       <button type="button" class="green" onclick="location.href='/app/engineering/schedule'">排程</button>
