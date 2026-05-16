@@ -185,10 +185,10 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
     .card {{
       position: relative;
       z-index: 2;
-      width: min(100%, 400px);
+      width: min(100%, 360px);
       background: #ffffff;
-      border-radius: 22px;
-      padding: 28px 28px 24px;
+      border-radius: 20px;
+      padding: 20px 22px 18px;
       box-shadow:
         0 0 0 1px rgba(245, 215, 80, .35),
         0 0 32px rgba(245, 215, 80, .18),
@@ -197,25 +197,25 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
 
     label {{
       display: block;
-      margin: 0 0 6px;
+      margin: 0 0 5px;
       color: #1b4332;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 1000;
     }}
 
     .field + .field {{
-      margin-top: 14px;
+      margin-top: 10px;
     }}
 
     input {{
       width: 100%;
-      height: 50px;
+      height: 44px;
       border: 1.5px solid #d1d5db;
-      border-radius: 14px;
+      border-radius: 12px;
       background: #f8fafc;
       color: #102348;
-      padding: 0 14px;
-      font-size: 17px;
+      padding: 0 12px;
+      font-size: 16px;
       font-weight: 900;
       outline: none;
     }}
@@ -228,29 +228,29 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
     .remember {{
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-top: 12px;
+      gap: 7px;
+      margin-top: 10px;
       color: #334155;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 900;
       cursor: pointer;
     }}
 
     .remember input {{
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       accent-color: #15803d;
     }}
 
     .btn-login {{
       width: 100%;
-      height: 50px;
-      margin-top: 20px;
+      height: 46px;
+      margin-top: 16px;
       border: none;
-      border-radius: 14px;
+      border-radius: 12px;
       background: linear-gradient(135deg, #064e2f, #15803d);
       color: #ffffff;
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 1000;
       cursor: pointer;
       letter-spacing: .04em;
@@ -260,12 +260,12 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
     .btn-login:active {{ transform: scale(.985); }}
 
     .err {{
-      margin-top: 12px;
-      padding: 10px 12px;
-      border-radius: 12px;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
       background: #fee2e2;
       color: #991b1b;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 900;
       display: none;
     }}
