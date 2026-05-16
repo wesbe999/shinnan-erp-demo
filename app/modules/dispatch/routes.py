@@ -57,6 +57,44 @@ def _col(alias: str, columns: set[str], name: str, default_sql: str = "''") -> s
     return default_sql
 
 
+def _dispatch_building_col(join_enabled: bool, building_cols: set[str], name: str, default_sql: str = "''") -> str:
+    if join_enabled and name in building_cols:
+        return f"b.{name}"
+    return default_sql
+
+
+def _dispatch_plain_address(value) -> str:
+    text = _safe_text(value).strip()
+
+    for separator in ("|", "\uff5c"):
+        if separator in text:
+            text = text.split(separator)[-1].strip()
+
+    return text
+
+
+def _dispatch_navigation_address(raw: dict) -> tuple[str, str, str]:
+    service_address = _safe_text(raw.get("service_address")).strip()
+    building_address = (
+        _dispatch_plain_address(raw.get("building_address"))
+        or _dispatch_plain_address(raw.get("building_display_address"))
+        or _dispatch_plain_address(raw.get("building_raw_address"))
+    )
+    building_type = _safe_text(raw.get("building_type")).strip()
+    building_no = _safe_text(raw.get("building_no")).strip()
+
+    is_house = (
+        building_no.upper() == "HOUSE"
+        or building_type in {"\u900f\u5929", "\u900f\u5929\u539d"}
+        or ("\u900f\u5929" in service_address and not building_address)
+    )
+
+    if is_house:
+        return service_address, building_address, building_type
+
+    return building_address or service_address, building_address, building_type
+
+
 # XN_DISPATCH_PROXY_CONTEXT_STABLE_V1
 def _dispatch_proxy_context_from_request(request: _Request, user: dict) -> dict:
     login_staff_code = _safe_text(user.get("staff_code")).strip()
@@ -232,6 +270,7 @@ def api_app_dispatch_tickets(request: _Request):
         ticket_cols = _table_columns(conn, "tickets")
         install_cols = _table_columns(conn, "ticket_install_details")
         return_cols = _table_columns(conn, "ticket_return_details")
+        building_cols = _table_columns(conn, "buildings")
 
         if not ticket_cols:
             return _json_response({
@@ -242,6 +281,21 @@ def api_app_dispatch_tickets(request: _Request):
 
         join_install = "LEFT JOIN ticket_install_details i ON i.ticket_id = t.id" if install_cols else ""
         join_return = "LEFT JOIN ticket_return_details r ON r.ticket_id = t.id" if return_cols else ""
+        join_building = ""
+
+        if (
+            building_cols
+            and "building_no" in ticket_cols
+            and "building_no" in building_cols
+        ):
+            building_join_parts = ["COALESCE(b.building_no, '') = COALESCE(t.building_no, '')"]
+
+            if "dispatch_area" in ticket_cols and "area" in building_cols:
+                building_join_parts.append("COALESCE(b.area, '') = COALESCE(t.dispatch_area, '')")
+
+            join_building = "LEFT JOIN buildings b ON " + " AND ".join(building_join_parts)
+
+        has_building_join = bool(join_building)
 
         where_parts = []
         params = {}
@@ -291,6 +345,10 @@ def api_app_dispatch_tickets(request: _Request):
                 {_col("t", ticket_cols, "completed_at")} AS completed_at,
                 {_col("t", ticket_cols, "customer_no")} AS customer_no,
                 {_col("t", ticket_cols, "building_no")} AS building_no,
+                {_dispatch_building_col(has_building_join, building_cols, "address")} AS building_address,
+                {_dispatch_building_col(has_building_join, building_cols, "raw_address")} AS building_raw_address,
+                {_dispatch_building_col(has_building_join, building_cols, "display_address")} AS building_display_address,
+                {_dispatch_building_col(has_building_join, building_cols, "building_type")} AS building_type,
                 {_col("t", ticket_cols, "transfer_origin_ticket_id", "0")} AS transfer_origin_ticket_id,
                 {_col("t", ticket_cols, "transfer_child_ticket_id", "0")} AS transfer_child_ticket_id,
                 {_col("t", ticket_cols, "transfer_target_department")} AS transfer_target_department,
@@ -326,6 +384,7 @@ def api_app_dispatch_tickets(request: _Request):
                 {_col("r", return_cols, "settlement_note")} AS r_settlement_note
 
             FROM tickets t
+            {join_building}
             {join_install}
             {join_return}
             {where_sql}
@@ -390,6 +449,8 @@ def api_app_dispatch_tickets(request: _Request):
                 "settlement_note": _safe_text(raw.get("r_settlement_note")),
             }
 
+        navigation_address, building_address, building_type = _dispatch_navigation_address(raw)
+
         items.append({
             "id": raw.get("id"),
             "ticket_no": _safe_text(raw.get("ticket_no")),
@@ -412,6 +473,9 @@ def api_app_dispatch_tickets(request: _Request):
             "completed_at": _safe_text(raw.get("completed_at")),
             "customer_no": _safe_text(raw.get("customer_no")),
             "building_no": _safe_text(raw.get("building_no")),
+            "building_address": building_address,
+            "building_type": building_type,
+            "navigation_address": navigation_address,
             "transfer_origin_ticket_id": raw.get("transfer_origin_ticket_id") or 0,
             "transfer_child_ticket_id": raw.get("transfer_child_ticket_id") or 0,
             "transfer_target_department": _safe_text(raw.get("transfer_target_department")),
@@ -1026,7 +1090,7 @@ def dispatch_mobile_app_page(request: _Request):
     </main>
 
     <nav class="bottom-nav">
-      <button onclick="location.href='/app/employee/settings?return_to=/app/dispatch'">員工設定</button>
+      <button onclick="location.href='/app'">APP首頁</button>
       <button onclick="loadEmergencyNotices(); loadTickets();">整理</button>
       <button class="primary" onclick="showCreatePage()">新增</button>
       <button class="danger" onclick="location.href='/employee/logout?next=/employee/login'">登出</button>

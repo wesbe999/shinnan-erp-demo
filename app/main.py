@@ -12,11 +12,7 @@ from fastapi.responses import HTMLResponse
 
 from fastapi.staticfiles import StaticFiles
 
-from app.routes.home import router as home_router
-
 from app.db import Base, engine, seed_demo_database_if_needed
-
-from app.routes.auth import router as auth_router
 
 from app.routes.notices import router as notices_router
 
@@ -84,8 +80,6 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 app.mount("/erp-static", StaticFiles(directory=str(STATIC_DIR)), name="erp_static")
-
-app.include_router(auth_router)
 
 app.include_router(notices_router)
 
@@ -547,12 +541,12 @@ position:absolute;
         <a class="module" href="/admin"><div class="mi"><svg viewBox="0 0 24 24"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="6" cy="17" r="2"/><circle cx="18" cy="17" r="2"/></svg></div><div><div class="module-name">\u6d3e\u5de5\u7cfb\u7d71</div><div class="module-desc">\u6848\u4ef6\u5efa\u7acb\u3001\u5de5\u7a0b\u5e2b\u6307\u6d3e\u3001\u6d3e\u5de5\u7ba1\u7406\u8207\u5b8c\u5de5\u8ffd\u8e64\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="/admin/sales"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M3 19h18"/><path d="M7 9l3-4 4 7 5-8"/></svg></div><div><div class="module-name">\u696d\u52d9\u7cfb\u7d71</div><div class="module-desc">\u5927\u6a13\u63a5\u89f8\u3001\u5408\u7d04\u3001\u62dc\u8a2a\u3001\u4e8b\u4ef6\u8207\u56de\u994b\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="/admin/billing"><div class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M15 9.5c-.8-.8-4-.9-4 1 0 2 4 1 4 3 0 2-3.2 1.8-4.4.8"/></svg></div><div><div class="module-name">\u5e33\u52d9\u7cfb\u7d71</div><div class="module-desc">\u8cbb\u7528\u3001\u62bc\u91d1\u3001\u6708\u79df\u3001\u6750\u6599\u8207\u8ca1\u52d9\u540c\u6b65\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
-        <a class="module" href="#" onclick="return openAdminModule('/admin?module=engineering')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M14 7l3-3 3 3-3 3z"/><path d="M5 20l8-8"/><path d="M6 6l12 12"/><path d="M4 8l4-4"/></svg></div><div><div class="module-name">\u5de5\u7a0b\u7cfb\u7d71</div><div class="module-desc">\u62c9\u7dda\u65bd\u5de5\u3001\u7dda\u8def\u5efa\u8a2d\u3001\u5de5\u7a0b\u9032\u5ea6\u8207\u7d00\u9304\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+        <a class="module" href="#" onclick="return openAdminModule('/admin/engineering')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M14 7l3-3 3 3-3 3z"/><path d="M5 20l8-8"/><path d="M6 6l12 12"/><path d="M4 8l4-4"/></svg></div><div><div class="module-name">\u5de5\u7a0b\u7cfb\u7d71</div><div class="module-desc">\u62c9\u7dda\u65bd\u5de5\u3001\u7dda\u8def\u5efa\u8a2d\u3001\u5de5\u7a0b\u9032\u5ea6\u8207\u7d00\u9304\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="/admin/hr"><div class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 14.5-4 16 0"/></svg></div><div><div class="module-name">\u4eba\u4e8b\u7cfb\u7d71</div><div class="module-desc">\u54e1\u5de5\u540d\u518a\u3001\u5e33\u865f\u3001\u90e8\u9580\u3001\u8077\u7a31\u3001\u4f11\u5047\u8207\u4ee3\u7406\u8a2d\u5b9a\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="#" onclick="return openAdminModule('/admin/buildings')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M5 21V5h8v16"/><path d="M13 9h6v12"/><path d="M8 8h2M8 12h2M8 16h2M16 13h1M16 17h1"/></svg></div><div><div class="module-name">\u5927\u6a13\u8cc7\u6599</div><div class="module-desc">\u793e\u5340\u5927\u6a13\u3001\u8a2d\u5099IP\u3001\u7ba1\u7406\u516c\u53f8\u8207\u4f4f\u6236\u8cc7\u6599\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="/admin/customers"><div class="mi"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c1-4 11-4 12 0"/><circle cx="17" cy="10" r="2.5"/><path d="M15 20c.7-2.6 5.4-2.6 6 0"/></svg></div><div><div class="module-name">\u5ba2\u6236\u8cc7\u6599</div><div class="module-desc">\u5ba2\u6236\u8cc7\u6599\u3001\u670d\u52d9\u65b9\u6848\u3001\u5e33\u52d9\u72c0\u614b\u8207\u8a2d\u5099\u8cc7\u8a0a\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="#" onclick="return openAdminModule('/admin/stats')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div><div><div class="module-name">\u8cc7\u6599\u7d71\u8a08</div><div class="module-desc">\u5f59\u6574\u6d3e\u5de5\u3001\u5ba2\u6236\u3001\u5e33\u52d9\u3001\u696d\u52d9\u3001\u4eba\u4e8b\u8207\u6750\u6599\u8cc7\u6599\uff0c\u7522\u751f\u71df\u904b\u7d71\u8a08\u3001\u8da8\u52e2\u5206\u6790\u8207\u7ba1\u7406\u5831\u544a\u3002</div></div><div class="arrow">&rsaquo;</div></a>
-        <a class="module" href="#" onclick="return openAdminModule('/admin/stats')"><div class="mi"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div><div class="module-name">\u532f\u5165\u8cc7\u6599</div><div class="module-desc">Excel\u3001CSV\u3001JSON\u3001DB / SQL \u8cc7\u6599\u532f\u5165\u8207\u9810\u89bd\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+        <a class="module" href="#" onclick="return openAdminModule('/admin/import')"><div class="mi"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div><div class="module-name">\u532f\u5165\u8cc7\u6599</div><div class="module-desc">Excel\u3001CSV\u3001JSON\u3001DB / SQL \u8cc7\u6599\u532f\u5165\u8207\u9810\u89bd\u3002</div></div><div class="arrow">&rsaquo;</div></a>
       </div>
     </section>
     <div class="footer">SHINNAN ERP SYSTEM</div>
@@ -636,6 +630,18 @@ async def xunnan_employee_login_middleware(request, call_next):
             next_url = str(request.url.path)
             if request.url.query:
                 next_url += "?" + request.url.query
+
+            next_base = next_url.split("?", 1)[0]
+            if next_base in {
+                "/app/dispatch",
+                "/app/sales",
+                "/app/sales/new",
+                "/app/billing",
+                "/app/engineering",
+                "/app/maintenance",
+                "/app/manager",
+            }:
+                next_url = "/app"
 
             return _LoginRedirectResponse(
                 "/employee/login?next=" + next_url,

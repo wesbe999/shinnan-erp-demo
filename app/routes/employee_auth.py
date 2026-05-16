@@ -117,6 +117,32 @@ def _employee_current_user_from_request(request):
     return dict(row)
 
 
+
+def _xunnan_employee_normalize_next_url(value: str) -> str:
+    text = str(value or "").strip()
+
+    if not text or not text.startswith("/") or text.startswith("//"):
+        return "/app"
+
+    if text.startswith("/employee/login"):
+        return "/app"
+
+    base = text.split("?", 1)[0]
+    module_home_paths = {
+        "/app/dispatch",
+        "/app/sales",
+        "/app/billing",
+        "/app/engineering",
+        "/app/maintenance",
+        "/app/manager",
+    }
+
+    if base in module_home_paths:
+        return "/app"
+
+    return text
+
+
 def _employee_login_page(error: str = "", next_url: str = "/app/dispatch"):
     error_html = ""
     if error:
@@ -249,9 +275,9 @@ def _employee_login_page(error: str = "", next_url: str = "/app/dispatch"):
 
 
 @router.get("/employee/login", response_class=_EmpHTMLResponse)
-def employee_login_page(next: str = "/app/dispatch"):
+def employee_login_page(next: str = "/app"):
     _employee_auth_db_init()
-    return _employee_login_page("", next)
+    return _employee_login_page("", _xunnan_employee_normalize_next_url(next))
 
 
 @router.post("/employee/login")

@@ -1261,7 +1261,7 @@ def sales_mobile_app_page(request: _EmpRequest):
   .sales-building-mask {
     position: fixed;
     inset: 0;
-    z-index: 110;
+    z-index: 20000;
     display: none;
     align-items: flex-end;
     background: rgba(15, 23, 42, 0.45);
@@ -2354,7 +2354,9 @@ def sales_mobile_app_page(request: _EmpRequest):
 
 
     function cl15n7dOpenSalesNewCard() {
-      location.href = "/app/sales/new?return_to=/app/sales";
+      if (typeof window.openSalesNewModal === "function") {
+        window.openSalesNewModal();
+      }
     }
 
     window.reloadData = reloadData;
@@ -2374,6 +2376,7 @@ def sales_mobile_app_page(request: _EmpRequest):
     window.populateSalesDispatchBuildingNameList = populateSalesDispatchBuildingNameList;
     window.submitSalesDispatchRequest = submitSalesDispatchRequest;
     window.cl15n7dOpenSalesNewCard = cl15n7dOpenSalesNewCard;
+    // openSalesNewModal 等函式由下方 sales_new_modal_js_v1 IIFE export 到 window
 
     document.addEventListener("click", function (event) {
       const opener = event.target && event.target.closest ? event.target.closest("[data-sales-dispatch-open]") : null;
@@ -2449,6 +2452,567 @@ def sales_mobile_app_page(request: _EmpRequest):
   fixSalesUserLabel();
   setTimeout(fixSalesUserLabel, 100);
   setTimeout(fixSalesUserLabel, 500);
+})();
+</script>
+
+
+<!-- 新增業務案件 Sheet（與派工 modal 共用同一套樣式） -->
+<style id="sales_new_modal_style_v1">
+  .sales-new-mask {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: none;
+    align-items: flex-end;
+    background: rgba(15, 23, 42, 0.45);
+  }
+  .sales-new-mask.show { display: flex !important; }
+  .sales-new-modal {
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: #ffffff;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 16px;
+    box-shadow: 0 -16px 44px rgba(15, 23, 42, 0.24);
+  }
+  .sales-new-modal::-webkit-scrollbar { width: 8px; }
+  .sales-new-modal::-webkit-scrollbar-thumb { background: #8b949e; border-radius: 999px; }
+  .sales-new-modal::-webkit-scrollbar-track { background: transparent; }
+  .sales-new-title {
+    font-size: 23px;
+    font-weight: 1000;
+    margin-bottom: 4px;
+    color: #102348;
+  }
+  .sales-new-sub {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+  .sales-new-section {
+    margin: 16px 0 8px;
+    color: #334155;
+    font-size: 15px;
+    font-weight: 1000;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .sales-new-modal label {
+    display: block;
+    margin: 10px 0 5px;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 1000;
+  }
+  .sales-new-modal input,
+  .sales-new-modal select,
+  .sales-new-modal textarea {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #102348;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 850;
+    padding: 10px 12px;
+    outline: none;
+  }
+  .sales-new-modal input,
+  .sales-new-modal select { min-height: 46px; padding: 0 12px; }
+  .sales-new-modal textarea { min-height: 92px; resize: vertical; }
+  .sales-new-modal input:focus,
+  .sales-new-modal select:focus,
+  .sales-new-modal textarea:focus {
+    border-color: #365ee8;
+    box-shadow: 0 0 0 3px rgba(54, 94, 232, .12);
+  }
+  .sales-new-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .sales-new-building-row {
+    display: grid;
+    grid-template-columns: .85fr 1.15fr 88px;
+    gap: 10px;
+    align-items: end;
+  }
+  .sales-new-choose-btn {
+    min-height: 46px;
+    border: 0;
+    border-radius: 14px;
+    background: #365ee8;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 1000;
+    cursor: pointer;
+  }
+  .sales-new-hint {
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 1.4;
+  }
+  .sales-new-check-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    color: #102348;
+    font-size: 14px;
+    font-weight: 1000;
+  }
+  .sales-new-check-row input[type=checkbox] {
+    width: 20px;
+    height: 20px;
+    min-height: unset;
+    padding: 0;
+  }
+  .sales-new-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+    padding-bottom: 8px;
+  }
+  .sales-new-actions button {
+    height: 46px;
+    border: 0;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 1000;
+  }
+  .sales-new-cancel { background: #64748b; color: #ffffff; }
+  .sales-new-save { background: #15803d; color: #ffffff; }
+  .sales-new-msg {
+    margin: 8px 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 1000;
+    display: none;
+  }
+  .sales-new-msg.ok { display: block; background: #dcfce7; color: #166534; }
+  .sales-new-msg.err { display: block; background: #fee2e2; color: #991b1b; }
+  @media (min-width: 760px) {
+    .sales-new-mask {
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .sales-new-modal {
+      max-width: 560px;
+      border-radius: 24px;
+    }
+  }
+  @media (max-width: 520px) {
+    .sales-new-grid { grid-template-columns: 1fr; }
+    .sales-new-building-row { grid-template-columns: 1fr 1fr; }
+    .sales-new-building-row .sales-new-choose-btn { grid-column: 1 / -1; }
+  }
+</style>
+
+<div id="sales_new_mask" class="sales-new-mask" onclick="closeSalesNewModal(event)">
+  <div class="sales-new-modal" onclick="event.stopPropagation()">
+    <div class="sales-new-title">&#x65B0;&#x589E;&#x696D;&#x52D9;&#x6848;&#x4EF6;</div>
+    <div class="sales-new-sub">&#x6848;&#x4EF6;&#x6703;&#x81EA;&#x52D5;&#x6B78;&#x5C6C;&#x76EE;&#x524D;&#x767B;&#x5165;&#x8CEC;&#x865F;&#x3002;</div>
+    <div id="sales_new_msg" class="sales-new-msg"></div>
+
+    <div class="sales-new-section">&#x5927;&#x6A13;&#x8CC7;&#x6599;</div>
+    <div class="sales-new-building-row">
+      <div>
+        <label>&#x5340;&#x57DF;</label>
+        <input id="sn_building_area" list="sn_area_options" placeholder="&#x53EF;&#x624B;&#x52D5;&#x8F38;&#x5165;">
+        <datalist id="sn_area_options"></datalist>
+      </div>
+      <div>
+        <label>&#x5927;&#x6A13;&#x540D;&#x7A31;</label>
+        <input id="sn_building_name" list="sn_building_name_options" placeholder="&#x53EF;&#x624B;&#x52D5;&#x8F38;&#x5165;" required>
+        <datalist id="sn_building_name_options"></datalist>
+        <input id="sn_building_no" type="hidden">
+      </div>
+      <button type="button" class="sales-new-choose-btn" onclick="openSalesNewBuildingSheet()">&#x9078;&#x64C7;</button>
+    </div>
+    <div class="sales-new-hint">&#x9078;&#x540D;&#x518A;&#x5927;&#x6A13;&#x6703;&#x81EA;&#x52D5;&#x5E36;&#x5165;&#x5730;&#x5740;&#x8207;&#x806F;&#x7D61;&#x4EBA;&#xFF0C;&#x4E5F;&#x53EF;&#x5168;&#x90E8;&#x624B;&#x52D5;&#x8F38;&#x5165;&#x3002;</div>
+
+    <div class="sales-new-grid" style="margin-top:10px">
+      <div style="grid-column:1/-1">
+        <label>&#x5730;&#x5740;</label>
+        <input id="sn_building_address" placeholder="&#x53EF;&#x624B;&#x52D5;&#x8F38;&#x5165;">
+      </div>
+      <div>
+        <label>&#x806F;&#x7D61;&#x4EBA;</label>
+        <input id="sn_contact_name" placeholder="&#x53EF;&#x624B;&#x52D5;&#x8F38;&#x5165;">
+      </div>
+      <div>
+        <label>&#x96FB;&#x8A71;</label>
+        <input id="sn_contact_phone" inputmode="tel" placeholder="&#x53EF;&#x624B;&#x52D5;&#x8F38;&#x5165;">
+      </div>
+    </div>
+
+    <div class="sales-new-section">&#x696D;&#x52D9;&#x8CC7;&#x6599;</div>
+    <div class="sales-new-grid">
+      <div>
+        <label>&#x696D;&#x52D9;&#x985E;&#x578B;</label>
+        <select id="sn_business_type">
+          <option value="&#x65B0;&#x5927;&#x6A13;&#x958B;&#x767C;">&#x65B0;&#x5927;&#x6A13;&#x958B;&#x767C;</option>
+          <option value="&#x820A;&#x5927;&#x6A13;&#x62DC;&#x8A2A;" selected>&#x820A;&#x5927;&#x6A13;&#x62DC;&#x8A2A;</option>
+          <option value="&#x5408;&#x7D04;&#x7E8C;&#x7D04;">&#x5408;&#x7D04;&#x7E8C;&#x7D04;</option>
+          <option value="&#x7BA1;&#x7406;&#x5BA4;&#x62DC;&#x8A2A;">&#x7BA1;&#x7406;&#x5BA4;&#x62DC;&#x8A2A;</option>
+          <option value="&#x696D;&#x52D9;&#x4E8B;&#x4EF6;">&#x696D;&#x52D9;&#x4E8B;&#x4EF6;</option>
+          <option value="&#x56DE;&#x994B;&#x8655;&#x7406;">&#x56DE;&#x994B;&#x8655;&#x7406;</option>
+        </select>
+      </div>
+      <div>
+        <label>&#x76EE;&#x524D;&#x72C0;&#x614B;</label>
+        <select id="sn_status">
+          <option value="&#x5F85;&#x62DC;&#x8A2F;" selected>&#x5F85;&#x62DC;&#x8A2F;</option>
+          <option value="&#x5DF2;&#x63A5;&#x89F8;">&#x5DF2;&#x63A5;&#x89F8;</option>
+          <option value="&#x5DF2;&#x62DC;&#x8A2F;">&#x5DF2;&#x62DC;&#x8A2F;</option>
+          <option value="&#x7B49;&#x7BA1;&#x59D4;&#x6703;">&#x7B49;&#x7BA1;&#x59D4;&#x6703;</option>
+          <option value="&#x8AC7;&#x7D04;&#x4E2D;">&#x8AC7;&#x7D04;&#x4E2D;</option>
+          <option value="&#x5F85;&#x56DE;&#x8986;">&#x5F85;&#x56DE;&#x8986;</option>
+          <option value="&#x8FFD;&#x8E64;&#x4E2D;">&#x8FFD;&#x8E64;&#x4E2D;</option>
+        </select>
+      </div>
+      <div>
+        <label>&#x5408;&#x7D04;&#x72C0;&#x614B;</label>
+        <select id="sn_contract_status">
+          <option value="&#x6D3D;&#x8AC7;&#x4E2D;" selected>&#x6D3D;&#x8AC7;&#x4E2D;</option>
+          <option value="&#x5373;&#x5C07;&#x5230;&#x671F;">&#x5373;&#x5C07;&#x5230;&#x671F;</option>
+          <option value="&#x5DF2;&#x7C3D;">&#x5DF2;&#x7C3D;</option>
+          <option value="&#x7121;">&#x7121;</option>
+        </select>
+      </div>
+      <div>
+        <label>&#x56DE;&#x994B;&#x985E;&#x578B;</label>
+        <select id="sn_feedback_type">
+          <option value="&#x7121;" selected>&#x7121;</option>
+          <option value="&#x50F9;&#x683C;&#x56DE;&#x994B;">&#x50F9;&#x683C;&#x56DE;&#x994B;</option>
+          <option value="&#x670D;&#x52D9;&#x56DE;&#x994B;">&#x670D;&#x52D9;&#x56DE;&#x994B;</option>
+          <option value="&#x516C;&#x8A2D;&#x9700;&#x6C42;">&#x516C;&#x8A2D;&#x9700;&#x6C42;</option>
+        </select>
+      </div>
+      <div>
+        <label>&#x4E8B;&#x4EF6;&#x985E;&#x578B;</label>
+        <select id="sn_event_type">
+          <option value="&#x7121;" selected>&#x7121;</option>
+          <option value="&#x7BA1;&#x7406;&#x5BA4;&#x8981;&#x6C42;">&#x7BA1;&#x7406;&#x5BA4;&#x8981;&#x6C42;</option>
+          <option value="&#x7BA1;&#x59D4;&#x6703;&#x8981;&#x6C42;">&#x7BA1;&#x59D4;&#x6703;&#x8981;&#x6C42;</option>
+          <option value="&#x4F4F;&#x6236;&#x53CD;&#x61C9;">&#x4F4F;&#x6236;&#x53CD;&#x61C9;</option>
+          <option value="&#x5408;&#x7D04;&#x554F;&#x984C;">&#x5408;&#x7D04;&#x554F;&#x984C;</option>
+        </select>
+      </div>
+      <div>
+        <label>&#x4E8B;&#x4EF6;&#x72C0;&#x614B;</label>
+        <select id="sn_event_status">
+          <option value="&#x7121;" selected>&#x7121;</option>
+          <option value="&#x5F85;&#x8655;&#x7406;">&#x5F85;&#x8655;&#x7406;</option>
+          <option value="&#x8655;&#x7406;&#x4E2D;">&#x8655;&#x7406;&#x4E2D;</option>
+          <option value="&#x5DF2;&#x56DE;&#x8986;">&#x5DF2;&#x56DE;&#x8986;</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sales-new-section">&#x8FFD;&#x8E64;&#x8207;&#x5099;&#x8A3B;</div>
+    <div class="sales-new-grid">
+      <div>
+        <label>&#x4E0B;&#x6B21;&#x62DC;&#x8A2A;&#x65E5;&#x671F;</label>
+        <input id="sn_next_visit" type="date">
+      </div>
+      <div>
+        <label>&#x4E8B;&#x4EF6;&#x65E5;&#x671F;</label>
+        <input id="sn_event_schedule_date" type="date">
+      </div>
+      <div style="grid-column:1/-1">
+        <div class="sales-new-check-row">
+          <input id="sn_important_schedule" type="checkbox" value="1">
+          <span>&#x91CD;&#x8981;&#x884C;&#x7A0B;&#xFF0C;&#x986F;&#x793A;&#x5728;&#x6700;&#x4E0A;&#x65B9;</span>
+        </div>
+      </div>
+      <div style="grid-column:1/-1">
+        <label>&#x5099;&#x8A3B;</label>
+        <textarea id="sn_business_note" placeholder="&#x4F8B;&#xFF1A;&#x7BA1;&#x7406;&#x5BA4;&#x8981;&#x6C42;&#x91CD;&#x8AC7;&#x5408;&#x7D04;&#xFF0C;&#x9700;&#x5E36;&#x5408;&#x7D04;&#x8CC7;&#x6599;&#x8207;&#x56DE;&#x994B;&#x65B9;&#x6848;&#x3002;"></textarea>
+      </div>
+    </div>
+
+    <div class="sales-new-actions">
+      <button type="button" class="sales-new-cancel" onclick="hideSalesNewModal()">&#x53D6;&#x6D88;</button>
+      <button type="button" class="sales-new-save" onclick="submitSalesNewCase()">&#x5132;&#x5B58;&#x65B0;&#x589E;</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新增案件用：選擇大樓 sheet（複用派工的樣式） -->
+<div id="sn_building_mask" class="sales-building-mask" onclick="if(event.target.id==='sn_building_mask') hideSalesNewBuildingSheet()">
+  <div class="sales-building-sheet" onclick="event.stopPropagation()">
+    <div class="sales-building-head">
+      <div class="sales-building-title">&#x9078;&#x64C7;&#x5927;&#x6A13;</div>
+      <div class="sales-building-sub">&#x53EF;&#x4F9D;&#x5340;&#x57DF;&#x8207;&#x95DC;&#x9375;&#x5B57;&#x67E5;&#x8A62;&#x3002;</div>
+      <div class="sales-building-filters">
+        <select id="sn_area_filter" onchange="renderSnBuildingCards()">
+          <option value="">&#x5168;&#x90E8;&#x5340;&#x57DF;</option>
+        </select>
+        <input id="sn_keyword" placeholder="&#x641C;&#x5C0B;&#x5927;&#x6A13;&#x540D;&#x7A31;&#xFF0F;&#x5730;&#x5740;" oninput="renderSnBuildingCards()">
+      </div>
+      <button class="sales-building-close" type="button" onclick="hideSalesNewBuildingSheet()">&#x95DC;&#x9589;</button>
+    </div>
+    <div id="sn_building_card_list"></div>
+  </div>
+</div>
+
+<script id="sales_new_modal_js_v1">
+(function () {
+  let snBuildings = [];
+
+  function snEsc(v) {
+    return String(v ?? "")
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function snGetVal(id) {
+    const el = document.getElementById(id);
+    return el ? String(el.value || "").trim() : "";
+  }
+
+  function snSetVal(id, v) {
+    const el = document.getElementById(id);
+    if (el) el.value = v;
+  }
+
+  function showSnMsg(type, text) {
+    const box = document.getElementById("sales_new_msg");
+    if (!box) return;
+    box.className = "sales-new-msg " + type;
+    box.textContent = text;
+    setTimeout(function () { box.className = "sales-new-msg"; }, 3500);
+  }
+
+  function resetSnForm() {
+    ["sn_building_no","sn_building_area","sn_building_name","sn_building_address",
+     "sn_contact_name","sn_contact_phone","sn_next_visit","sn_event_schedule_date","sn_business_note"]
+      .forEach(function (id) { snSetVal(id, ""); });
+    ["sn_business_type","sn_status","sn_contract_status","sn_feedback_type","sn_event_type","sn_event_status"]
+      .forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el && el.options.length) el.selectedIndex = 0;
+      });
+    const chk = document.getElementById("sn_important_schedule");
+    if (chk) chk.checked = false;
+    const msg = document.getElementById("sales_new_msg");
+    if (msg) msg.className = "sales-new-msg";
+  }
+
+  function openSalesNewModal() {
+    const mask = document.getElementById("sales_new_mask");
+    if (!mask) return;
+    resetSnForm();
+    mask.classList.add("show");
+    if (!snBuildings.length) loadSnBuildings();
+    else { populateSnAreaOptions(); populateSnBuildingNameOptions(); }
+  }
+
+  function hideSalesNewModal() {
+    const mask = document.getElementById("sales_new_mask");
+    if (mask) mask.classList.remove("show");
+  }
+
+  function closeSalesNewModal(event) {
+    if (event && event.target && event.target.id === "sales_new_mask") hideSalesNewModal();
+  }
+
+  async function loadSnBuildings() {
+    try {
+      const res = await fetch("/api/app/sales/dispatch/buildings?ts=" + Date.now(), {
+        cache: "no-store", credentials: "same-origin"
+      });
+      const data = await res.json().catch(function () { return {}; });
+      snBuildings = Array.isArray(data.items) ? data.items : [];
+      populateSnAreaOptions();
+      populateSnBuildingNameOptions();
+    } catch (e) { snBuildings = []; }
+  }
+
+  function populateSnAreaOptions() {
+    const dl = document.getElementById("sn_area_options");
+    const filter = document.getElementById("sn_area_filter");
+    if (!dl) return;
+    const areas = [...new Set(snBuildings.map(function (b) { return (b.area || "").trim(); }).filter(Boolean))].sort();
+    dl.innerHTML = areas.map(function (a) { return '<option value="' + snEsc(a) + '">'; }).join("");
+    if (filter) {
+      const cur = filter.value;
+      filter.innerHTML = '<option value="">&#x5168;&#x90E8;&#x5340;&#x57DF;</option>' +
+        areas.map(function (a) { return '<option value="' + snEsc(a) + '">' + snEsc(a) + '</option>'; }).join("");
+      if (cur) filter.value = cur;
+    }
+  }
+
+  function populateSnBuildingNameOptions() {
+    const dl = document.getElementById("sn_building_name_options");
+    if (!dl) return;
+    dl.innerHTML = snBuildings.map(function (b) {
+      return '<option value="' + snEsc(b.name || "") + '">';
+    }).join("");
+  }
+
+  function findSnBuilding(no) {
+    return snBuildings.find(function (b) { return b.building_no === no; }) || null;
+  }
+
+  function findSnBuildingByName(name) {
+    const n = (name || "").trim();
+    return snBuildings.find(function (b) { return (b.name || "").trim() === n; }) || null;
+  }
+
+  function useSnBuilding(no) {
+    const b = findSnBuilding(no);
+    if (!b) return;
+    snSetVal("sn_building_no", b.building_no || "");
+    snSetVal("sn_building_area", b.area || "");
+    snSetVal("sn_building_name", b.name || "");
+    snSetVal("sn_building_address", b.address || "");
+    snSetVal("sn_contact_name", b.manager_name || "");
+    snSetVal("sn_contact_phone", b.phone || "");
+    hideSalesNewBuildingSheet();
+  }
+
+  function renderSnBuildingCards() {
+    const list = document.getElementById("sn_building_card_list");
+    if (!list) return;
+    const area = snGetVal("sn_area_filter");
+    const key = snGetVal("sn_keyword").toLowerCase();
+    const items = snBuildings.filter(function (b) {
+      const areaOk = !area || (b.area || "") === area;
+      const hay = [b.name, b.address, b.area, b.manager_name, b.phone].join(" ").toLowerCase();
+      return areaOk && (!key || hay.includes(key));
+    });
+    if (!items.length) {
+      list.innerHTML = '<div class="sales-building-empty">&#x627E;&#x4E0D;&#x5230;&#x7B26;&#x5408;&#x689D;&#x4EF6;&#x7684;&#x5927;&#x6A13;&#x3002;</div>';
+      return;
+    }
+    list.innerHTML = items.slice(0, 120).map(function (b) {
+      const meta = [
+        b.area ? "&#x5340;&#x57DF;&#xFF1A;" + snEsc(b.area) : "",
+        b.address ? "&#x5730;&#x5740;&#xFF1A;" + snEsc(b.address) : "",
+        b.manager_name ? "&#x806F;&#x7D61;&#x4EBA;&#xFF1A;" + snEsc(b.manager_name) : "",
+        b.phone ? "&#x96FB;&#x8A71;&#xFF1A;" + snEsc(b.phone) : ""
+      ].filter(Boolean).join("<br>");
+      return '<div class="sales-building-card">' +
+        '<div class="sales-building-card-title">' + snEsc(b.name || "") + '</div>' +
+        '<div class="sales-building-card-meta">' + meta + '</div>' +
+        '<div class="sales-building-card-actions">' +
+          '<button class="sales-building-use" type="button" data-sn-no="' + snEsc(b.building_no || "") + '" onclick="window.snUseBuildingNo(this.getAttribute(&quot;data-sn-no&quot;))">' +
+            '&#x5E36;&#x5165;</button>' +
+          '<button class="sales-building-close" type="button" onclick="hideSalesNewBuildingSheet()">&#x95DC;&#x9589;</button>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+  }
+
+  function openSalesNewBuildingSheet() {
+    const mask = document.getElementById("sn_building_mask");
+    if (!mask) return;
+    mask.classList.add("show");
+    if (!snBuildings.length) {
+      loadSnBuildings().then(renderSnBuildingCards);
+    } else {
+      populateSnAreaOptions();
+      renderSnBuildingCards();
+    }
+  }
+
+  function hideSalesNewBuildingSheet() {
+    const mask = document.getElementById("sn_building_mask");
+    if (mask) mask.classList.remove("show");
+  }
+
+  document.addEventListener("click", function (event) {
+    // 保留相容舊 data-sn-no 屬性（若有）
+    const btn = event.target && event.target.closest ? event.target.closest("[data-sn-no]") : null;
+    if (btn && btn.dataset.snNo) useSnBuilding(btn.dataset.snNo);
+  });
+
+  const snNameInput = document.getElementById("sn_building_name");
+  if (snNameInput) {
+    snNameInput.addEventListener("change", function () {
+      const b = findSnBuildingByName(this.value);
+      if (b) useSnBuilding(b.building_no || "");
+    });
+  }
+
+  async function submitSalesNewCase() {
+    const buildingName = snGetVal("sn_building_name");
+    if (!buildingName) {
+      showSnMsg("err", "&#x8ACB;&#x8F38;&#x5165;&#x6216;&#x9078;&#x64C7;&#x5927;&#x6A13;&#x540D;&#x7A31;");
+      return;
+    }
+
+    const params = new URLSearchParams({
+      building_no: snGetVal("sn_building_no"),
+      building_name: buildingName,
+      building_area: snGetVal("sn_building_area"),
+      building_address: snGetVal("sn_building_address"),
+      contact_name: snGetVal("sn_contact_name"),
+      contact_phone: snGetVal("sn_contact_phone"),
+      business_type: snGetVal("sn_business_type"),
+      status: snGetVal("sn_status"),
+      contract_status: snGetVal("sn_contract_status"),
+      feedback_type: snGetVal("sn_feedback_type"),
+      event_type: snGetVal("sn_event_type"),
+      event_status: snGetVal("sn_event_status"),
+      next_visit: snGetVal("sn_next_visit"),
+      event_schedule_date: snGetVal("sn_event_schedule_date"),
+      important_schedule: document.getElementById("sn_important_schedule") && document.getElementById("sn_important_schedule").checked ? "1" : "0",
+      business_note: snGetVal("sn_business_note")
+    });
+
+    const saveBtn = document.querySelector(".sales-new-save");
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "&#x5132;&#x5B58;&#x4E2D;..."; }
+
+    try {
+      const res = await fetch("/api/app/sales/business-records/create", {
+        method: "POST",
+        credentials: "same-origin",
+        body: params
+      });
+      const data = await res.json().catch(function () { return {}; });
+      if (!res.ok || !data.ok) {
+        showSnMsg("err", data.error || "&#x5EFA;&#x7ACB;&#x5931;&#x6557;");
+        return;
+      }
+      showSnMsg("ok", "&#x6848;&#x4EF6;&#x5DF2;&#x65B0;&#x589E;");
+      setTimeout(function () {
+        hideSalesNewModal();
+        if (typeof reloadData === "function") reloadData();
+      }, 700);
+    } catch (e) {
+      showSnMsg("err", "&#x7DB2;&#x8DEF;&#x932F;&#x8AA4;&#xFF0C;&#x8ACB;&#x91CD;&#x8A66;");
+    } finally {
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "&#x5132;&#x5B58;&#x65B0;&#x589E;"; }
+    }
+  }
+
+  window.openSalesNewModal = openSalesNewModal;
+  window.hideSalesNewModal = hideSalesNewModal;
+  window.closeSalesNewModal = closeSalesNewModal;
+  window.submitSalesNewCase = submitSalesNewCase;
+  window.openSalesNewBuildingSheet = openSalesNewBuildingSheet;
+  window.hideSalesNewBuildingSheet = hideSalesNewBuildingSheet;
+  window.renderSnBuildingCards = renderSnBuildingCards;
+  window.snUseBuildingNo = useSnBuilding;
+
+  // 偵測 #open-new hash（從 /app/sales/new 跳轉過來），自動開啟新增 sheet
+  if (location.hash === "#open-new") {
+    history.replaceState(null, "", "/app/sales");
+    openSalesNewModal();
+  }
 })();
 </script>
 
@@ -2594,542 +3158,16 @@ def api_app_sales_business_record_complete(record_id: int, request: _EmpRequest)
 
 
 # SHINNAN_SALES_MOBILE_NEW_CASE_START
+# /app/sales/new 整合為主頁 bottom sheet，此路由載入後自動跳轉並開啟 sheet
 @router.get("/app/sales/new", response_class=HTMLResponse)
 def sales_mobile_new_case_page(request: _EmpRequest):
     user = _employee_current_user_from_request(request)
-
     if not user:
-        return _EmpRedirectResponse("/employee/login?next=/app/sales/new", status_code=303)
-
-    employee_display_name = str(user.get("display_name", ""))
-
-    return """
-<!doctype html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
-  <title>新增業務案件｜訊南 ERP</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      background: #eef3f9;
-      color: #102348;
-      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
-    }
-
-    .top {
-      padding: 18px 16px;
-      background: linear-gradient(135deg, #0f766e, #2563eb, #7c3aed);
-      color: #fff;
-      border-bottom-left-radius: 22px;
-      border-bottom-right-radius: 22px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 26px;
-      font-weight: 1000;
-    }
-
-    .sub {
-      margin-top: 4px;
-      font-size: 14px;
-      font-weight: 900;
-      opacity: .9;
-    }
-
-    form {
-      padding: 14px;
-    }
-
-    .card {
-      background: #fff;
-      border: 1px solid #d7e1ef;
-      border-radius: 18px;
-      padding: 14px;
-      box-shadow: 0 8px 22px rgba(15,23,42,.06);
-    }
-
-    label {
-      display: block;
-      margin: 12px 0 6px;
-      color: #334155;
-      font-size: 14px;
-      font-weight: 1000;
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      border: 1px solid #cbd5e1;
-      border-radius: 13px;
-      padding: 0 12px;
-      color: #102348;
-      font-size: 16px;
-      font-weight: 900;
-      outline: none;
-      background: #fff;
-    }
-
-    input,
-    select {
-      height: 44px;
-    }
-
-    textarea {
-      min-height: 110px;
-      padding-top: 10px;
-      line-height: 1.5;
-      resize: vertical;
-    }
-
-
-    .building-picker-row {
-      display: grid;
-      grid-template-columns: 1fr 96px;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .pick-building-btn {
-      height: 44px;
-      border: 0;
-      border-radius: 13px;
-      background: #365ee8;
-      color: #fff;
-      font-size: 15px;
-      font-weight: 1000;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
-    }
-
-    .building-hint {
-      margin-top: 6px;
-      color: #64748b;
-      font-size: 12px;
-      font-weight: 900;
-      line-height: 1.5;
-    }
-
-    .check-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 12px;
-      font-size: 15px;
-      font-weight: 1000;
-    }
-
-    .check-row input {
-      width: 22px;
-      height: 22px;
-    }
-
-    .actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    button {
-      height: 46px;
-      border: 0;
-      border-radius: 14px;
-      font-size: 16px;
-      font-weight: 1000;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
-    }
-
-    .gray {
-      background: #64748b;
-      color: #fff;
-    }
-
-    .green {
-      background: #16a34a;
-      color: #fff;
-    }
-
-    .msg {
-      margin: 14px;
-      padding: 12px;
-      border-radius: 14px;
-      display: none;
-      font-size: 15px;
-      font-weight: 1000;
-    }
-
-    .msg.ok {
-      display: block;
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .msg.err {
-      display: block;
-      background: #fee2e2;
-      color: #991b1b;
-    }
-  </style>
-</head>
-
-<body>
-  <section class="top">
-    <h1>新增業務案件</h1>
-    <div class="sub">登入者：__EMPLOYEE_DISPLAY_NAME__｜案件會自動歸屬此帳號</div>
-  </section>
-
-  <div id="msg" class="msg"></div>
-
-  <form id="case_form">
-    <div class="card">
-      
-<label>大樓名稱</label>
-      <input type="hidden" name="building_no" id="building_no">
-      <div class="building-picker-row">
-        <input name="building_name" id="building_name" placeholder="可輸入新大樓，或按選擇帶入既有大樓" required>
-        <button type="button" id="pick_building_btn" class="pick-building-btn" onclick="location.href='/admin/buildings?pick=sales_new&ts=' + Date.now()">選擇</button>
-      </div>
-      <div class="building-hint">既有大樓可由名錄選擇；新大樓可直接輸入名稱，建立案件時會自動建立大樓主資料。</div>
-
-
-      <label>業務類型</label>
-      <select name="business_type">
-        <option value="新大樓開發">新大樓開發</option>
-        <option value="舊大樓拜訪">舊大樓拜訪</option>
-        <option value="合約續約">合約續約</option>
-        <option value="管理室拜訪">管理室拜訪</option>
-        <option value="業務事件">業務事件</option>
-        <option value="回饋處理">回饋處理</option>
-      </select>
-
-      <label>目前狀態</label>
-      <select name="status">
-        <option value="待拜訪">待拜訪</option>
-        <option value="已接觸">已接觸</option>
-        <option value="已拜訪">已拜訪</option>
-        <option value="等管委會">等管委會</option>
-        <option value="談約中">談約中</option>
-      </select>
-
-      <label>合約狀態</label>
-      <select name="contract_status">
-        <option value="洽談中">洽談中</option>
-        <option value="即將到期">即將到期</option>
-        <option value="已簽">已簽</option>
-        <option value="無">無</option>
-      </select>
-
-      <label>事件類型</label>
-      <select name="event_type">
-        <option value="無">無</option>
-        <option value="管理室要求">管理室要求</option>
-        <option value="管委會要求">管委會要求</option>
-        <option value="住戶反應">住戶反應</option>
-        <option value="合約問題">合約問題</option>
-      </select>
-
-      <label>事件狀態</label>
-      <select name="event_status">
-        <option value="無">無</option>
-        <option value="待處理">待處理</option>
-        <option value="處理中">處理中</option>
-        <option value="已回覆">已回覆</option>
-      </select>
-
-      <label>下次拜訪日期</label>
-      <input name="next_visit" type="date">
-
-      <label>事件日期</label>
-      <input name="event_schedule_date" type="date">
-
-      <div class="check-row">
-        <input name="important_schedule" type="checkbox" value="1">
-        <span>重要行程，顯示在最上方</span>
-      </div>
-
-      <label>備註</label>
-      <textarea name="business_note" placeholder="例如：管理室要求重談合約，需帶合約資料與回饋方案。"></textarea>
-
-      <div class="actions">
-        <button type="button" class="gray" onclick="location.href='/app/sales?ts=' + Date.now()">取消</button>
-        <button type="submit" class="green">建立案件</button>
-      </div>
-    </div>
-  </form>
-
-  <script>
-    function showMsg(type, text) {
-      const box = document.getElementById("msg");
-      box.className = "msg " + type;
-      box.textContent = text;
-    }
-
-    async function loadBuildings() {
-      const sel = document.getElementById("building_select");
-      const res = await fetch("/api/admin/buildings?ts=" + Date.now(), {cache: "no-store"});
-
-      if (!res.ok) {
-        sel.innerHTML = '<option value="">大樓讀取失敗</option>';
-        return;
-      }
-
-      const rows = await res.json();
-
-      sel.innerHTML = '<option value="">請選擇大樓</option>' + rows.map(function (b) {
-        return '<option value="' + b.building_no + '">' + b.building_no + '｜' + b.name + '｜' + b.area + '</option>';
-      }).join("");
-    }
-
-    document.getElementById("case_form").addEventListener("submit", async function (event) {
-      event.preventDefault();
-
-      const form = new FormData(event.target);
-      const res = await fetch("/api/app/sales/business-records/create", {
-        method: "POST",
-        body: new URLSearchParams(form),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.ok) {
-        showMsg("err", data.error || "建立失敗");
-        return;
-      }
-
-      showMsg("ok", "案件已建立");
-      setTimeout(function () {
-        location.href = "/app/sales?ts=" + Date.now();
-      }, 700);
-    });
-
-    loadPickedBuildingFromUrl();
-  </script>
-
-  <script id="sales_new_picker_button_fix_v1">
-    document.addEventListener("DOMContentLoaded", function () {
-      const btn = document.getElementById("pick_building_btn");
-      if (!btn) return;
-
-      btn.addEventListener("click", function () {
-        location.href = "/admin/buildings?pick=sales_new&ts=" + Date.now();
-      });
-    });
-  </script>
-
-</body>
-</html>
-""".replace("__EMPLOYEE_DISPLAY_NAME__", employee_display_name)
-
-
-@router.post("/api/app/sales/business-records/create")
-async def api_app_sales_business_records_create(request: _EmpRequest):
-    user = _employee_current_user_from_request(request)
-
-    if not user:
-        return _ManagersResponse(
-            content=_managers_json.dumps({"ok": False, "error": "login required"}, ensure_ascii=False),
-            media_type="application/json; charset=utf-8",
-            status_code=401,
-        )
-
-    raw = (await request.body()).decode("utf-8")
-    form = _emp_parse_qs(raw)
-
-    def value(name, default=""):
-        return (form.get(name, [default])[0] or default).strip()
-
-    building_no = value("building_no")
-    building_name = value("building_name")
-
-    if not building_no and not building_name:
-        return _ManagersResponse(
-            content=_managers_json.dumps({"ok": False, "error": "請輸入或選擇大樓名稱"}, ensure_ascii=False),
-            media_type="application/json; charset=utf-8",
-            status_code=400,
-        )
-
-    owner = user.get("display_name") or user.get("staff_code") or ""
-
-    business_type = value("business_type", "舊大樓拜訪")
-    status = value("status", "待拜訪")
-    contract_status = value("contract_status", "洽談中")
-    event_type = value("event_type", "無")
-    event_status = value("event_status", "無")
-    next_visit = value("next_visit", "")
-    event_schedule_date = value("event_schedule_date", "")
-    important_schedule = 1 if value("important_schedule", "") == "1" else 0
-    business_note = value("business_note", "")
-
-    if not business_note:
-        business_note = (
-            "業務工作：" + business_type + "\n"
-            "負責業務：" + owner + "\n"
-            "內容：手機 APP 新增案件。"
-        )
-
-    _sales_business_records_init()
-
-    with _sales_engine.begin() as conn:
-        # 若是從大樓名錄選擇，會有 building_no。
-        # 若是業務直接輸入新大樓名稱，則自動建立大樓主資料。
-        if building_no:
-            building = conn.execute(
-                _sales_sql_text("""
-                    SELECT building_no
-                    FROM buildings
-                    WHERE building_no = :building_no
-                    LIMIT 1
-                """),
-                {"building_no": building_no},
-            ).mappings().first()
-
-            if not building:
-                return _ManagersResponse(
-                    content=_managers_json.dumps({"ok": False, "error": "找不到大樓資料"}, ensure_ascii=False),
-                    media_type="application/json; charset=utf-8",
-                    status_code=404,
-                )
-        else:
-            existing = conn.execute(
-                _sales_sql_text("""
-                    SELECT building_no
-                    FROM buildings
-                    WHERE name = :name
-                    LIMIT 1
-                """),
-                {"name": building_name},
-            ).mappings().first()
-
-            if existing:
-                building_no = existing["building_no"]
-            else:
-                next_no = conn.execute(
-                    _sales_sql_text("""
-                        SELECT COUNT(*)
-                        FROM buildings
-                        WHERE building_no LIKE 'N%'
-                    """)
-                ).scalar()
-
-                building_no = "N" + str(int(next_no or 0) + 1).zfill(3)
-
-                table_cols = [
-                    row[1]
-                    for row in conn.execute(_sales_sql_text("PRAGMA table_info(buildings)")).fetchall()
-                ]
-
-                new_building_data = {
-                    "building_no": building_no,
-                    "name": building_name,
-                    "area": "未分區",
-                    "address": "",
-                    "management_company": "",
-                    "management_phone": "",
-                    "manager_name": "",
-                    "manager_phone": "",
-                    "manager_age": "",
-                    "manager_experience": "",
-                    "manager_interest": "",
-                    "visit_time": "",
-                    "committee_time": "",
-                    "resident_meeting_time": "",
-                    "active_users": 0,
-                    "total_households": 0,
-                    "ip": "",
-                    "host": "",
-                    "note": "手機業務 APP 新增案件時建立。",
-                    "created_at": _emp_datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "updated_at": _emp_datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                }
-
-                insert_cols = [col for col in new_building_data.keys() if col in table_cols]
-                col_sql = ", ".join(insert_cols)
-                val_sql = ", ".join([":" + col for col in insert_cols])
-
-                conn.execute(
-                    _sales_sql_text(
-                        "INSERT INTO buildings (" + col_sql + ") VALUES (" + val_sql + ")"
-                    ),
-                    {col: new_building_data[col] for col in insert_cols},
-                )
-
-        conn.execute(
-            _sales_sql_text("""
-                INSERT INTO sales_business_records (
-                    building_no,
-                    business_type,
-                    status,
-                    contract_status,
-                    contract_end_date,
-                    feedback_type,
-                    feedback_status,
-                    event_type,
-                    event_status,
-                    event_schedule_date,
-                    important_schedule,
-                    next_visit,
-                    owner,
-                    business_note,
-                    demo_type,
-                    created_at,
-                    updated_at
-                )
-                VALUES (
-                    :building_no,
-                    :business_type,
-                    :status,
-                    :contract_status,
-                    '',
-                    '無',
-                    '無',
-                    :event_type,
-                    :event_status,
-                    :event_schedule_date,
-                    :important_schedule,
-                    :next_visit,
-                    :owner,
-                    :business_note,
-                    'mobile_app_created',
-                    datetime('now'),
-                    datetime('now')
-                )
-            """),
-            {
-                "building_no": building_no,
-                "business_type": business_type,
-                "status": status,
-                "contract_status": contract_status,
-                "event_type": event_type,
-                "event_status": event_status,
-                "event_schedule_date": event_schedule_date,
-                "important_schedule": important_schedule,
-                "next_visit": next_visit,
-                "owner": owner,
-                "business_note": business_note,
-            },
-        )
-
-        new_id = conn.execute(_sales_sql_text("SELECT last_insert_rowid()")).scalar()
-
-    return _ManagersResponse(
-        content=_managers_json.dumps({"ok": True, "id": new_id}, ensure_ascii=False),
-        media_type="application/json; charset=utf-8",
-    )
+        return _EmpRedirectResponse("/employee/login?next=/app/sales", status_code=303)
+    # 回傳一個極輕量頁面，立即 redirect 到主頁並帶 hash，主頁偵測後自動開啟 sheet
+    return HTMLResponse("""<!doctype html><html><head><meta charset="utf-8">
+<script>location.replace("/app/sales#open-new");</script>
+</head><body></body></html>""")
 # SHINNAN_SALES_MOBILE_NEW_CASE_END
 
 

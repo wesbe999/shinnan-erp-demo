@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import String, Integer, DateTime, ForeignKey, Text, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db import Base
@@ -40,7 +40,7 @@ class Ticket(Base):
     customer_signature_data: Mapped[str | None] = mapped_column(Text, nullable=True)
     customer_signature_signed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     arrived_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 

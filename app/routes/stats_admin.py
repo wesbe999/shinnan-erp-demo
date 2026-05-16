@@ -750,7 +750,8 @@ body{margin:0;background:#edf3ef;color:#102018;font-family:"Microsoft JhengHei",
 
   <section class="kpi-grid" id="kpi_grid"></section>
 
-  <section class="grid-main">
+  <!-- Row 1: 逐月成長率 + MRR/ARPU -->
+  <section class="grid-two">
     <div class="panel">
       <h3>&#x9010;&#x6708;&#x7e3d;&#x6210;&#x9577;&#x7387;&#x8207;&#x6d41;&#x5931;&#x7387;</h3>
       <div class="panel-sub">&#x6298;&#x7dda;&#x5716;&#xff1a;&#x6de8;&#x6210;&#x9577;&#x3001;&#x6d41;&#x5931;&#x7387;</div>
@@ -758,16 +759,14 @@ body{margin:0;background:#edf3ef;color:#102018;font-family:"Microsoft JhengHei",
       <div class="legend"><span><i class="la"></i>&#x6de8;&#x6210;&#x9577;</span><span><i class="lb"></i>&#x6d41;&#x5931;&#x7387;</span></div>
     </div>
     <div class="panel">
-      <h3>&#x7dad;&#x4fee;&#x539f;&#x56e0;&#x4f54;&#x6bd4;</h3>
-      <div class="panel-sub">&#x5713;&#x9905;&#x5716;&#xff1a;&#x672c;&#x6708;&#x7dad;&#x4fee;&#x985e;&#x5225;&#x7d50;&#x69cb;</div>
-      <div class="donut-wrap">
-        <div class="donut" id="repair_donut"><div class="donut-center" id="repair_donut_center">0</div></div>
-        <div class="pie-list" id="repair_pie_list"></div>
-      </div>
+      <h3>MRR / ARPU &#x9010;&#x6708;&#x8da8;&#x52e2;</h3>
+      <div class="panel-sub">&#x6298;&#x7dda;&#x5716;&#xff1a;&#x6708;&#x7d93;&#x5e38;&#x6027;&#x6536;&#x5165;&#x8207;&#x6bcf;&#x6236;&#x5e73;&#x5747;&#x6536;&#x5165;</div>
+      <svg class="svg-chart" id="revenue_line"></svg>
+      <div class="legend"><span><i class="la"></i>MRR</span><span><i class="lb"></i>ARPU</span></div>
     </div>
   </section>
 
-
+  <!-- Row 2: 本月成長前5 + 本月衰退前5 -->
   <section class="grid-two">
     <div class="panel">
       <h3>&#x672c;&#x6708;&#x6210;&#x9577;&#x524d; 5 &#x540d;&#x5927;&#x6a13;</h3>
@@ -781,27 +780,53 @@ body{margin:0;background:#edf3ef;color:#102018;font-family:"Microsoft JhengHei",
     </div>
   </section>
 
+  <!-- Row 3: 帳務風險趨勢 + 各區欠費風險 -->
   <section class="grid-two">
-    <div class="panel">
-      <h3>MRR / ARPU &#x9010;&#x6708;&#x8da8;&#x52e2;</h3>
-      <div class="panel-sub">&#x6298;&#x7dda;&#x5716;&#xff1a;&#x6708;&#x7d93;&#x5e38;&#x6027;&#x6536;&#x5165;&#x8207;&#x6bcf;&#x6236;&#x5e73;&#x5747;&#x6536;&#x5165;</div>
-      <svg class="svg-chart small" id="revenue_line"></svg>
-      <div class="legend"><span><i class="la"></i>MRR</span><span><i class="lb"></i>ARPU</span></div>
-    </div>
     <div class="panel">
       <h3>&#x5e33;&#x52d9;&#x98a8;&#x96aa;&#x9010;&#x6708;&#x8da8;&#x52e2;</h3>
       <div class="panel-sub">&#x6298;&#x7dda;&#x5716;&#xff1a;&#x6b20;&#x8cbb;&#x7387;&#x3001;&#x9396; IP &#x7387;</div>
       <svg class="svg-chart small" id="risk_line"></svg>
       <div class="legend"><span><i class="la"></i>&#x6b20;&#x8cbb;&#x7387;</span><span><i class="lb"></i>&#x9396; IP &#x7387;</span></div>
     </div>
+    <div class="panel">
+      <h3>&#x5404;&#x5340;&#x6b20;&#x8cbb;&#x98a8;&#x96aa;</h3>
+      <div class="bar-list" id="overdue_area_bar"></div>
+    </div>
   </section>
 
+  <!-- Row 4: 各區淨成長 + 高潛力開發大樓 -->
   <section class="grid-two">
     <div class="panel">
-      <h3>&#x6d3e;&#x5de5;&#x6548;&#x7387;&#x9010;&#x6708;&#x8da8;&#x52e2;</h3>
-      <div class="panel-sub">&#x6298;&#x7dda;&#x5716;&#xff1a;&#x5b8c;&#x5de5;&#x7387;&#x3001;&#x7dad;&#x4fee;&#x7387;</div>
-      <svg class="svg-chart small" id="dispatch_line"></svg>
-      <div class="legend"><span><i class="la"></i>&#x5b8c;&#x5de5;&#x7387;</span><span><i class="lb"></i>&#x7dad;&#x4fee;&#x7387;</span></div>
+      <h3>&#x5404;&#x5340;&#x6de8;&#x6210;&#x9577;</h3>
+      <div class="bar-list" id="area_growth_bar"></div>
+    </div>
+    <div class="panel">
+      <h3>&#x9ad8;&#x6f5b;&#x529b;&#x958b;&#x767c;&#x5927;&#x6a13;&#xff08;&#x7d9c;&#x5408;&#x5206;&#x6578;&#xff09;</h3>
+      <div class="bar-list" id="building_opportunity_bar"></div>
+    </div>
+  </section>
+
+  <!-- Row 5: 維修原因圓餅 + 高頻維修大樓 -->
+  <section class="grid-two">
+    <div class="panel">
+      <h3>&#x7dad;&#x4fee;&#x539f;&#x56e0;&#x4f54;&#x6bd4;</h3>
+      <div class="panel-sub">&#x5713;&#x9905;&#x5716;&#xff1a;&#x672c;&#x6708;&#x7dad;&#x4fee;&#x985e;&#x5225;&#x7d50;&#x69cb;</div>
+      <div class="donut-wrap">
+        <div class="donut" id="repair_donut"><div class="donut-center" id="repair_donut_center">0</div></div>
+        <div class="pie-list" id="repair_pie_list"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>&#x9ad8;&#x983b;&#x7dad;&#x4fee;&#x5927;&#x6a13;</h3>
+      <div class="bar-list" id="repair_building_bar"></div>
+    </div>
+  </section>
+
+  <!-- Row 6: 工程師負載 + 案件類型圓餅 -->
+  <section class="grid-two">
+    <div class="panel">
+      <h3>&#x5de5;&#x7a0b;&#x5e2b;&#x8ca0;&#x8f09;</h3>
+      <div class="bar-list" id="engineer_load_bar"></div>
     </div>
     <div class="panel">
       <h3>&#x6848;&#x4ef6;&#x985e;&#x578b;&#x4f54;&#x6bd4;</h3>
@@ -813,15 +838,15 @@ body{margin:0;background:#edf3ef;color:#102018;font-family:"Microsoft JhengHei",
     </div>
   </section>
 
-  <section class="grid-three">
-    <div class="panel"><h3>&#x5404;&#x5340;&#x6de8;&#x6210;&#x9577;</h3><div class="bar-list" id="area_growth_bar"></div></div>
-    <div class="panel"><h3>&#x5de5;&#x7a0b;&#x5e2b;&#x8ca0;&#x8f09;</h3><div class="bar-list" id="engineer_load_bar"></div></div>
-    <div class="panel"><h3>&#x5404;&#x5340;&#x6b20;&#x8cbb;&#x98a8;&#x96aa;</h3><div class="bar-list" id="overdue_area_bar"></div></div>
-  </section>
-
+  <!-- Row 7: 派工效率趨勢（單獨一行，佔全寬） -->
   <section class="grid-two">
-    <div class="panel"><h3>&#x9ad8;&#x983b;&#x7dad;&#x4fee;&#x5927;&#x6a13;</h3><div class="bar-list" id="repair_building_bar"></div></div>
-    <div class="panel"><h3>&#x9ad8;&#x6f5b;&#x529b;&#x958b;&#x767c;&#x5927;&#x6a13;&#xff08;&#x7d9c;&#x5408;&#x5206;&#x6578;&#xff09;</h3><div class="bar-list" id="building_opportunity_bar"></div></div>
+    <div class="panel">
+      <h3>&#x6d3e;&#x5de5;&#x6548;&#x7387;&#x9010;&#x6708;&#x8da8;&#x52e2;</h3>
+      <div class="panel-sub">&#x6298;&#x7dda;&#x5716;&#xff1a;&#x5b8c;&#x5de5;&#x7387;&#x3001;&#x7dad;&#x4fee;&#x7387;</div>
+      <svg class="svg-chart small" id="dispatch_line"></svg>
+      <div class="legend"><span><i class="la"></i>&#x5b8c;&#x5de5;&#x7387;</span><span><i class="lb"></i>&#x7dad;&#x4fee;&#x7387;</span></div>
+    </div>
+    <div class="panel" style="display:flex;align-items:center;justify-content:center;color:#a0b0a8;font-size:15px;font-weight:900;min-height:200px;">&#x66f4;&#x591a;&#x5831;&#x8868;&#x529f;&#x80fd;&#x958b;&#x767c;&#x4e2d;</div>
   </section>
 </main>
 

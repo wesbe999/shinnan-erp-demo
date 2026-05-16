@@ -2655,9 +2655,9 @@ def employee_settings_page(request: _EmpRequest):
 
     def _safe_return_to(value: str) -> str:
         if not value or not value.startswith("/") or value.startswith("//"):
-            return "/app/dispatch"
+            return "/app"
         if value.startswith("/employee/login") or value.startswith("/app/employee/settings"):
-            return "/app/dispatch"
+            return "/app"
         return value
 
     employee_settings_return_to = _safe_return_to(raw_return_to)
