@@ -1079,7 +1079,7 @@ def admin_buildings_page():
             <th onclick="sortBy('management_company')" style="cursor:pointer;user-select:none">管理公司 <span id="sort_management_company"></span></th>
             <th onclick="sortBy('active_users')" style="cursor:pointer;user-select:none">用戶數量 <span id="sort_active_users"></span></th>
             <th onclick="sortBy('total_households')" style="cursor:pointer;user-select:none">住戶總數 <span id="sort_total_households"></span></th>
-            <th onclick="sortBy('ip')" style="cursor:pointer;user-select:none">IP <span id="sort_ip"></span></th>
+            <th onclick="sortBy('management_phone')" style="cursor:pointer;user-select:none">管理室電話 <span id="sort_management_phone"></span></th>
             <th>主機</th>
             <th>刪除</th>
           </tr>
@@ -1217,7 +1217,7 @@ def admin_buildings_page():
           b.area,
           b.address,
           b.management_company,
-          b.ip
+          b.management_phone
         ].join(" ").toLowerCase().includes(keyword);
       });
     }
@@ -1254,7 +1254,7 @@ def admin_buildings_page():
     }
 
     function updateSortIcons() {
-      const fields = ['building_no','name','area','address','management_company','active_users','total_households','ip'];
+      const fields = ['building_no','name','area','address','management_company','active_users','total_households','management_phone'];
       fields.forEach(function (f) {
         const el = document.getElementById('sort_' + f);
         if (!el) return;
@@ -1283,7 +1283,7 @@ def admin_buildings_page():
             <td contenteditable="true" data-field="management_company">${escapeHtml(b.management_company)}</td>
             <td contenteditable="true" data-field="active_users">${escapeHtml(b.active_users)}</td>
             <td contenteditable="true" data-field="total_households">${escapeHtml(b.total_households)}</td>
-            <td contenteditable="true" data-field="ip">${escapeHtml(b.ip)}</td>
+            <td>${escapeHtml(b.management_phone || '')}</td>
             <td><button class="btn-small" type="button" onclick="hostLogin('${escapeHtml(b.ip)}')">主機登入</button></td>
             <td><button class="btn-small btn-danger" type="button" onclick="deleteBuilding('${escapeHtml(b.building_no)}', '${escapeHtml(b.name)}')">刪除</button></td>
           </tr>
