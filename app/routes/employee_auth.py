@@ -170,13 +170,13 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       min-height: 100vh;
       min-width: 100vw;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
       font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
-      padding: 18px;
+      padding: 0 16px 40px;
       overflow: hidden;
       background-color: #04120e;
-      background-image: url("/static/login_bg_gold_green.png?v=cl16i3");
+      background-image: url("/static/login_bg_gold_green.png?v=cl16i4");
       background-size: auto 100vh;
       background-position: center center;
       background-repeat: no-repeat;
@@ -185,14 +185,14 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
     .card {{
       position: relative;
       z-index: 2;
-      width: min(100%, 360px);
+      width: min(100%, 300px);
       background: #ffffff;
-      border-radius: 20px;
-      padding: 20px 22px 18px;
+      border-radius: 18px;
+      padding: 18px 20px 16px;
       box-shadow:
         0 0 0 1px rgba(245, 215, 80, .35),
-        0 0 32px rgba(245, 215, 80, .18),
-        0 24px 80px rgba(0, 0, 0, .42);
+        0 0 28px rgba(245, 215, 80, .18),
+        0 20px 60px rgba(0, 0, 0, .45);
     }}
 
     label {{
