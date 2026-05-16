@@ -159,18 +159,27 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>員工登入｜訊南 ERP</title>
   <style>
-    * {{ box-sizing: border-box; }}
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+
+    html, body {{
+      width: 100%;
+      height: 100%;
+    }}
 
     body {{
-      margin: 0;
       min-height: 100vh;
+      min-width: 100vw;
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
       padding: 18px;
       overflow: hidden;
-      background: url("/static/login_bg_gold_green.png?v=cl16i") center center / cover no-repeat;
+      background-image: url("/static/login_bg_gold_green.png?v=cl16i2");
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
     }}
 
     .card {{
