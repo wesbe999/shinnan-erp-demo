@@ -1001,14 +1001,14 @@ def admin_buildings_page():
       <table>
         <thead>
           <tr>
-            <th>編號</th>
-            <th>大樓名稱</th>
-            <th>區域</th>
-            <th>地址</th>
-            <th>管理公司</th>
-            <th>用戶數量</th>
-            <th>住戶總數</th>
-            <th>IP</th>
+            <th onclick="sortBy('building_no')" style="cursor:pointer;user-select:none">編號 <span id="sort_building_no"></span></th>
+            <th onclick="sortBy('name')" style="cursor:pointer;user-select:none">大樓名稱 <span id="sort_name"></span></th>
+            <th onclick="sortBy('area')" style="cursor:pointer;user-select:none">區域 <span id="sort_area"></span></th>
+            <th onclick="sortBy('address')" style="cursor:pointer;user-select:none">地址 <span id="sort_address"></span></th>
+            <th onclick="sortBy('management_company')" style="cursor:pointer;user-select:none">管理公司 <span id="sort_management_company"></span></th>
+            <th onclick="sortBy('active_users')" style="cursor:pointer;user-select:none">用戶數量 <span id="sort_active_users"></span></th>
+            <th onclick="sortBy('total_households')" style="cursor:pointer;user-select:none">住戶總數 <span id="sort_total_households"></span></th>
+            <th onclick="sortBy('ip')" style="cursor:pointer;user-select:none">IP <span id="sort_ip"></span></th>
             <th>主機</th>
             <th>選擇</th>
           </tr>
@@ -1020,6 +1020,8 @@ def admin_buildings_page():
 
   <script>
     let buildings = [];
+    let sortField = 'building_no';
+    let sortAsc = true;
     const STORAGE_KEY = "shinnan_building_directory_overrides_v2";
 
     function escapeHtml(value) {
@@ -1147,9 +1149,56 @@ def admin_buildings_page():
       });
     }
 
+    function sortBy(field) {
+      if (sortField === field) {
+        sortAsc = !sortAsc;
+      } else {
+        sortField = field;
+        sortAsc = true;
+      }
+      renderRows();
+    }
+
+    function getSorted(data) {
+      const numFields = ['active_users', 'total_households'];
+      return data.slice().sort(function (a, b) {
+        let va = a[sortField] ?? '';
+        let vb = b[sortField] ?? '';
+        if (sortField === 'building_no') {
+          va = parseInt(String(va).replace(/[^0-9]/g, '')) || 0;
+          vb = parseInt(String(vb).replace(/[^0-9]/g, '')) || 0;
+        } else if (numFields.includes(sortField)) {
+          va = parseFloat(va) || 0;
+          vb = parseFloat(vb) || 0;
+        } else {
+          va = String(va).toLowerCase();
+          vb = String(vb).toLowerCase();
+        }
+        if (va < vb) return sortAsc ? -1 : 1;
+        if (va > vb) return sortAsc ? 1 : -1;
+        return 0;
+      });
+    }
+
+    function updateSortIcons() {
+      const fields = ['building_no','name','area','address','management_company','active_users','total_households','ip'];
+      fields.forEach(function (f) {
+        const el = document.getElementById('sort_' + f);
+        if (!el) return;
+        if (f === sortField) {
+          el.textContent = sortAsc ? ' ▲' : ' ▼';
+          el.style.color = '#0f6b3b';
+        } else {
+          el.textContent = ' ⇅';
+          el.style.color = '#bbb';
+        }
+      });
+    }
+
     function renderRows() {
       const rows = document.getElementById("rows");
-      const data = getFiltered();
+      const data = getSorted(getFiltered());
+      updateSortIcons();
 
       rows.innerHTML = data.map(function (b) {
         return `
