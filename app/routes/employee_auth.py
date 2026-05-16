@@ -175,7 +175,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
       overflow: hidden;
       background-color: #04120e;
-      background-image: url("/static/login_bg_gold_green.png?v=cl16i6");
+      background-image: url("/static/login_bg_gold_green.png?v=cl16i7");
       background-size: auto 100vh;
       background-position: center center;
       background-repeat: no-repeat;
@@ -187,13 +187,9 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       width: 60.2vh;
       max-width: calc(100vw - 32px);
       height: 93.1vh;
-      background: #ffffff;
+      background: transparent;
       border-radius: 20px;
       padding: 20px 22px;
-      box-shadow:
-        0 0 0 1px rgba(245, 215, 80, .35),
-        0 0 28px rgba(245, 215, 80, .18),
-        0 20px 60px rgba(0, 0, 0, .45);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -273,7 +269,9 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       font-weight: 900;
       display: none;
     }}
-  </style>
+  
+
+</style>
 </head>
 <body>
   <div class="card">
