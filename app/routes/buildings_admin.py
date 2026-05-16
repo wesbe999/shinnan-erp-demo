@@ -2188,10 +2188,16 @@ def admin_buildings_page():
       const data = mergeData(apiData);
 
       window.__shinnanBuildingsRecoveryData = data;
-      renderBuildingsRecovery(data);
+
+      // 優先交給主系統渲染，保持排序/刪除功能
+      if (typeof buildings !== "undefined" && typeof renderRows === "function") {
+        buildings = data;
+        renderRows();
+      } else {
+        renderBuildingsRecovery(data);
+      }
     } catch (err) {
       console.error("大樓名錄救援渲染失敗", err);
-
       const rows = getRowsBox();
       if (rows) {
         rows.innerHTML = '<tr><td colspan="10">大樓資料讀取失敗，請查看瀏覽器 Console。</td></tr>';
@@ -2200,18 +2206,21 @@ def admin_buildings_page():
   }
 
   function bindRecoveryFilters() {
+    // 讓 recovery 的篩選器也觸發主系統的 renderRows，保持排序功能
     const area = document.getElementById("area_filter");
     const keyword = document.getElementById("keyword");
 
     if (area) {
       area.onchange = function () {
-        renderBuildingsRecovery(window.__shinnanBuildingsRecoveryData || []);
+        if (typeof renderRows === "function") renderRows();
+        else renderBuildingsRecovery(window.__shinnanBuildingsRecoveryData || []);
       };
     }
 
     if (keyword) {
       keyword.oninput = function () {
-        renderBuildingsRecovery(window.__shinnanBuildingsRecoveryData || []);
+        if (typeof renderRows === "function") renderRows();
+        else renderBuildingsRecovery(window.__shinnanBuildingsRecoveryData || []);
       };
     }
   }
