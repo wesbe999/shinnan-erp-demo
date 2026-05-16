@@ -175,7 +175,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
       overflow: hidden;
       background-color: #04120e;
-      background-image: url("/static/login_bg_gold_green.png?v=cl16i7");
+      background-image: url("/static/login_bg_clean.png?v=cl16l");
       background-size: auto 100vh;
       background-position: center center;
       background-repeat: no-repeat;
@@ -187,7 +187,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       width: 60.2vh;
       max-width: calc(100vw - 32px);
       height: 93.1vh;
-      background: transparent;
+      background: rgba(255,255,255,0.92);
       border-radius: 20px;
       padding: 20px 22px;
       display: flex;
