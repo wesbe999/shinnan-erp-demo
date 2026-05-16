@@ -312,7 +312,7 @@ def api_admin_buildings():
 
 
 @router.delete("/api/admin/buildings/{building_no}")
-def api_admin_delete_building(building_no: str, request: _BuildingsRequest):
+def api_admin_delete_building(building_no: str):
     from sqlalchemy import text as _del_text
     from app.db import engine as _del_engine
 
