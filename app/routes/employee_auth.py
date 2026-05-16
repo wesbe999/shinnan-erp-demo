@@ -176,19 +176,19 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       padding: 0 16px 40px;
       overflow: hidden;
       background-color: #04120e;
-      background-image: url("/static/login_bg_gold_green.png?v=cl16i4");
-      background-size: auto 100vh;
-      background-position: center center;
+      background-image: url("/static/login_bg_gold_green.png?v=cl16i5");
+      background-size: auto 130vh;
+      background-position: center bottom;
       background-repeat: no-repeat;
     }}
 
     .card {{
       position: relative;
       z-index: 2;
-      width: min(100%, 300px);
+      width: min(100%, 260px);
       background: #ffffff;
       border-radius: 18px;
-      padding: 18px 20px 16px;
+      padding: 16px 18px 14px;
       box-shadow:
         0 0 0 1px rgba(245, 215, 80, .35),
         0 0 28px rgba(245, 215, 80, .18),
