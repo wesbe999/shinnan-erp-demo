@@ -311,6 +311,38 @@ def api_admin_buildings():
     )
 
 
+@router.delete("/api/admin/buildings/{building_no}")
+def api_admin_delete_building(building_no: str, request: _BuildingsRequest):
+    from sqlalchemy import text as _del_text
+    from app.db import engine as _del_engine
+
+    building_no = building_no.strip()
+    if not building_no:
+        return _BuildingsResponse(
+            content=_buildings_json.dumps({"ok": False, "error": "無效編號"}, ensure_ascii=False),
+            media_type="application/json; charset=utf-8",
+            status_code=400,
+        )
+
+    with _del_engine.begin() as conn:
+        result = conn.execute(
+            _del_text("DELETE FROM buildings WHERE building_no = :no"),
+            {"no": building_no},
+        )
+
+    if result.rowcount == 0:
+        return _BuildingsResponse(
+            content=_buildings_json.dumps({"ok": False, "error": "找不到此大樓"}, ensure_ascii=False),
+            media_type="application/json; charset=utf-8",
+            status_code=404,
+        )
+
+    return _BuildingsResponse(
+        content=_buildings_json.dumps({"ok": True, "deleted": building_no}, ensure_ascii=False),
+        media_type="application/json; charset=utf-8",
+    )
+
+
 @router.get("/api/admin/buildings/status")
 def api_admin_building_status():
     offline_building_nos = {"B001", "B014"}
@@ -720,6 +752,15 @@ def admin_buildings_page():
       white-space: nowrap !important;
     }
 
+    .btn-danger {
+      background: #dc2626 !important;
+      color: #fff !important;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c !important;
+    }
+
     td[data-field="name"] {
       white-space: normal !important;
       word-break: keep-all !important;
@@ -1010,7 +1051,7 @@ def admin_buildings_page():
             <th onclick="sortBy('total_households')" style="cursor:pointer;user-select:none">住戶總數 <span id="sort_total_households"></span></th>
             <th onclick="sortBy('ip')" style="cursor:pointer;user-select:none">IP <span id="sort_ip"></span></th>
             <th>主機</th>
-            <th>選擇</th>
+            <th>刪除</th>
           </tr>
         </thead>
         <tbody id="rows"></tbody>
@@ -1212,7 +1253,7 @@ def admin_buildings_page():
             <td contenteditable="true" data-field="total_households">${escapeHtml(b.total_households)}</td>
             <td contenteditable="true" data-field="ip">${escapeHtml(b.ip)}</td>
             <td><button class="btn-small" type="button" onclick="hostLogin('${escapeHtml(b.ip)}')">主機登入</button></td>
-            <td><button class="btn-small" type="button" onclick="chooseBuilding('${escapeHtml(b.building_no)}')">選擇</button></td>
+            <td><button class="btn-small btn-danger" type="button" onclick="deleteBuilding('${escapeHtml(b.building_no)}', '${escapeHtml(b.name)}')">刪除</button></td>
           </tr>
         `;
       }).join("");
@@ -1247,6 +1288,25 @@ def admin_buildings_page():
 
     function hostLogin(ip) {
       alert("主機登入：" + ip);
+    }
+
+    async function deleteBuilding(buildingNo, name) {
+      if (!confirm("確定要刪除「" + name + "」（" + buildingNo + "）？\n此操作無法復原。")) return;
+      try {
+        const res = await fetch("/api/admin/buildings/" + encodeURIComponent(buildingNo), {
+          method: "DELETE",
+          credentials: "same-origin",
+        });
+        const data = await res.json().catch(function () { return {}; });
+        if (!res.ok || !data.ok) {
+          alert("刪除失敗：" + (data.error || res.status));
+          return;
+        }
+        buildings = buildings.filter(function (b) { return b.building_no !== buildingNo; });
+        renderRows();
+      } catch (e) {
+        alert("刪除失敗：" + e.message);
+      }
     }
 
     function chooseBuilding(buildingNo) {
