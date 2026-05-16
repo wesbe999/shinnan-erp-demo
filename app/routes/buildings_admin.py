@@ -2108,10 +2108,11 @@ def admin_buildings_page():
           <td data-building-id="${safeText(b.id)}" data-field="host" contenteditable="true">${safeText(b.host || "")}</td>
           <td>
             <button
-              class="btn-blue"
+              class="btn-blue btn-danger"
               type="button"
-              onclick="window.__shinnanBuildingChooseRecovery(JSON.parse(decodeURIComponent('${encoded}')))"
-            >選擇</button>
+              style="background:#dc2626"
+              onclick="(function(no,name){if(!confirm('確定要刪除「'+name+'」（'+no+'）？\n此操作無法復原。'))return;fetch('/api/admin/buildings/'+encodeURIComponent(no),{method:'DELETE',credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){if(d.ok){var tr=document.querySelector('tr[data-bno=\"'+no+'\"]');if(tr)tr.remove();else loadBuildingsRecovery();}else{alert('刪除失敗：'+(d.error||'未知錯誤'));}});})(${JSON.stringify(b.building_no)},${JSON.stringify(b.name)})"
+            >刪除</button>
           </td>
         </tr>
       `;
