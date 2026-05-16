@@ -143,10 +143,13 @@ def _xunnan_employee_normalize_next_url(value: str) -> str:
     return text
 
 
-def _employee_login_page(error: str = "", next_url: str = "/app/dispatch"):
+def _employee_login_page(error: str = "", next_url: str = "/app"):
     error_html = ""
     if error:
-        error_html = f'<div class="error">{error}</div>'
+        error_html = error
+
+    remember_checked = True
+    next_qs = f"?next={next_url}" if next_url and next_url != "/app" else ""
 
     return f"""
 <!doctype html>
@@ -156,9 +159,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app/dispatch"):
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>員工登入｜訊南 ERP</title>
   <style>
-    * {{
-      box-sizing: border-box;
-    }}
+    * {{ box-sizing: border-box; }}
 
     body {{
       margin: 0;
@@ -166,114 +167,161 @@ def _employee_login_page(error: str = "", next_url: str = "/app/dispatch"):
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #0f172a, #1e3a8a, #7c3aed);
-      color: #102348;
       font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
       padding: 18px;
+      overflow: hidden;
+      background: url("/static/login_bg_gold_green.png?v=cl16i") center center / cover no-repeat;
     }}
 
     .card {{
-      width: 100%;
-      max-width: 420px;
+      position: relative;
+      z-index: 2;
+      width: min(100%, 400px);
       background: #ffffff;
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: 0 24px 80px rgba(0,0,0,.28);
-    }}
-
-    h1 {{
-      margin: 0 0 8px;
-      font-size: 30px;
-      font-weight: 1000;
-      color: #102348;
-    }}
-
-    .sub {{
-      color: #64748b;
-      font-size: 14px;
-      font-weight: 900;
-      margin-bottom: 20px;
-      line-height: 1.5;
+      border-radius: 22px;
+      padding: 28px 28px 24px;
+      box-shadow:
+        0 0 0 1px rgba(245, 215, 80, .35),
+        0 0 32px rgba(245, 215, 80, .18),
+        0 24px 80px rgba(0, 0, 0, .42);
     }}
 
     label {{
       display: block;
-      margin: 12px 0 6px;
-      color: #334155;
+      margin: 0 0 6px;
+      color: #1b4332;
       font-size: 14px;
       font-weight: 1000;
     }}
 
+    .field + .field {{
+      margin-top: 14px;
+    }}
+
     input {{
       width: 100%;
-      height: 46px;
-      border: 1px solid #cbd5e1;
+      height: 50px;
+      border: 1.5px solid #d1d5db;
       border-radius: 14px;
+      background: #f8fafc;
+      color: #102348;
       padding: 0 14px;
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 900;
       outline: none;
     }}
 
-    button {{
-      width: 100%;
-      height: 48px;
-      margin-top: 18px;
-      border: 0;
-      border-radius: 14px;
-      background: #365ee8;
-      color: #fff;
-      font-size: 18px;
-      font-weight: 1000;
+    input:focus {{
+      border-color: #15803d;
+      box-shadow: 0 0 0 3px rgba(21, 128, 61, .14);
+    }}
+
+    .remember {{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      color: #334155;
+      font-size: 14px;
+      font-weight: 900;
       cursor: pointer;
     }}
 
-    .error {{
-      margin: 12px 0;
+    .remember input {{
+      width: 18px;
+      height: 18px;
+      accent-color: #15803d;
+    }}
+
+    .btn-login {{
+      width: 100%;
+      height: 50px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #064e2f, #15803d);
+      color: #ffffff;
+      font-size: 17px;
+      font-weight: 1000;
+      cursor: pointer;
+      letter-spacing: .04em;
+    }}
+
+    .btn-login:hover {{ background: linear-gradient(135deg, #064e2f, #166534); }}
+    .btn-login:active {{ transform: scale(.985); }}
+
+    .err {{
+      margin-top: 12px;
       padding: 10px 12px;
       border-radius: 12px;
       background: #fee2e2;
       color: #991b1b;
       font-size: 14px;
-      font-weight: 1000;
-    }}
-
-    .hint {{
-      margin-top: 14px;
-      color: #64748b;
-      font-size: 12px;
-      font-weight: 800;
-      line-height: 1.6;
+      font-weight: 900;
+      display: none;
     }}
   </style>
 </head>
-
 <body>
-  <form class="card" method="post" action="/employee/login">
-    <h1>員工登入</h1>
-    <div class="sub">請輸入員工帳號與 PIN 碼後進入系統。</div>
-
-    {error_html}
-
-    <input type="hidden" name="next" value="{next_url}">
-
-    <label>員工帳號</label>
-    <input name="staff_code" autocomplete="username" placeholder="例如 sales01 / wesbe" required>
-
-    <label>PIN 碼</label>
-    <input name="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="請輸入 PIN" required>
-
-    <button type="submit">登入</button>
-
-    <div class="hint">
-      登入帳號：admin / 1234；其他員工帳號預設 PIN 皆為 1234
+  <div class="card">
+    <div class="field">
+      <label for="staff_code">帳號</label>
+      <input id="staff_code" type="text" placeholder="請輸入帳號" autocomplete="username" inputmode="text">
     </div>
-  </form>
+    <div class="field">
+      <label for="pin">PIN 碼</label>
+      <input id="pin" type="password" placeholder="請輸入 PIN 碼" autocomplete="current-password" inputmode="numeric">
+    </div>
+    <label class="remember">
+      <input type="checkbox" id="remember_me" {"checked" if remember_checked else ""}> 記住帳號
+    </label>
+    <div class="err" id="err_box">{error_html}</div>
+    <button class="btn-login" onclick="doLogin()">🔐 登入系統</button>
+  </div>
+
+  <script>
+    (function () {{
+      const saved = localStorage.getItem("shinnan_remember_staff_code");
+      const cb = document.getElementById("remember_me");
+      if (saved && cb && cb.checked) {{
+        document.getElementById("staff_code").value = saved;
+      }}
+    }})();
+
+    async function doLogin() {{
+      const code = document.getElementById("staff_code").value.trim();
+      const pin  = document.getElementById("pin").value.trim();
+      const rem  = document.getElementById("remember_me").checked;
+      const err  = document.getElementById("err_box");
+
+      if (!code || !pin) {{
+        err.textContent = "請輸入帳號與 PIN 碼";
+        err.style.display = "block";
+        return;
+      }}
+
+      if (rem) localStorage.setItem("shinnan_remember_staff_code", code);
+      else localStorage.removeItem("shinnan_remember_staff_code");
+
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "/employee/login{next_qs}";
+      [["staff_code", code], ["pin", pin], ["remember_me", rem ? "1" : ""]].forEach(function ([k, v]) {{
+        const i = document.createElement("input");
+        i.type = "hidden"; i.name = k; i.value = v;
+        form.appendChild(i);
+      }});
+      document.body.appendChild(form);
+      form.submit();
+    }}
+
+    document.addEventListener("keydown", function (e) {{
+      if (e.key === "Enter") doLogin();
+    }});
+  </script>
 </body>
 </html>
 """
-
-
 @router.get("/employee/login", response_class=_EmpHTMLResponse)
 def employee_login_page(next: str = "/app"):
     _employee_auth_db_init()
