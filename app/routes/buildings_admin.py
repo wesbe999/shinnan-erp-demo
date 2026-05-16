@@ -1575,14 +1575,6 @@ def admin_buildings_page():
     window.location.href = "/admin";
   }
 
-    if (window.history.length > 1) {
-      window.history.back();
-      return;
-    }
-
-    window.location.href = "/admin";
-  }
-
   window.goBackFromBuildings = goBackFromBuildingsSimple;
 
   function bindBackButtons() {
