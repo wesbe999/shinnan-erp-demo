@@ -185,7 +185,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
     .card {{
       position: relative;
       z-index: 2;
-      width: 60.2vh;
+      width: calc(60.2vh - 60px);
       max-width: calc(100vw - 32px);
       height: calc(93.1vh - 180px);
       background: #ffffff;
