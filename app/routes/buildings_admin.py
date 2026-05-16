@@ -102,7 +102,7 @@ def _fetch_buildings_from_db():
                 host,
                 note
             FROM buildings
-            ORDER BY building_no ASC
+            ORDER BY CAST(substr(building_no, 2) AS INTEGER) ASC
         """)).mappings().fetchall()
 
     return [dict(row) for row in rows]

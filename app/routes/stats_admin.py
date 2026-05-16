@@ -715,8 +715,8 @@ body{margin:0;background:#edf3ef;color:#102018;font-family:"Microsoft JhengHei",
 .bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#0f5132,#35a46a,#e1b64d);min-width:3px}
 .bar-value{text-align:right;font-size:13px;font-weight:1000;color:#21392b}
 .note{margin-top:12px;color:#738178;font-size:13px;font-weight:800;line-height:1.65}
-@media(max-width:1180px){.grid-main,.grid-two,.grid-three{grid-template-columns:1fr}.donut-wrap{grid-template-columns:1fr}.donut{margin:auto}}
-@media(max-width:680px){.page{width:min(100% - 22px,1480px)}.kpi-grid{grid-template-columns:repeat(2,1fr)}.bar-row{grid-template-columns:110px 1fr 58px}.intro{display:block}.actions{margin-top:12px}}
+@media(max-width:1180px){.grid-main,.grid-three{grid-template-columns:1fr}.donut-wrap{grid-template-columns:1fr}.donut{margin:auto}}
+@media(max-width:680px){.grid-two{grid-template-columns:1fr}.page{width:min(100% - 22px,1480px)}.kpi-grid{grid-template-columns:repeat(2,1fr)}.bar-row{grid-template-columns:110px 1fr 58px}.intro{display:block}.actions{margin-top:12px}}
 @media(max-width:480px){.kpi-grid{grid-template-columns:1fr}}
 </style>
 </head>

@@ -365,7 +365,7 @@ def api_admin_sales_managers():
                 area,
                 note
             FROM manager_contacts
-            ORDER BY building_no ASC, id ASC
+            ORDER BY CAST(substr(building_no, 2) AS INTEGER) ASC, id ASC
         """)).mappings().fetchall()
 
     return _ManagersResponse(

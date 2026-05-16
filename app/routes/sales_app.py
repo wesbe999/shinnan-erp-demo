@@ -412,7 +412,7 @@ def api_app_sales_dispatch_buildings(request: _EmpRequest):
                 manager_name,
                 manager_phone
             FROM buildings
-            ORDER BY area, name, building_no
+            ORDER BY area, name, CAST(substr(building_no, 2) AS INTEGER)
         """)).mappings().fetchall()
 
     items = []

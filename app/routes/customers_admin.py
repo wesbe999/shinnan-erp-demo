@@ -1596,7 +1596,7 @@ def api_admin_customers(
                     GROUP BY i.customer_no
                 ) svc ON svc.customer_no = c.customer_no
                 {where_sql}
-                ORDER BY c.building_no ASC, c.floor_text ASC, c.room_no ASC, c.customer_no ASC
+                ORDER BY CAST(substr(c.building_no, 2) AS INTEGER) ASC, c.floor_text ASC, c.room_no ASC, c.customer_no ASC
                 LIMIT :limit OFFSET :offset
             """),
             params,
