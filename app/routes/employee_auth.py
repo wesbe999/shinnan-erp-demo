@@ -172,6 +172,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       display: flex;
       align-items: center;
       justify-content: center;
+      padding-top: 50px;
       font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
       overflow: hidden;
       background-color: #04120e;
