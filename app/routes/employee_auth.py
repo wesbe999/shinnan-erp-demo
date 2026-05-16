@@ -172,7 +172,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       display: flex;
       align-items: center;
       justify-content: center;
-      padding-top: 75px;
+      padding-top: 105px;
       font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
       overflow: hidden;
       background-color: #04120e;
@@ -275,8 +275,6 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
 </style>
 </head>
 <body>
-  <div style="position:relative;display:flex;flex-direction:column;align-items:center;">
-    <img src="/static/login_gold_green_transparent_LOGO.png?v=cl16n" alt="" style="width:72px;height:auto;position:relative;z-index:3;margin-bottom:16px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.4));">
   <div class="card">
     <div class="field">
       <label for="staff_code">帳號</label>
@@ -291,7 +289,6 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
     </label>
     <div class="err" id="err_box">{error_html}</div>
     <button class="btn-login" onclick="doLogin()">🔐 登入系統</button>
-  </div>
   </div>
 
   <script>
