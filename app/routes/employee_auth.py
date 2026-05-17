@@ -219,7 +219,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
     }}
 
     .staff-input {{ top: 55%; }}
-    .pin-input   {{ top: 65%; }}
+    .pin-input   {{ top: 67%; }}
 
     /* 帳號/密碼白色標籤 */
     .field-label {{
@@ -231,12 +231,12 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
       text-shadow: 0 1px 6px rgba(0,0,0,.8);
     }}
     .staff-label {{ top: 51%; }}
-    .pin-label   {{ top: 61%; }}
+    .pin-label   {{ top: 63%; }}
 
     .toggle-pin {{
       position: absolute;
       left: 63.5%;
-      top: 65%;
+      top: 67%;
       width: 3%;
       height: 6%;
       border: 0;
