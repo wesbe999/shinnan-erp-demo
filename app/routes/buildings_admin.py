@@ -2456,7 +2456,7 @@ def admin_buildings_page():
 </script>
 
 
-  <script src="/static/app_header_actions.js?v=cl17p5"></script>
+  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """.replace("__INITIAL_BUILDING_ROWS__", "\n".join(initial_rows))

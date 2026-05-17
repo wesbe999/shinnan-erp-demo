@@ -1,0 +1,627 @@
+
+/* CL15N43B_HR_SIDEBAR_GOLD_GLASS_START */
+
+:root {
+  --hr-gold: #f5d76e;
+  --hr-gold-2: #d6a93d;
+  --hr-green-0: #061a14;
+  --hr-green-1: #0b2a21;
+  --hr-green-2: #123f30;
+  --hr-text: #f8fafc;
+  --hr-muted: rgba(226, 232, 240, .78);
+  --hr-line: rgba(245, 215, 110, .38);
+}
+
+body {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(245, 215, 110, .13), transparent 18%),
+    linear-gradient(135deg, #071f18, #0b2a21 44%, #102348) !important;
+}
+
+.sidebar,
+.hr-sidebar,
+.admin-sidebar,
+.app-sidebar,
+.side-menu,
+.side-panel,
+.layout-sidebar,
+[class*="sidebar"],
+[class*="side-nav"],
+aside {
+  background:
+    radial-gradient(circle at 72% 18%, rgba(245, 215, 110, .18), transparent 22%),
+    radial-gradient(circle at 18% 72%, rgba(34, 197, 94, .10), transparent 26%),
+    linear-gradient(165deg, rgba(8, 35, 27, .96), rgba(10, 47, 36, .92) 52%, rgba(6, 26, 20, .98)) !important;
+  border-right: 1px solid rgba(245, 215, 110, .30) !important;
+  box-shadow:
+    inset -1px 0 0 rgba(255, 255, 255, .06),
+    0 0 34px rgba(245, 215, 110, .08) !important;
+  color: var(--hr-text) !important;
+  overflow: hidden;
+}
+
+.sidebar::before,
+.hr-sidebar::before,
+.admin-sidebar::before,
+.app-sidebar::before,
+.side-menu::before,
+.side-panel::before,
+.layout-sidebar::before,
+[class*="sidebar"]::before,
+[class*="side-nav"]::before,
+aside::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .28;
+  background:
+    linear-gradient(150deg, transparent 0 58%, rgba(245, 215, 110, .22) 59%, transparent 63%),
+    repeating-linear-gradient(90deg, rgba(245, 215, 110, .10) 0 1px, transparent 1px 48px),
+    repeating-linear-gradient(0deg, rgba(245, 215, 110, .06) 0 1px, transparent 1px 44px);
+}
+
+.sidebar img,
+.hr-sidebar img,
+.admin-sidebar img,
+.app-sidebar img,
+.side-menu img,
+.side-panel img,
+.layout-sidebar img,
+[class*="sidebar"] img,
+[class*="side-nav"] img,
+aside img {
+  max-width: 150px !important;
+  height: auto !important;
+  object-fit: contain !important;
+  filter:
+    drop-shadow(0 0 12px rgba(245, 215, 110, .48))
+    drop-shadow(0 12px 22px rgba(0, 0, 0, .28)) !important;
+}
+
+.sidebar h1,
+.sidebar h2,
+.sidebar h3,
+.hr-sidebar h1,
+.hr-sidebar h2,
+.hr-sidebar h3,
+.admin-sidebar h1,
+.admin-sidebar h2,
+.admin-sidebar h3,
+.app-sidebar h1,
+.app-sidebar h2,
+.app-sidebar h3,
+.side-menu h1,
+.side-menu h2,
+.side-menu h3,
+.side-panel h1,
+.side-panel h2,
+.side-panel h3,
+.layout-sidebar h1,
+.layout-sidebar h2,
+.layout-sidebar h3,
+[class*="sidebar"] h1,
+[class*="sidebar"] h2,
+[class*="sidebar"] h3,
+[class*="side-nav"] h1,
+[class*="side-nav"] h2,
+[class*="side-nav"] h3,
+aside h1,
+aside h2,
+aside h3 {
+  color: #ffffff !important;
+  text-shadow: 0 0 12px rgba(255, 255, 255, .12) !important;
+  letter-spacing: .04em !important;
+}
+
+.sidebar .subtitle,
+.hr-sidebar .subtitle,
+.admin-sidebar .subtitle,
+.app-sidebar .subtitle,
+.side-menu .subtitle,
+.side-panel .subtitle,
+.layout-sidebar .subtitle,
+[class*="sidebar"] .subtitle,
+[class*="side-nav"] .subtitle,
+aside .subtitle,
+.sidebar small,
+.hr-sidebar small,
+.admin-sidebar small,
+.app-sidebar small,
+.side-menu small,
+.side-panel small,
+.layout-sidebar small,
+[class*="sidebar"] small,
+[class*="side-nav"] small,
+aside small {
+  color: var(--hr-gold) !important;
+  font-weight: 900 !important;
+  letter-spacing: .08em !important;
+}
+
+.sidebar a,
+.hr-sidebar a,
+.admin-sidebar a,
+.app-sidebar a,
+.side-menu a,
+.side-panel a,
+.layout-sidebar a,
+[class*="sidebar"] a,
+[class*="side-nav"] a,
+aside a {
+  color: rgba(248, 250, 252, .92) !important;
+  text-decoration: none !important;
+}
+
+.sidebar .menu-item,
+.sidebar .nav-item,
+.sidebar .item,
+.sidebar a,
+.hr-sidebar .menu-item,
+.hr-sidebar .nav-item,
+.hr-sidebar .item,
+.hr-sidebar a,
+.admin-sidebar .menu-item,
+.admin-sidebar .nav-item,
+.admin-sidebar .item,
+.admin-sidebar a,
+.app-sidebar .menu-item,
+.app-sidebar .nav-item,
+.app-sidebar .item,
+.app-sidebar a,
+.side-menu .menu-item,
+.side-menu .nav-item,
+.side-menu .item,
+.side-menu a,
+.side-panel .menu-item,
+.side-panel .nav-item,
+.side-panel .item,
+.side-panel a,
+.layout-sidebar .menu-item,
+.layout-sidebar .nav-item,
+.layout-sidebar .item,
+.layout-sidebar a,
+[class*="sidebar"] .menu-item,
+[class*="sidebar"] .nav-item,
+[class*="sidebar"] .item,
+[class*="sidebar"] a,
+[class*="side-nav"] .menu-item,
+[class*="side-nav"] .nav-item,
+[class*="side-nav"] .item,
+[class*="side-nav"] a,
+aside .menu-item,
+aside .nav-item,
+aside .item,
+aside a {
+  border-radius: 18px !important;
+  border: 1px solid rgba(245, 215, 110, .20) !important;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .025)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .035),
+    0 10px 22px rgba(0, 0, 0, .10) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.sidebar .menu-item:hover,
+.sidebar .nav-item:hover,
+.sidebar .item:hover,
+.sidebar a:hover,
+.hr-sidebar .menu-item:hover,
+.hr-sidebar .nav-item:hover,
+.hr-sidebar .item:hover,
+.hr-sidebar a:hover,
+.admin-sidebar .menu-item:hover,
+.admin-sidebar .nav-item:hover,
+.admin-sidebar .item:hover,
+.admin-sidebar a:hover,
+.app-sidebar .menu-item:hover,
+.app-sidebar .nav-item:hover,
+.app-sidebar .item:hover,
+.app-sidebar a:hover,
+.side-menu .menu-item:hover,
+.side-menu .nav-item:hover,
+.side-menu .item:hover,
+.side-menu a:hover,
+.side-panel .menu-item:hover,
+.side-panel .nav-item:hover,
+.side-panel .item:hover,
+.side-panel a:hover,
+.layout-sidebar .menu-item:hover,
+.layout-sidebar .nav-item:hover,
+.layout-sidebar .item:hover,
+.layout-sidebar a:hover,
+[class*="sidebar"] .menu-item:hover,
+[class*="sidebar"] .nav-item:hover,
+[class*="sidebar"] .item:hover,
+[class*="sidebar"] a:hover,
+[class*="side-nav"] .menu-item:hover,
+[class*="side-nav"] .nav-item:hover,
+[class*="side-nav"] .item:hover,
+[class*="side-nav"] a:hover,
+aside .menu-item:hover,
+aside .nav-item:hover,
+aside .item:hover,
+aside a:hover {
+  border-color: rgba(245, 215, 110, .54) !important;
+  background:
+    radial-gradient(circle at 12% 50%, rgba(245, 215, 110, .18), transparent 22%),
+    linear-gradient(135deg, rgba(21, 128, 61, .42), rgba(255, 255, 255, .04)) !important;
+  box-shadow:
+    0 0 22px rgba(245, 215, 110, .16),
+    0 12px 26px rgba(0, 0, 0, .16) !important;
+  transform: translateY(-1px);
+}
+
+.sidebar .active,
+.sidebar .is-active,
+.sidebar [aria-current="page"],
+.hr-sidebar .active,
+.hr-sidebar .is-active,
+.hr-sidebar [aria-current="page"],
+.admin-sidebar .active,
+.admin-sidebar .is-active,
+.admin-sidebar [aria-current="page"],
+.app-sidebar .active,
+.app-sidebar .is-active,
+.app-sidebar [aria-current="page"],
+.side-menu .active,
+.side-menu .is-active,
+.side-menu [aria-current="page"],
+.side-panel .active,
+.side-panel .is-active,
+.side-panel [aria-current="page"],
+.layout-sidebar .active,
+.layout-sidebar .is-active,
+.layout-sidebar [aria-current="page"],
+[class*="sidebar"] .active,
+[class*="sidebar"] .is-active,
+[class*="sidebar"] [aria-current="page"],
+[class*="side-nav"] .active,
+[class*="side-nav"] .is-active,
+[class*="side-nav"] [aria-current="page"],
+aside .active,
+aside .is-active,
+aside [aria-current="page"] {
+  border-color: rgba(245, 215, 110, .72) !important;
+  background:
+    linear-gradient(135deg, rgba(21, 128, 61, .58), rgba(12, 74, 44, .72)) !important;
+  box-shadow:
+    0 0 24px rgba(245, 215, 110, .20),
+    inset 4px 0 0 rgba(245, 215, 110, .88) !important;
+}
+
+.sidebar svg,
+.hr-sidebar svg,
+.admin-sidebar svg,
+.app-sidebar svg,
+.side-menu svg,
+.side-panel svg,
+.layout-sidebar svg,
+[class*="sidebar"] svg,
+[class*="side-nav"] svg,
+aside svg {
+  color: var(--hr-gold) !important;
+  stroke: var(--hr-gold) !important;
+  filter: drop-shadow(0 0 6px rgba(245, 215, 110, .22)) !important;
+}
+
+/* CL15N43B_HR_SIDEBAR_GOLD_GLASS_END */
+
+/* CL15N43C_HR_HEADER_TEXT_GOLD_START */
+
+/* HR page main title / header title */
+.hr-main h1,
+.hr-main h2,
+.hr-main .page-title,
+.hr-main .section-title,
+.hr-main .hero-title,
+.hr-main .admin-title,
+.hr-main .dashboard-title,
+.hr-content h1,
+.hr-content h2,
+.hr-content .page-title,
+.hr-content .section-title,
+.hr-content .hero-title,
+.hr-content .admin-title,
+.hr-content .dashboard-title,
+main h1,
+main h2,
+.content h1,
+.content h2,
+.page h1,
+.page h2,
+.admin-content h1,
+.admin-content h2 {
+  color: #f5d76e !important;
+  text-shadow:
+    0 0 10px rgba(245, 215, 110, .28),
+    0 2px 0 rgba(0, 0, 0, .18) !important;
+  letter-spacing: .04em !important;
+}
+
+/* HR page subtitle / breadcrumb / login identity row */
+.hr-main .subtitle,
+.hr-main .sub-title,
+.hr-main .page-subtitle,
+.hr-main .meta,
+.hr-main .breadcrumb,
+.hr-main .login-info,
+.hr-content .subtitle,
+.hr-content .sub-title,
+.hr-content .page-subtitle,
+.hr-content .meta,
+.hr-content .breadcrumb,
+.hr-content .login-info,
+main .subtitle,
+main .sub-title,
+main .page-subtitle,
+main .meta,
+main .breadcrumb,
+main .login-info,
+.content .subtitle,
+.content .sub-title,
+.content .page-subtitle,
+.content .meta,
+.content .breadcrumb,
+.content .login-info,
+.admin-content .subtitle,
+.admin-content .sub-title,
+.admin-content .page-subtitle,
+.admin-content .meta,
+.admin-content .breadcrumb,
+.admin-content .login-info {
+  color: rgba(245, 215, 110, .82) !important;
+  text-shadow: 0 0 8px rgba(245, 215, 110, .16) !important;
+  font-weight: 900 !important;
+}
+
+/* If old blue title color is applied directly on generic header blocks */
+.header h1,
+.header h2,
+.topbar h1,
+.topbar h2,
+.page-header h1,
+.page-header h2,
+.admin-header h1,
+.admin-header h2 {
+  color: #f5d76e !important;
+  text-shadow:
+    0 0 10px rgba(245, 215, 110, .28),
+    0 2px 0 rgba(0, 0, 0, .18) !important;
+}
+
+.header,
+.topbar,
+.page-header,
+.admin-header {
+  color: rgba(245, 215, 110, .88) !important;
+}
+
+/* CL15N43C_HR_HEADER_TEXT_GOLD_END */
+
+/* CL15N43D_HR_HEADER_SUBTITLE_WHITE_START */
+
+/* HR header identity row: admin / desktop HR backend */
+.hr-main .subtitle,
+.hr-main .sub-title,
+.hr-main .page-subtitle,
+.hr-main .meta,
+.hr-main .breadcrumb,
+.hr-main .login-info,
+.hr-content .subtitle,
+.hr-content .sub-title,
+.hr-content .page-subtitle,
+.hr-content .meta,
+.hr-content .breadcrumb,
+.hr-content .login-info,
+main .subtitle,
+main .sub-title,
+main .page-subtitle,
+main .meta,
+main .breadcrumb,
+main .login-info,
+.content .subtitle,
+.content .sub-title,
+.content .page-subtitle,
+.content .meta,
+.content .breadcrumb,
+.content .login-info,
+.admin-content .subtitle,
+.admin-content .sub-title,
+.admin-content .page-subtitle,
+.admin-content .meta,
+.admin-content .breadcrumb,
+.admin-content .login-info,
+.header .subtitle,
+.header .sub-title,
+.header .page-subtitle,
+.header .meta,
+.header .breadcrumb,
+.header .login-info,
+.topbar .subtitle,
+.topbar .sub-title,
+.topbar .page-subtitle,
+.topbar .meta,
+.topbar .breadcrumb,
+.topbar .login-info,
+.page-header .subtitle,
+.page-header .sub-title,
+.page-header .page-subtitle,
+.page-header .meta,
+.page-header .breadcrumb,
+.page-header .login-info,
+.admin-header .subtitle,
+.admin-header .sub-title,
+.admin-header .page-subtitle,
+.admin-header .meta,
+.admin-header .breadcrumb,
+.admin-header .login-info {
+  color: rgba(255, 255, 255, .86) !important;
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, .10),
+    0 2px 0 rgba(0, 0, 0, .18) !important;
+  font-weight: 900 !important;
+}
+
+/* Force common HR header plain text containers to inherit white subtitle tone */
+.hr-main .header-row,
+.hr-main .title-meta,
+.hr-main .page-meta,
+.hr-content .header-row,
+.hr-content .title-meta,
+.hr-content .page-meta,
+main .header-row,
+main .title-meta,
+main .page-meta,
+.content .header-row,
+.content .title-meta,
+.content .page-meta,
+.admin-content .header-row,
+.admin-content .title-meta,
+.admin-content .page-meta {
+  color: rgba(255, 255, 255, .86) !important;
+}
+
+/* CL15N43D_HR_HEADER_SUBTITLE_WHITE_END */
+
+/* CL15N43E_FORCE_HR_H1_SUBTITLE_WHITE_START */
+
+/* Force the identity/subtitle line directly under HR page title to white */
+h1 + *,
+h1 + * *,
+h1 ~ .subtitle,
+h1 ~ .sub-title,
+h1 ~ .page-subtitle,
+h1 ~ .meta,
+h1 ~ .breadcrumb,
+h1 ~ .login-info,
+h1 ~ .title-meta,
+h1 ~ .page-meta,
+.page-title + *,
+.page-title + * *,
+.hero-title + *,
+.hero-title + * *,
+.admin-title + *,
+.admin-title + * *,
+.dashboard-title + *,
+.dashboard-title + * * {
+  color: rgba(255, 255, 255, .90) !important;
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, .10),
+    0 2px 0 rgba(0, 0, 0, .22) !important;
+  font-weight: 900 !important;
+}
+
+/* If the subtitle is wrapped inside the same header block */
+.page-header,
+.admin-header,
+.header,
+.topbar,
+.hero,
+.hero-header,
+.title-block,
+.header-block {
+  --hr-subtitle-white: rgba(255, 255, 255, .90);
+}
+
+.page-header > div:not(:has(h1)):not(:has(h2)),
+.admin-header > div:not(:has(h1)):not(:has(h2)),
+.header > div:not(:has(h1)):not(:has(h2)),
+.topbar > div:not(:has(h1)):not(:has(h2)),
+.hero > div:not(:has(h1)):not(:has(h2)),
+.hero-header > div:not(:has(h1)):not(:has(h2)),
+.title-block > div:not(:has(h1)):not(:has(h2)),
+.header-block > div:not(:has(h1)):not(:has(h2)) {
+  color: var(--hr-subtitle-white) !important;
+}
+
+/* Hard override common old gray-blue text colors inside header area */
+.page-header *,
+.admin-header *,
+.header *,
+.topbar *,
+.hero *,
+.hero-header *,
+.title-block *,
+.header-block * {
+  border-color: rgba(245, 215, 110, .22);
+}
+
+/* CL15N43E_FORCE_HR_H1_SUBTITLE_WHITE_END */
+
+/* CL15N43F_HR_TITLE_GOLD_SUBTITLE_WHITE_START */
+
+/* Final HR header title layer: main title must be gold */
+main h1,
+.content h1,
+.page h1,
+.admin-content h1,
+.hr-main h1,
+.hr-content h1,
+.header h1,
+.topbar h1,
+.page-header h1,
+.admin-header h1,
+.hero h1,
+.hero-header h1,
+.title-block h1,
+.header-block h1,
+.page-title,
+.hero-title,
+.admin-title,
+.dashboard-title {
+  color: #f5d76e !important;
+  text-shadow:
+    0 0 12px rgba(245, 215, 110, .34),
+    0 2px 0 rgba(0, 0, 0, .26) !important;
+  font-weight: 1000 !important;
+  letter-spacing: .045em !important;
+}
+
+/* Final HR header subtitle layer: identity row stays white */
+main h1 + *,
+.content h1 + *,
+.page h1 + *,
+.admin-content h1 + *,
+.hr-main h1 + *,
+.hr-content h1 + *,
+.header h1 + *,
+.topbar h1 + *,
+.page-header h1 + *,
+.admin-header h1 + *,
+.hero h1 + *,
+.hero-header h1 + *,
+.title-block h1 + *,
+.header-block h1 + *,
+.page-title + *,
+.hero-title + *,
+.admin-title + *,
+.dashboard-title + * {
+  color: rgba(255, 255, 255, .88) !important;
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, .10),
+    0 2px 0 rgba(0, 0, 0, .22) !important;
+  font-weight: 900 !important;
+}
+
+/* Avoid inherited white overriding the main title inside wrappers */
+main h1 *,
+.content h1 *,
+.page h1 *,
+.admin-content h1 *,
+.hr-main h1 *,
+.hr-content h1 *,
+.header h1 *,
+.topbar h1 *,
+.page-header h1 *,
+.admin-header h1 *,
+.hero h1 *,
+.hero-header h1 *,
+.title-block h1 *,
+.header-block h1 * {
+  color: #f5d76e !important;
+}
+
+/* CL15N43F_HR_TITLE_GOLD_SUBTITLE_WHITE_END */
+

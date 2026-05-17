@@ -581,11 +581,12 @@ def hr_employee_adjust_page(request: Request):
     /* HR_EMPLOYEE_ADJUST_COMPACT_FIX_END */
 
   </style>
+  <link rel="stylesheet" href="/static/hr_sidebar_gold_glass_v2.css?v=cl15n43b">
 </head>
 <body>
   <div class="layout">
     <aside class="sidebar">
-      <div class="brand"><img src="/static/shinnan_home_logo.png"><div><div class="brand-title">訊南人事系統</div><div class="brand-sub">HR ADMIN</div></div></div>
+      <div class="brand"><img src="/static/shinnan_logo_gold_transparent.png"><div><div class="brand-title">訊南人事系統</div><div class="brand-sub">HR ADMIN</div></div></div>
       <nav class="nav">
         <a href="/admin/hr">員工名冊</a>
         <a class="active" href="/admin/hr/employee-adjust">職務薪資調整</a>
@@ -831,7 +832,7 @@ def hr_employee_adjust_page(request: Request):
     render();
   </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p5"></script>
+  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """

@@ -3015,7 +3015,7 @@ def sales_mobile_app_page(request: _EmpRequest):
 </script>
 
 
-  <script src="/static/app_header_actions.js?v=cl17p5"></script>
+  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """
@@ -3168,7 +3168,7 @@ def sales_mobile_new_case_page(request: _EmpRequest):
     return HTMLResponse("""<!doctype html><html><head><meta charset="utf-8">
 <script>location.replace("/app/sales#open-new");</script>
 </head><body>
-  <script src="/static/app_header_actions.js?v=cl17p5"></script>
+  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body></html>""")
 # SHINNAN_SALES_MOBILE_NEW_CASE_END
 

@@ -125,7 +125,7 @@ def admin_import_page(request: Request):
   <script src="/static/admin_import.js?v=20260508"></script>
 
 
-  <script src="/static/app_header_actions.js?v=cl17p5"></script>
+  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
     """)

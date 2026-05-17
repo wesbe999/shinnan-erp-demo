@@ -440,11 +440,12 @@ max-height: calc(100vh - 120px); }}
     /* HR_TABLE_COMPACT_FIX_END */
 
   </style>
+  <link rel="stylesheet" href="/static/hr_sidebar_gold_glass_v2.css?v=cl15n43b">
 </head>
 <body>
   <div class="layout">
     <aside class="sidebar">
-      <div class="brand"><img src="/static/shinnan_home_logo.png" alt="訊南 Logo"><div><div class="brand-title">訊南人事系統</div><div class="brand-sub">HR ADMIN</div></div></div>
+      <div class="brand"><img src="/static/shinnan_logo_gold_transparent.png" alt="訊南 Logo"><div><div class="brand-title">訊南人事系統</div><div class="brand-sub">HR ADMIN</div></div></div>
       <nav class="nav">{_nav(active)}</nav>
     </aside>
     <main class="main">
@@ -453,7 +454,7 @@ max-height: calc(100vh - 120px); }}
     </main>
   </div>
 
-  <script src="/static/app_header_actions.js?v=cl17p5"></script>
+  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>"""
 

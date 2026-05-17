@@ -2883,7 +2883,7 @@ def shinnan_admin_sales_page():
 </script>
 
 
-  <script src="/static/app_header_actions.js?v=cl17p5"></script>
+  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """

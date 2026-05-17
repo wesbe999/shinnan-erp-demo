@@ -1097,7 +1097,7 @@ def dispatch_mobile_app_page(request: _Request):
 
   <script src="/static/dispatch_app.js?v=cl15l4_20260515_024129"></script>
 
-  <script src="/static/app_header_actions.js?v=cl17p5"></script>
+  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """

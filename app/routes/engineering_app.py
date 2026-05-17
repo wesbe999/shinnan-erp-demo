@@ -1131,7 +1131,7 @@ def engineering_mobile_app_page(request: _EmpRequest):
     renderHome();
   </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p5"></script>
+  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """
@@ -1645,7 +1645,7 @@ def engineering_schedule_landscape_page(request: _EmpRequest):
     renderScheduleTable();
   </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p5"></script>
+  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """

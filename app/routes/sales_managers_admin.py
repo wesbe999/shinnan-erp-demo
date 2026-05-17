@@ -298,7 +298,7 @@ def admin_sales_managers_page():
     loadManagers();
   </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p5"></script>
+  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """
