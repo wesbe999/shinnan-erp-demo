@@ -586,7 +586,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       position: relative;
       z-index: 1;
       width: min(96vw, 370px);
-      margin-top: 55vh;
+      margin-top: 46vh;
       background: rgba(3, 22, 12, 0.97);
       border: 1px solid rgba(212,175,55,.35);
       border-radius: 18px;
