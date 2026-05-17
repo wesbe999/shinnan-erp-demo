@@ -587,14 +587,24 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
 def employee_login_page(next: str = "/app", request: _EmpRequest = None):
     _employee_auth_db_init()
     next_url = _xunnan_employee_normalize_next_url(next)
-    # 手機 User-Agent 自動顯示手機版
-    # Edge/Chrome 桌面版 UA 也含 "Mobile"，需排除
     ua = (request.headers.get("user-agent", "") if request else "").lower()
     is_desktop = any(k in ua for k in ("windows", "macintosh", "x11", "linux x86"))
     is_mobile = not is_desktop and any(k in ua for k in ("mobile", "android", "iphone", "ipad", "ipod"))
     if is_mobile:
         return _employee_login_page_mobile("", next_url)
     return _employee_login_page("", next_url)
+
+
+@router.get("/employee/login/desktop", response_class=_EmpHTMLResponse)
+def employee_login_desktop_page(next: str = "/app"):
+    _employee_auth_db_init()
+    return _employee_login_page("", _xunnan_employee_normalize_next_url(next))
+
+
+@router.get("/employee/login/mobile", response_class=_EmpHTMLResponse)
+def employee_login_mobile_page(next: str = "/app"):
+    _employee_auth_db_init()
+    return _employee_login_page_mobile("", _xunnan_employee_normalize_next_url(next))
 
 
 @router.post("/employee/login")
