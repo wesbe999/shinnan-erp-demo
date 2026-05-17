@@ -672,12 +672,21 @@ async def employee_login_submit(request: _EmpRequest):
 
 
 @router.get("/employee/logout")
-def employee_logout(request: _EmpRequest = None):
-    # 電腦版登出 → 回根目錄入口頁 /
-    # 手機版登出 → 回手機登入頁
+def employee_logout(request: _EmpRequest = None, next: str = ""):
+    # 登出後導向：
+    # 1. 有 next 參數且合法 → 用 next
+    # 2. 手機 UA → 手機登入頁
+    # 3. 電腦 → 根目錄入口頁 /
     ua = (request.headers.get("user-agent", "") if request else "").lower()
     is_mobile = any(k in ua for k in ("mobile", "android", "iphone", "ipad", "ipod"))
-    dest = "/employee/login" if is_mobile else "/"
+
+    if next and next.startswith("/") and not next.startswith("//"):
+        dest = next
+    elif is_mobile:
+        dest = "/employee/login"
+    else:
+        dest = "/"
+
     resp = _EmpRedirectResponse(dest, status_code=303)
     resp.delete_cookie(_EMP_COOKIE_NAME, path="/")
     return resp
