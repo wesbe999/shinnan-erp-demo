@@ -218,8 +218,8 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
       box-shadow: 0 0 0 2.5px rgba(245, 211, 93, .9), 0 0 20px rgba(245, 211, 93, .3);
     }}
 
-    .staff-input {{ top: 55%; }}
-    .pin-input   {{ top: 67%; }}
+    .staff-input {{ top: 56%; }}
+    .pin-input   {{ top: 68%; }}
 
     /* 帳號/密碼白色標籤 */
     .field-label {{
@@ -230,13 +230,13 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
       font-weight: 700;
       text-shadow: 0 1px 6px rgba(0,0,0,.8);
     }}
-    .staff-label {{ top: 51%; }}
-    .pin-label   {{ top: 63%; }}
+    .staff-label {{ top: 52%; }}
+    .pin-label   {{ top: 64%; }}
 
     .toggle-pin {{
       position: absolute;
       left: 63.5%;
-      top: 67%;
+      top: 68%;
       width: 3%;
       height: 6%;
       border: 0;
@@ -248,7 +248,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
     .remember {{
       position: absolute;
       left: 33.5%;
-      top: 74%;
+      top: 76%;
       width: 12%;
       height: 4%;
       cursor: pointer;
@@ -265,7 +265,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
     .submit-button {{
       position: absolute;
       left: 33.5%;
-      top: 80%;
+      top: 83%;
       width: 33%;
       height: 6.5%;
       border: 0;
@@ -288,7 +288,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
     .err {{
       position: absolute;
       left: 33.5%;
-      top: 50%;
+      top: 51%;
       width: 33%;
       padding: 8px 12px;
       border: 1px solid rgba(255, 130, 130, .55);
