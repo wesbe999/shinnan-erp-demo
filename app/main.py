@@ -180,6 +180,7 @@ position:relative;
   width:100vw;
   height:100vh;
   padding:16px 24px;
+  overflow:hidden;
 }
 .portal{
 position:relative;
@@ -187,6 +188,7 @@ position:relative;
   height:100%;
   display:grid;
   grid-template-columns:48% 52%;
+  height:100%;
   gap:28px;
   padding:24px 34px;
   border:1px solid rgba(143,255,73,.78);
@@ -383,8 +385,11 @@ display:none;
 min-width:0;
   display:flex;
   flex-direction:column;
-  justify-content:center;
-  padding:0 0 46px 0;
+  justify-content:flex-start;
+  padding:0 0 10px 0;
+  height:100%;
+  min-height:0;
+  overflow:hidden;
 }
 .panel-title{
 display:flex;
@@ -414,13 +419,20 @@ display:flex;
 .grid{
 display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:12px;
+  grid-template-rows:repeat(4,1fr);
+  gap:7px;
+  flex:1;
+  min-height:0;
+  overflow:hidden;
 }
 .module{
 position:relative;
-  min-height:98px;
-  display:block;
-  padding:14px 40px 12px 20px;
+  min-height:0;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:10px 36px 10px 16px;
   text-decoration:none;
   color:#fff;
   border:1px solid rgba(152,255,77,.55);
@@ -547,10 +559,10 @@ position:absolute;
   filter:drop-shadow(0 0 16px rgba(255,255,255,.14));
   z-index:1;
 }
-  .panel{padding:0 0 34px 0}
-  .panel-title{font-size:21px;margin-bottom:12px}
+  .panel{padding:0 0 8px 0}
+  .panel-title{font-size:19px;margin-bottom:8px}
   .grid{gap:10px}
-  .module{min-height:106px;padding:13px 36px 11px 18px}
+  .module{min-height:0;padding:10px 32px 10px 15px}
   .mi{width:32px;height:28px;margin-bottom:5px}
   .mi svg{width:28px;height:28px}
   .module-name{font-size:18px}
@@ -635,16 +647,6 @@ position:absolute;
       <div class="panel-title">\u8acb\u9078\u64c7\u7cfb\u7d71\u5165\u53e3</div>
       <div class="grid">
         <a class="module" href="#" onclick="return openAdminModule('/admin/router-ipam')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></svg></div><div><div class="module-name">\u8def\u7531\u7ba1\u7406</div><div class="module-desc">IP\u3001MAC\u3001\u6236\u5225\u3001\u901f\u7387\u8207\u6b20\u8cbb\u9396\u5b9a\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
-      <div class="module module-wip">
-        <div class="mi"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
-        <div><div class="module-name">施工中</div><div class="module-desc">功能開發中，敬請期待。</div></div>
-        <div class="arrow">&rsaquo;</div>
-      </div>
-      <div class="module module-wip">
-        <div class="mi"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
-        <div><div class="module-name">施工中</div><div class="module-desc">功能開發中，敬請期待。</div></div>
-        <div class="arrow">&rsaquo;</div>
-      </div>
         <a class="module" href="/admin"><div class="mi"><svg viewBox="0 0 24 24"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="6" cy="17" r="2"/><circle cx="18" cy="17" r="2"/></svg></div><div><div class="module-name">\u6d3e\u5de5\u7cfb\u7d71</div><div class="module-desc">\u6848\u4ef6\u5efa\u7acb\u3001\u5de5\u7a0b\u5e2b\u6307\u6d3e\u3001\u6d3e\u5de5\u7ba1\u7406\u8207\u5b8c\u5de5\u8ffd\u8e64\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="/admin/sales"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M3 19h18"/><path d="M7 9l3-4 4 7 5-8"/></svg></div><div><div class="module-name">\u696d\u52d9\u7cfb\u7d71</div><div class="module-desc">\u5927\u6a13\u63a5\u89f8\u3001\u5408\u7d04\u3001\u62dc\u8a2a\u3001\u4e8b\u4ef6\u8207\u56de\u994b\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="/admin/billing"><div class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M15 9.5c-.8-.8-4-.9-4 1 0 2 4 1 4 3 0 2-3.2 1.8-4.4.8"/></svg></div><div><div class="module-name">\u5e33\u52d9\u7cfb\u7d71</div><div class="module-desc">\u8cbb\u7528\u3001\u62bc\u91d1\u3001\u6708\u79df\u3001\u6750\u6599\u8207\u8ca1\u52d9\u540c\u6b65\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
@@ -654,6 +656,17 @@ position:absolute;
         <a class="module" href="/admin/customers"><div class="mi"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c1-4 11-4 12 0"/><circle cx="17" cy="10" r="2.5"/><path d="M15 20c.7-2.6 5.4-2.6 6 0"/></svg></div><div><div class="module-name">\u5ba2\u6236\u8cc7\u6599</div><div class="module-desc">\u5ba2\u6236\u8cc7\u6599\u3001\u670d\u52d9\u65b9\u6848\u3001\u5e33\u52d9\u72c0\u614b\u8207\u8a2d\u5099\u8cc7\u8a0a\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="#" onclick="return openAdminModule('/admin/stats')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div><div><div class="module-name">\u8cc7\u6599\u7d71\u8a08</div><div class="module-desc">\u5f59\u6574\u6d3e\u5de5\u3001\u5ba2\u6236\u3001\u5e33\u52d9\u3001\u696d\u52d9\u3001\u4eba\u4e8b\u8207\u6750\u6599\u8cc7\u6599\uff0c\u7522\u751f\u71df\u904b\u7d71\u8a08\u3001\u8da8\u52e2\u5206\u6790\u8207\u7ba1\u7406\u5831\u544a\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="#" onclick="return openAdminModule('/admin/import')"><div class="mi"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div><div class="module-name">\u532f\u5165\u8cc7\u6599</div><div class="module-desc">Excel\u3001CSV\u3001JSON\u3001DB / SQL \u8cc7\u6599\u532f\u5165\u8207\u9810\u89bd\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+      <div class="module module-wip">
+        <div class="mi"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div><div class="module-name">施工中</div><div class="module-desc">功能開發中，敬請期待。</div></div>
+        <div class="arrow">&rsaquo;</div>
+      </div>
+      <div class="module module-wip">
+        <div class="mi"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div><div class="module-name">施工中</div><div class="module-desc">功能開發中，敬請期待。</div></div>
+        <div class="arrow">&rsaquo;</div>
+      </div>
+     
       </div>
     </section>
     <div class="footer">SHINNAN ERP SYSTEM</div>
