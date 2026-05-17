@@ -673,11 +673,11 @@ async def employee_login_submit(request: _EmpRequest):
 
 @router.get("/employee/logout")
 def employee_logout(request: _EmpRequest = None):
-    # 登出後導向 /app（入口頁），session 已清除，點功能才需重新登入
-    # 手機版 UA 導回手機登入頁
+    # 電腦版登出 → 回根目錄入口頁 /
+    # 手機版登出 → 回手機登入頁
     ua = (request.headers.get("user-agent", "") if request else "").lower()
     is_mobile = any(k in ua for k in ("mobile", "android", "iphone", "ipad", "ipod"))
-    dest = "/employee/login" if is_mobile else "/app"
+    dest = "/employee/login" if is_mobile else "/"
     resp = _EmpRedirectResponse(dest, status_code=303)
     resp.delete_cookie(_EMP_COOKIE_NAME, path="/")
     return resp
