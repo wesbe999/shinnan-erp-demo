@@ -434,6 +434,29 @@ position:relative;
   overflow:hidden;
   transition:.16s ease;
 }
+.module-wip{
+  opacity:0.55;
+  cursor:default;
+  background:repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 6px,
+    rgba(255,255,255,.03) 6px,
+    rgba(255,255,255,.03) 12px
+  );
+}
+.module-wip .mi svg{
+  opacity:0.5;
+}
+.module-wip .arrow{
+  opacity:0.3;
+}
+.module-wip:hover{
+  transform:none !important;
+  border-color:rgba(255,255,255,.12) !important;
+  box-shadow:none !important;
+  cursor:not-allowed;
+}
 .module:hover{
   transform:translateY(-3px);
   border-color:#e8c84a;
@@ -612,6 +635,16 @@ position:absolute;
       <div class="panel-title">\u8acb\u9078\u64c7\u7cfb\u7d71\u5165\u53e3</div>
       <div class="grid">
         <a class="module" href="#" onclick="return openAdminModule('/admin/router-ipam')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></svg></div><div><div class="module-name">\u8def\u7531\u7ba1\u7406</div><div class="module-desc">IP\u3001MAC\u3001\u6236\u5225\u3001\u901f\u7387\u8207\u6b20\u8cbb\u9396\u5b9a\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
+      <div class="module module-wip">
+        <div class="mi"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div><div class="module-name">施工中</div><div class="module-desc">功能開發中，敬請期待。</div></div>
+        <div class="arrow">&rsaquo;</div>
+      </div>
+      <div class="module module-wip">
+        <div class="mi"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div><div class="module-name">施工中</div><div class="module-desc">功能開發中，敬請期待。</div></div>
+        <div class="arrow">&rsaquo;</div>
+      </div>
         <a class="module" href="/admin"><div class="mi"><svg viewBox="0 0 24 24"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="6" cy="17" r="2"/><circle cx="18" cy="17" r="2"/></svg></div><div><div class="module-name">\u6d3e\u5de5\u7cfb\u7d71</div><div class="module-desc">\u6848\u4ef6\u5efa\u7acb\u3001\u5de5\u7a0b\u5e2b\u6307\u6d3e\u3001\u6d3e\u5de5\u7ba1\u7406\u8207\u5b8c\u5de5\u8ffd\u8e64\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="/admin/sales"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M3 19h18"/><path d="M7 9l3-4 4 7 5-8"/></svg></div><div><div class="module-name">\u696d\u52d9\u7cfb\u7d71</div><div class="module-desc">\u5927\u6a13\u63a5\u89f8\u3001\u5408\u7d04\u3001\u62dc\u8a2a\u3001\u4e8b\u4ef6\u8207\u56de\u994b\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="/admin/billing"><div class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M15 9.5c-.8-.8-4-.9-4 1 0 2 4 1 4 3 0 2-3.2 1.8-4.4.8"/></svg></div><div><div class="module-name">\u5e33\u52d9\u7cfb\u7d71</div><div class="module-desc">\u8cbb\u7528\u3001\u62bc\u91d1\u3001\u6708\u79df\u3001\u6750\u6599\u8207\u8ca1\u52d9\u540c\u6b65\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
