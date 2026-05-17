@@ -575,19 +575,19 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       content: "";
       position: fixed;
       inset: 0;
-      background-image: url("/static/login_bg_gold_green.png?v=cl17h");
+      background-image: url("/static/mobile_login_bg.png?v=cl17k");
       background-size: cover;
-      background-position: center 5%;
-      opacity: 0.92;
+      background-position: center top;
+      opacity: 0.97;
       z-index: 0;
     }}
     .top-section {{ display: none; }}
     .card {{
       position: relative;
       z-index: 1;
-      width: min(96vw, 370px);
-      margin-top: 46vh;
-      background: rgba(3, 22, 12, 0.97);
+      width: min(84vw, 340px);
+      margin-top: 30vh;
+      background: rgba(3, 22, 12, 0.92);
       border: 1px solid rgba(212,175,55,.35);
       border-radius: 18px;
       padding: 22px 20px 18px;
