@@ -386,21 +386,51 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     }}
     .bg-img {{
       display: block;
-      width: 100%;
-      height: auto;
-      position: absolute;
+      position: fixed;
       top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      object-position: center top;
+      z-index: 0;
+    }}
+    /* 標題區 */
+    .brand-area {{
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 28px 24px 12px;
+    }}
+    .brand-area img {{
+      width: 56px; height: auto;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,.6));
+      margin-bottom: 4px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }}
+    .brand-name {{
+      color: #fff;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-shadow: 0 2px 8px rgba(0,0,0,.7);
+    }}
+    .brand-sub {{
+      color: #d4af37;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      margin-top: 2px;
     }}
     /* 卡片置中浮在背景上 */
     .card-wrap {{
       position: relative;
       z-index: 2;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 160px 24px 30px;
+      padding: 0 24px 40px;
     }}
     .card {{
       width: 100%;
@@ -408,32 +438,25 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       background: rgba(2, 30, 12, 0.88);
       border: 1.5px solid rgba(212,175,55,.55);
       border-radius: 20px;
-      padding: 20px 22px 16px;
+      padding: 18px 20px 14px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       backdrop-filter: blur(8px);
       box-shadow: 0 8px 40px rgba(0,0,0,.5);
     }}
-    .card-icon {{
-      width: 44px; height: 44px;
-      background: rgba(255,255,255,.12);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px;
-      margin-bottom: 0px;
-    }}
+    .card-icon {{ display: none; }}
     .card-title {{
       color: #ffffff;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 900;
       letter-spacing: .04em;
     }}
     .card-subtitle {{
       color: rgba(255,255,255,.55);
-      font-size: 12px;
-      margin-top: -4px;
+      font-size: 11px;
+      margin-top: -2px;
     }}
     .field-group {{
       width: 100%;
@@ -521,9 +544,12 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
 <body>
   <div class="page-wrap">
     <img class="bg-img" src="/static/mobile_login_bg.png?v=cl17n" alt="">
+    <div class="brand-area">
+      <div class="brand-name">訊南工作管理系統</div>
+      <div class="brand-sub">高效・整合・智慧・穩定</div>
+    </div>
     <div class="card-wrap">
       <div class="card">
-        <div class="card-icon">👤</div>
         <div class="card-title">員工登入</div>
         <div class="card-subtitle">請輸入帳號與 PIN 碼</div>
         <div class="err" id="err_box">{error_html}</div>
