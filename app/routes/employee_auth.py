@@ -349,10 +349,10 @@ async def employee_login_submit(request: _EmpRequest):
 
     staff_code = (form.get("staff_code", [""])[0] or "").strip()
     pin = (form.get("pin", [""])[0] or "").strip()
-    next_url = (form.get("next", ["/app/dispatch"])[0] or "/app/dispatch").strip()
+    next_url = (form.get("next", ["/app"])[0] or "/app").strip()
 
     if not next_url.startswith("/"):
-        next_url = "/app/dispatch"
+        next_url = "/app"
 
     with _emp_engine.begin() as conn:
         user = conn.execute(
