@@ -303,14 +303,16 @@ margin-top:12px;
   box-shadow:0 0 14px rgba(164,255,67,.34);
 }
 .desc{
-  margin-top:auto;
-  max-width:680px;
+  position:absolute;
+  left:24px;
+  right:24px;
+  bottom:28px;
+  z-index:2;
   color:#e9f8e9;
-  font-size:14px;
-  line-height:1.6;
+  font-size:13.5px;
+  line-height:1.55;
   font-weight:700;
   letter-spacing:.5px;
-  padding-bottom:6px;
 }
 .status{
 margin-top:24px;
