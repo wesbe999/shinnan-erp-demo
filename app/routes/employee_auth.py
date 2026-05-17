@@ -168,78 +168,120 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      background-color: #021a0e;
-      background-image: url("/static/login_bg_gold_green.png?v=cl17a");
-      background-size: cover;
-      background-position: center center;
-      background-repeat: no-repeat;
+      /* 深綠漸層背景，仿城市夜景 */
+      background: radial-gradient(ellipse at 50% 0%, #0a3d1f 0%, #021208 55%, #000e06 100%);
     }}
+    /* 底圖疊加 */
+    body::before {{
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: url("/static/login_bg_gold_green.png?v=cl17b");
+      background-size: cover;
+      background-position: center 30%;
+      opacity: 0.55;
+      z-index: 0;
+    }}
+    .top-section, .card {{ position: relative; z-index: 1; }}
+    /* 頂部 logo 區 */
     .top-section {{
       display: flex; flex-direction: column; align-items: center;
-      margin-bottom: 28px; text-align: center;
+      margin-bottom: 24px; text-align: center;
     }}
     .logo-img {{
-      width: 120px; height: auto;
-      filter: drop-shadow(0 4px 20px rgba(245,200,50,.5));
-      margin-bottom: 12px;
+      width: 100px; height: auto;
+      filter: drop-shadow(0 2px 16px rgba(212,175,55,.6));
+      margin-bottom: 10px;
     }}
     .sys-title {{
-      color: #ffffff; font-size: 32px; font-weight: 1000;
-      text-shadow: 0 2px 12px rgba(0,0,0,.6), 0 0 40px rgba(245,200,50,.3);
+      color: #ffffff; font-size: 28px; font-weight: 1000;
+      text-shadow: 0 2px 16px rgba(0,0,0,.8);
       letter-spacing: .04em;
     }}
     .sys-sub {{
-      margin-top: 8px; color: #c9a84c; font-size: 15px;
-      font-weight: 900; letter-spacing: .12em;
+      margin-top: 7px; color: #d4af37;
+      font-size: 14px; font-weight: 900; letter-spacing: .16em;
     }}
-    .sys-sub span {{ margin: 0 4px; opacity: .8; }}
+    .sys-sub span {{ margin: 0 6px; opacity: .6; }}
+    /* Card */
     .card {{
-      width: min(92vw, 420px);
-      background: rgba(2, 30, 16, 0.82);
-      border: 1.5px solid rgba(180,150,60,.5);
-      border-radius: 20px;
-      padding: 28px 28px 22px;
-      box-shadow: 0 0 0 1px rgba(245,200,50,.12), 0 0 40px rgba(245,200,50,.12), 0 24px 80px rgba(0,0,0,.5);
-      backdrop-filter: blur(12px);
+      width: min(90vw, 400px);
+      background: rgba(3, 22, 12, 0.78);
+      border: 1px solid rgba(212,175,55,.35);
+      border-radius: 18px;
+      padding: 26px 26px 20px;
+      box-shadow:
+        0 0 0 1px rgba(212,175,55,.08),
+        inset 0 1px 0 rgba(212,175,55,.1),
+        0 30px 80px rgba(0,0,0,.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }}
-    .card-title {{ text-align: center; color: #ffffff; font-size: 22px; font-weight: 1000; margin-bottom: 4px; }}
-    .card-sub {{ text-align: center; color: rgba(255,255,255,.55); font-size: 13px; font-weight: 850; margin-bottom: 22px; }}
-    .field {{ margin-bottom: 14px; }}
-    label {{ display: block; color: rgba(255,255,255,.8); font-size: 13px; font-weight: 1000; margin-bottom: 6px; }}
+    .card-title {{
+      text-align: center; color: #ffffff;
+      font-size: 21px; font-weight: 1000; margin-bottom: 4px;
+    }}
+    .card-sub {{
+      text-align: center; color: rgba(255,255,255,.45);
+      font-size: 13px; margin-bottom: 20px;
+    }}
+    /* Fields */
+    .field {{ margin-bottom: 13px; }}
+    label {{ display: block; color: rgba(255,255,255,.75); font-size: 12.5px; font-weight: 1000; margin-bottom: 5px; letter-spacing: .04em; }}
     .input-wrap {{ position: relative; display: flex; align-items: center; }}
-    .input-icon {{ position: absolute; left: 13px; color: rgba(180,150,60,.8); font-size: 16px; pointer-events: none; }}
+    .input-icon {{ position: absolute; left: 12px; color: #d4af37; font-size: 14px; pointer-events: none; opacity: .8; }}
     input[type=text], input[type=password] {{
-      width: 100%; height: 48px;
-      background: rgba(0,20,10,.6);
-      border: 1.5px solid rgba(180,150,60,.4);
-      border-radius: 12px;
-      color: #ffffff; font-size: 16px; font-weight: 900;
-      padding: 0 40px 0 38px;
+      width: 100%; height: 46px;
+      background: rgba(0, 15, 8, 0.7);
+      border: 1px solid rgba(212,175,55,.3);
+      border-radius: 10px;
+      color: #ffffff; font-size: 15px; font-weight: 900;
+      padding: 0 38px 0 36px;
       outline: none; font-family: inherit;
+      transition: border-color .2s, box-shadow .2s;
     }}
-    input[type=text]::placeholder, input[type=password]::placeholder {{ color: rgba(255,255,255,.3); }}
+    input[type=text]::placeholder, input[type=password]::placeholder {{ color: rgba(255,255,255,.25); }}
     input[type=text]:focus, input[type=password]:focus {{
-      border-color: rgba(180,150,60,.9);
-      box-shadow: 0 0 0 3px rgba(180,150,60,.15);
+      border-color: rgba(212,175,55,.7);
+      box-shadow: 0 0 0 3px rgba(212,175,55,.1);
+      background: rgba(0, 20, 10, 0.8);
     }}
-    .toggle-pin {{ position: absolute; right: 12px; background: none; border: none; color: rgba(180,150,60,.7); cursor: pointer; font-size: 15px; padding: 4px; }}
-    .remember {{ display: flex; align-items: center; gap: 8px; margin-bottom: 18px; color: rgba(255,255,255,.7); font-size: 13px; font-weight: 900; cursor: pointer; }}
-    .remember input {{ width: 16px; height: 16px; accent-color: #c9a84c; }}
+    .toggle-pin {{
+      position: absolute; right: 11px; background: none; border: none;
+      color: rgba(212,175,55,.6); cursor: pointer; font-size: 14px; padding: 4px;
+    }}
+    .remember {{
+      display: flex; align-items: center; gap: 7px;
+      margin-bottom: 16px; color: rgba(255,255,255,.6);
+      font-size: 12.5px; font-weight: 900; cursor: pointer;
+    }}
+    .remember input {{ width: 15px; height: 15px; accent-color: #d4af37; }}
     .btn-login {{
-      width: 100%; height: 50px; border: none; border-radius: 12px;
-      background: linear-gradient(135deg, #1a5c30, #2e9d52);
-      color: #ffffff; font-size: 17px; font-weight: 1000; cursor: pointer;
+      width: 100%; height: 48px; border: none; border-radius: 10px;
+      background: linear-gradient(135deg, #166430 0%, #1e8a3e 50%, #25a84c 100%);
+      color: #ffffff; font-size: 16px; font-weight: 1000; cursor: pointer;
       letter-spacing: .06em;
-      box-shadow: 0 4px 20px rgba(46,157,82,.4);
+      box-shadow: 0 4px 20px rgba(30,138,62,.45), 0 1px 0 rgba(255,255,255,.1) inset;
+      transition: filter .15s, transform .1s;
     }}
-    .btn-login:hover {{ filter: brightness(1.12); }}
+    .btn-login:hover {{ filter: brightness(1.1); }}
+    .btn-login:active {{ transform: scale(.98); }}
     .err {{
-      margin-top: 10px; padding: 9px 12px; border-radius: 10px;
-      background: rgba(220,50,50,.2); border: 1px solid rgba(220,50,50,.4);
-      color: #ff9999; font-size: 13px; font-weight: 900;
+      margin-top: 10px; padding: 8px 12px; border-radius: 8px;
+      background: rgba(200,40,40,.2); border: 1px solid rgba(200,40,40,.35);
+      color: #ff9999; font-size: 12.5px; font-weight: 900;
       display: none; text-align: center;
     }}
-    .demo-hint {{ margin-top: 14px; text-align: center; color: rgba(180,150,60,.6); font-size: 12px; font-weight: 850; letter-spacing: .06em; }}
+    .demo-hint {{
+      margin-top: 13px; text-align: center;
+      color: rgba(212,175,55,.45); font-size: 11.5px; letter-spacing: .08em;
+    }}
+    @media (max-height: 700px) {{
+      .top-section {{ margin-bottom: 14px; }}
+      .logo-img {{ width: 70px; }}
+      .sys-title {{ font-size: 22px; }}
+      .card {{ padding: 18px 20px 14px; }}
+    }}
   </style>
 </head>
 <body>
@@ -261,7 +303,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
     <div class="field">
       <label>PIN 碼</label>
       <div class="input-wrap">
-        <span class="input-icon">🔒</span>
+        <span class="input-icon">🔐</span>
         <input id="pin" type="password" placeholder="請輸入 PIN 碼" autocomplete="current-password" inputmode="numeric">
         <button class="toggle-pin" type="button" onclick="togglePin(this)" tabindex="-1">👁</button>
       </div>
@@ -270,7 +312,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       <input type="checkbox" id="remember_me" {"checked" if remember_checked else ""}> 記住帳號
     </label>
     <div class="err" id="err_box">{error_html}</div>
-    <button class="btn-login" onclick="doLogin()">🔐 &nbsp;登入系統</button>
+    <button class="btn-login" onclick="doLogin()">🔒 &nbsp;登入系統</button>
     <div class="demo-hint">S001 / 0000</div>
   </div>
   <script>
