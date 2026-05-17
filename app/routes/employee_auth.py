@@ -358,27 +358,73 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       overflow-x: hidden;
       overflow-y: auto;
     }}
-    /* 整個版面：圖片寬度 = 100vw，高度依比例撐開 */
     .page-wrap {{
       position: relative;
       width: 100vw;
+      min-height: 100vh;
     }}
     .bg-img {{
       display: block;
       width: 100%;
       height: auto;
-    }}
-    /* 表單用絕對定位疊在圖片上，用百分比對齊白色框 */
-    /* 底圖 1086x1448，白色框約 top:40% ~ bottom:68%，left:9% ~ right:91% */
-    .form-area {{
       position: absolute;
-      top: 43%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 72%;
+      top: 0; left: 0;
+    }}
+    /* 卡片置中浮在背景上 */
+    .card-wrap {{
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 24px 40px;
+    }}
+    .card {{
+      width: 100%;
+      max-width: 360px;
+      background: rgba(2, 30, 12, 0.88);
+      border: 1.5px solid rgba(212,175,55,.55);
+      border-radius: 20px;
+      padding: 28px 24px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 40px rgba(0,0,0,.5);
+    }}
+    .card-icon {{
+      width: 52px; height: 52px;
+      background: rgba(255,255,255,.12);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      margin-bottom: 2px;
+    }}
+    .card-title {{
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: .04em;
+    }}
+    .card-subtitle {{
+      color: rgba(255,255,255,.55);
+      font-size: 13px;
+      margin-top: -8px;
+    }}
+    .field-group {{
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }}
+    .field-label {{
+      color: rgba(255,255,255,.7);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
     }}
     .input-wrap {{
       position: relative;
@@ -386,77 +432,94 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       align-items: center;
     }}
     .input-icon {{
-      position: absolute;
-      left: 11px;
-      color: rgba(212,175,55,.8);
-      font-size: 14px;
+      position: absolute; left: 12px;
+      color: rgba(212,175,55,.7);
+      font-size: 15px;
       pointer-events: none;
     }}
     input[type=text], input[type=password] {{
       width: 100%;
-      height: 40px;
-      background: rgba(0, 15, 8, 0.80);
-      border: 1px solid rgba(212,175,55,.45);
+      height: 46px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(212,175,55,.35);
       border-radius: 10px;
       color: #ffffff;
       font-size: 15px;
       font-weight: 700;
-      padding: 0 36px 0 34px;
+      padding: 0 40px 0 38px;
       outline: none;
       font-family: inherit;
     }}
     input[type=text]:focus, input[type=password]:focus {{
-      border-color: rgba(212,175,55,.85);
+      border-color: rgba(212,175,55,.8);
+      background: rgba(255,255,255,.10);
       box-shadow: 0 0 0 2px rgba(212,175,55,.15);
     }}
-    input::placeholder {{ color: rgba(255,255,255,.35); }}
+    input::placeholder {{ color: rgba(255,255,255,.3); }}
     .toggle-pin {{
-      position: absolute; right: 10px;
+      position: absolute; right: 12px;
       background: none; border: none;
-      color: rgba(212,175,55,.6); cursor: pointer; font-size: 13px;
+      color: rgba(212,175,55,.6); cursor: pointer; font-size: 14px;
     }}
     .remember {{
-      display: flex; align-items: center; gap: 6px;
-      color: rgba(255,255,255,.75); font-size: 12px; font-weight: 700;
+      width: 100%;
+      display: flex; align-items: center; gap: 8px;
+      color: rgba(255,255,255,.7); font-size: 13px; font-weight: 700;
+      cursor: pointer;
     }}
-    .remember input {{ width: 14px; height: 14px; accent-color: #d4af37; }}
+    .remember input {{ width: 16px; height: 16px; accent-color: #d4af37; cursor: pointer; }}
     .btn-login {{
-      width: 100%; height: 42px; border: none; border-radius: 10px;
-      background: linear-gradient(135deg, #166430, #25a84c);
+      width: 100%; height: 48px; border: none; border-radius: 10px;
+      background: linear-gradient(135deg, #1a7a3a, #2ec45a);
       color: #ffffff; font-size: 16px; font-weight: 900; cursor: pointer;
-      box-shadow: 0 4px 16px rgba(30,138,62,.45);
-      letter-spacing: .05em;
+      box-shadow: 0 4px 20px rgba(30,138,62,.5);
+      letter-spacing: .06em;
+      margin-top: 2px;
     }}
+    .btn-login:active {{ filter: brightness(.9); }}
     .err {{
-      padding: 7px 10px; border-radius: 8px;
+      width: 100%;
+      padding: 8px 12px; border-radius: 8px;
       background: rgba(200,40,40,.25); border: 1px solid rgba(200,40,40,.4);
       color: #ff9999; font-size: 12px; text-align: center; display: none;
     }}
     .demo-hint {{
-      text-align: center; color: rgba(212,175,55,.5);
+      color: rgba(212,175,55,.45);
       font-size: 11px; letter-spacing: .06em;
+      margin-top: -4px;
     }}
   </style>
 </head>
 <body>
   <div class="page-wrap">
     <img class="bg-img" src="/static/mobile_login_bg.png?v=cl17n" alt="">
-    <div class="form-area">
-      <div class="err" id="err_box">{error_html}</div>
-      <div class="input-wrap">
-        <span class="input-icon">👤</span>
-        <input id="staff_code" type="text" placeholder="帳號（如：S001）" autocomplete="username">
+    <div class="card-wrap">
+      <div class="card">
+        <div class="card-icon">👤</div>
+        <div class="card-title">員工登入</div>
+        <div class="card-subtitle">請輸入帳號與 PIN 碼</div>
+        <div class="err" id="err_box">{error_html}</div>
+        <div class="field-group">
+          <div class="field-label">帳號</div>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input id="staff_code" type="text" placeholder="請輸入帳號" autocomplete="username">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">PIN 碼</div>
+          <div class="input-wrap">
+            <span class="input-icon">🔐</span>
+            <input id="pin" type="password" placeholder="請輸入 PIN 碼" autocomplete="current-password" inputmode="numeric">
+            <button class="toggle-pin" type="button" onclick="togglePin(this)" tabindex="-1">👁</button>
+          </div>
+        </div>
+        <label class="remember">
+          <input type="checkbox" id="remember_me" {"checked" if True else ""}> 記住帳號
+        </label>
+        <button class="btn-login" onclick="doLogin()">🔒 登入系統</button>
+        <div class="demo-hint">S001 / 0000</div>
       </div>
-      <div class="input-wrap">
-        <span class="input-icon">🔐</span>
-        <input id="pin" type="password" placeholder="PIN 碼" autocomplete="current-password" inputmode="numeric">
-        <button class="toggle-pin" type="button" onclick="togglePin(this)" tabindex="-1">👁</button>
-      </div>
-      <label class="remember">
-        <input type="checkbox" id="remember_me" {"checked" if True else ""}> 記住帳號
-      </label>
-      <button class="btn-login" onclick="doLogin()">🔒 登入系統</button>
-      <div class="demo-hint">S001 / 0000</div>
     </div>
   </div>
   <script>
