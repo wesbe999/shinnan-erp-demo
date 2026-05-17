@@ -82,7 +82,10 @@
       localStorage.removeItem('xunnan_auth_token');
       localStorage.removeItem('xunnan_admin_role');
       localStorage.removeItem('xunnan_login_role');
-      window.location.href = '/employee/logout';
+      var path = window.location.pathname;
+      var isApp = path.startsWith('/app');
+      var next = isApp ? '/employee/login' : '/';
+      window.location.href = '/employee/logout?next=' + encodeURIComponent(next);
     };
     return btn;
   }
