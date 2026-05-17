@@ -200,36 +200,38 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
       width: 33%;
       height: 6%;
       border: 0;
-      border-radius: 12px;
+      border-radius: 30px;
       outline: none;
-      background: transparent;
-      color: #ffffff;
+      background: rgba(255,255,255,0.92);
+      color: #0a2a10;
       padding: 0 4%;
-      font-size: clamp(14px, 1.6vw, 26px);
+      font-size: clamp(14px, 1.6vw, 24px);
       font-weight: 900;
       font-family: inherit;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, .7);
     }}
 
     .field-input::placeholder {{
-      color: transparent;
-    }}
-
-    .field-input:not(:placeholder-shown) {{
-      background: rgba(0, 15, 8, 0.55);
-    }}
-
-    .pin-input:not(:placeholder-shown) {{
-      background: rgba(0, 15, 8, 0.55);
+      color: rgba(0,0,0,0.3);
     }}
 
     .field-input:focus {{
-      box-shadow: 0 0 0 2px rgba(245, 211, 93, .85), 0 0 24px rgba(245, 211, 93, .24);
-      background: rgba(0, 15, 8, 0.65);
+      box-shadow: 0 0 0 2.5px rgba(245, 211, 93, .9), 0 0 20px rgba(245, 211, 93, .3);
     }}
 
     .staff-input {{ top: 48%; }}
     .pin-input   {{ top: 58%; }}
+
+    /* 帳號/密碼白色標籤 */
+    .field-label {{
+      position: absolute;
+      left: 33.5%;
+      color: #ffffff;
+      font-size: clamp(11px, 1.1vw, 17px);
+      font-weight: 700;
+      text-shadow: 0 1px 6px rgba(0,0,0,.8);
+    }}
+    .staff-label {{ top: 44%; }}
+    .pin-label   {{ top: 54%; }}
 
     .toggle-pin {{
       position: absolute;
@@ -240,6 +242,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
       border: 0;
       background: transparent;
       cursor: pointer;
+      font-size: clamp(12px, 1.3vw, 20px);
     }}
 
     .remember {{
@@ -258,6 +261,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
       cursor: pointer;
     }}
 
+    /* 青綠色登入按鈕 */
     .submit-button {{
       position: absolute;
       left: 33.5%;
@@ -265,15 +269,20 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
       width: 33%;
       height: 6.5%;
       border: 0;
-      border-radius: 12px;
-      background: transparent;
-      color: transparent;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #0fa86a, #17d68a);
+      color: #ffffff;
+      font-size: clamp(14px, 1.5vw, 22px);
+      font-weight: 900;
+      font-family: inherit;
+      letter-spacing: .06em;
       cursor: pointer;
+      box-shadow: 0 4px 20px rgba(15,168,106,.5);
     }}
 
-    .submit-button:focus-visible,
     .submit-button:hover {{
-      box-shadow: 0 0 0 2px rgba(255, 220, 89, .85), 0 0 28px rgba(30, 168, 76, .36);
+      background: linear-gradient(135deg, #0ec077, #1ef59e);
+      box-shadow: 0 6px 28px rgba(15,168,106,.7);
     }}
 
     .err {{
@@ -299,11 +308,13 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
       {error_html}
       <input type="hidden" name="next" value="{next_url}">
       <input type="hidden" name="login_view" value="desktop">
-      <input class="field-input staff-input" id="staff_code" name="staff_code" type="text" autocomplete="username" placeholder=" " aria-label="&#x54E1;&#x5DE5;&#x5E33;&#x865F;">
-      <input class="field-input pin-input" id="pin" name="pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder=" " aria-label="PIN &#x78BC;">
-      <button class="toggle-pin" type="button" onclick="togglePin()" aria-label="&#x986F;&#x793A;&#x6216;&#x96B1;&#x85CF; PIN"></button>
-      <label class="remember" aria-label="&#x8A18;&#x4F4F;&#x5E33;&#x865F;"><input type="checkbox" id="remember_me" name="remember_me" value="1" checked></label>
-      <button class="submit-button" type="submit">&#x767B;&#x5165;&#x7CFB;&#x7D71;</button>
+      <div class="field-label staff-label">帳號</div>
+      <input class="field-input staff-input" id="staff_code" name="staff_code" type="text" autocomplete="username" placeholder="請輸入帳號" aria-label="員工帳號">
+      <div class="field-label pin-label">密碼</div>
+      <input class="field-input pin-input" id="pin" name="pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="請輸入 PIN 碼" aria-label="PIN 碼">
+      <button class="toggle-pin" type="button" onclick="togglePin()" aria-label="顯示或隱藏 PIN">👁</button>
+      <label class="remember" aria-label="記住帳號"><input type="checkbox" id="remember_me" name="remember_me" value="1" checked></label>
+      <button class="submit-button" type="submit">🔒 登入系統</button>
     </form>
   </div>
   <script>
