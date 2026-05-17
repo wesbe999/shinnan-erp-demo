@@ -548,7 +548,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
 def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     error_html = ""
     if error:
-        error_html = f'<div class="err visible">{error}</div>'
+        error_html = f'<div class="err" style="display:block">{error}</div>'
 
     return f"""
 <!doctype html>
@@ -563,31 +563,31 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       width: 100%; height: 100%;
       font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
       background: #021208;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
     }}
-    .bg {{
-      position: fixed;
-      inset: 0;
-      background-image: url("/static/mobile_login_bg.png?v=cl17m");
-      background-size: 100% auto;
-      background-position: top center;
-      background-repeat: no-repeat;
-      z-index: 0;
+    /* 整個版面：圖片寬度 = 100vw，高度依比例撐開 */
+    .page-wrap {{
+      position: relative;
+      width: 100vw;
     }}
-    /* 整個表單絕對定位在圖片框框區域 */
+    .bg-img {{
+      display: block;
+      width: 100%;
+      height: auto;
+    }}
+    /* 表單用絕對定位疊在圖片上，用百分比對齊白色框 */
+    /* 底圖 1086x1448，白色框約 top:38% ~ bottom:67%，left:9% ~ right:91% */
     .form-area {{
       position: absolute;
-      z-index: 1;
-      /* 框框在圖片 26.2%~47.2%，圖片高 = 100vw * 1.337 */
-      top: calc(100vw * 1.337 * 0.58);
+      top: 40%;
       left: 50%;
       transform: translateX(-50%);
-      width: min(72vw, 300px);
+      width: 74%;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }}
-    .form-title {{ display: none; }}
     .input-wrap {{
       position: relative;
       display: flex;
@@ -603,20 +603,21 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     input[type=text], input[type=password] {{
       width: 100%;
       height: 44px;
-      background: rgba(0, 15, 8, 0.75);
-      border: 1px solid rgba(212,175,55,.4);
+      background: rgba(0, 15, 8, 0.80);
+      border: 1px solid rgba(212,175,55,.45);
       border-radius: 10px;
       color: #ffffff;
       font-size: 15px;
-      font-weight: 900;
-      padding: 0 36px 0 32px;
+      font-weight: 700;
+      padding: 0 36px 0 34px;
       outline: none;
       font-family: inherit;
     }}
     input[type=text]:focus, input[type=password]:focus {{
-      border-color: rgba(212,175,55,.8);
+      border-color: rgba(212,175,55,.85);
+      box-shadow: 0 0 0 2px rgba(212,175,55,.15);
     }}
-    input::placeholder {{ color: rgba(255,255,255,.3); }}
+    input::placeholder {{ color: rgba(255,255,255,.35); }}
     .toggle-pin {{
       position: absolute; right: 10px;
       background: none; border: none;
@@ -624,14 +625,15 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     }}
     .remember {{
       display: flex; align-items: center; gap: 6px;
-      color: rgba(255,255,255,.7); font-size: 12px; font-weight: 900;
+      color: rgba(255,255,255,.75); font-size: 12px; font-weight: 700;
     }}
     .remember input {{ width: 14px; height: 14px; accent-color: #d4af37; }}
     .btn-login {{
       width: 100%; height: 46px; border: none; border-radius: 10px;
       background: linear-gradient(135deg, #166430, #25a84c);
-      color: #ffffff; font-size: 16px; font-weight: 1000; cursor: pointer;
+      color: #ffffff; font-size: 16px; font-weight: 900; cursor: pointer;
       box-shadow: 0 4px 16px rgba(30,138,62,.45);
+      letter-spacing: .05em;
     }}
     .err {{
       padding: 7px 10px; border-radius: 8px;
@@ -645,24 +647,25 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
   </style>
 </head>
 <body>
-  <div class="bg"></div>
-  <div class="form-area">
-    <div class="form-title">員工登入</div>
-    <div class="err" id="err_box">{error_html}</div>
-    <div class="input-wrap">
-      <span class="input-icon">👤</span>
-      <input id="staff_code" type="text" placeholder="帳號（如：S001）" autocomplete="username">
+  <div class="page-wrap">
+    <img class="bg-img" src="/static/mobile_login_bg.png?v=cl17n" alt="">
+    <div class="form-area">
+      <div class="err" id="err_box">{error_html}</div>
+      <div class="input-wrap">
+        <span class="input-icon">👤</span>
+        <input id="staff_code" type="text" placeholder="帳號（如：S001）" autocomplete="username">
+      </div>
+      <div class="input-wrap">
+        <span class="input-icon">🔐</span>
+        <input id="pin" type="password" placeholder="PIN 碼" autocomplete="current-password" inputmode="numeric">
+        <button class="toggle-pin" type="button" onclick="togglePin(this)" tabindex="-1">👁</button>
+      </div>
+      <label class="remember">
+        <input type="checkbox" id="remember_me" {"checked" if True else ""}> 記住帳號
+      </label>
+      <button class="btn-login" onclick="doLogin()">🔒 登入系統</button>
+      <div class="demo-hint">S001 / 0000</div>
     </div>
-    <div class="input-wrap">
-      <span class="input-icon">🔐</span>
-      <input id="pin" type="password" placeholder="PIN 碼" autocomplete="current-password" inputmode="numeric">
-      <button class="toggle-pin" type="button" onclick="togglePin(this)" tabindex="-1">👁</button>
-    </div>
-    <label class="remember">
-      <input type="checkbox" id="remember_me" {"checked" if True else ""}> 記住帳號
-    </label>
-    <button class="btn-login" onclick="doLogin()">🔒 登入系統</button>
-    <div class="demo-hint">S001 / 0000</div>
   </div>
   <script>
     (function(){{
