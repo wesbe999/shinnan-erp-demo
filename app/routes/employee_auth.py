@@ -672,8 +672,12 @@ async def employee_login_submit(request: _EmpRequest):
 
 
 @router.get("/employee/logout")
-def employee_logout():
-    # 登出後一律導向 /employee/login，由 UA 自動判斷顯示電腦版或手機版
-    resp = _EmpRedirectResponse("/employee/login", status_code=303)
+def employee_logout(request: _EmpRequest = None):
+    # 登出後導向 /app（入口頁），session 已清除，點功能才需重新登入
+    # 手機版 UA 導回手機登入頁
+    ua = (request.headers.get("user-agent", "") if request else "").lower()
+    is_mobile = any(k in ua for k in ("mobile", "android", "iphone", "ipad", "ipod"))
+    dest = "/employee/login" if is_mobile else "/app"
+    resp = _EmpRedirectResponse(dest, status_code=303)
     resp.delete_cookie(_EMP_COOKIE_NAME, path="/")
     return resp
