@@ -498,7 +498,7 @@ width:36px;
   align-items:center;
   justify-content:flex-start;
   color:#d4af37;
-  margin-bottom:4px;
+  margin-bottom:1px;
 }
 .mi svg{
 width:31px;
