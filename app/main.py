@@ -219,8 +219,8 @@ position:relative;
   min-width:0;
   display:flex;
   flex-direction:column;
-  justify-content:center;
-  padding:0 34px 72px 24px;
+  justify-content:flex-start;
+  padding:0 34px 16px 24px;
 }
 .brand{
 display:flex;
@@ -310,6 +310,7 @@ margin-top:12px;
   line-height:1.6;
   font-weight:700;
   letter-spacing:.5px;
+  padding-bottom:6px;
 }
 .status{
 margin-top:24px;
