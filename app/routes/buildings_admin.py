@@ -557,6 +557,24 @@ def admin_buildings_page():
       font-weight: 1000;
     }
 
+    .area-select {
+      width: 100%;
+      height: 36px;
+      padding: 0 8px;
+      border: 1px solid #d7e1ef;
+      border-radius: 6px;
+      background: #fff;
+      color: #102348;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .area-select:focus {
+      outline: none;
+      border-color: #365ee8;
+    }
+
     .btn-small {
       min-width: 100px;
       height: 42px;
@@ -1080,7 +1098,7 @@ def admin_buildings_page():
             <th onclick="sortBy('active_users')" style="cursor:pointer;user-select:none">用戶數量 <span id="sort_active_users"></span></th>
             <th onclick="sortBy('total_households')" style="cursor:pointer;user-select:none">住戶總數 <span id="sort_total_households"></span></th>
             <th onclick="sortBy('management_phone')" style="cursor:pointer;user-select:none">管理室電話 <span id="sort_management_phone"></span></th>
-            <th>主機</th>
+            <th>IP</th>
             <th>刪除</th>
           </tr>
         </thead>
@@ -1278,13 +1296,23 @@ def admin_buildings_page():
           <tr data-building-no="${escapeHtml(b.building_no)}">
             <td>${escapeHtml(b.building_no)}</td>
             <td contenteditable="true" data-field="name">${escapeHtml(b.name)}</td>
-            <td contenteditable="true" data-field="area"><span class="pill">${escapeHtml(b.area)}</span></td>
+            <td data-field="area" data-building-no="${escapeHtml(b.building_no)}">
+              <select class="area-select" data-building-no="${escapeHtml(b.building_no)}" onchange="saveAreaChange(this)">
+                <option value="">－ 未分區</option>
+                <option value="東區" ${b.area==='東區'?'selected':''}>東區</option>
+                <option value="北區" ${b.area==='北區'?'selected':''}>北區</option>
+                <option value="安平" ${b.area==='安平'?'selected':''}>安平</option>
+                <option value="永康" ${b.area==='永康'?'selected':''}>永康</option>
+                <option value="高雄" ${b.area==='高雄'?'selected':''}>高雄</option>
+                <option value="北台南" ${b.area==='北台南'?'selected':''}>北台南</option>
+              </select>
+            </td>
             <td contenteditable="true" data-field="address">${escapeHtml(b.address)}</td>
             <td contenteditable="true" data-field="management_company">${escapeHtml(b.management_company)}</td>
             <td contenteditable="true" data-field="active_users">${escapeHtml(b.active_users)}</td>
             <td contenteditable="true" data-field="total_households">${escapeHtml(b.total_households)}</td>
             <td>${escapeHtml(b.management_phone || '')}</td>
-            <td><button class="btn-small" type="button" onclick="hostLogin('${escapeHtml(b.ip)}')">主機登入</button></td>
+            <td style="font-family:monospace;font-size:13px;color:#1e40af">${escapeHtml(b.ip || '—')}</td>
             <td><button class="btn-small btn-danger" type="button" onclick="deleteBuilding('${escapeHtml(b.building_no)}', '${escapeHtml(b.name)}')">刪除</button></td>
           </tr>
         `;
@@ -1316,6 +1344,14 @@ def admin_buildings_page():
           }
         });
       });
+    }
+
+    async function saveAreaChange(sel) {
+      const buildingNo = sel.dataset.buildingNo;
+      const value = sel.value;
+      const item = buildings.find(b => b.building_no === buildingNo);
+      if (item) item.area = value;
+      await saveOverride(buildingNo, 'area', value);
     }
 
     function hostLogin(ip) {

@@ -261,28 +261,35 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
       cursor: pointer;
     }}
 
-    /* 青綠色登入按鈕 */
+    /* 金底深綠登入按鈕 */
     .submit-button {{
       position: absolute;
       left: 33.5%;
       top: 82%;
       width: 33%;
       height: 6.5%;
-      border: 0;
+      border: 1px solid #7a6010;
+      border-bottom: 2px solid #3a2c00;
       border-radius: 30px;
-      background: linear-gradient(135deg, #0fa86a, #17d68a);
-      color: #ffffff;
+      background: linear-gradient(180deg, #d4af37 0%, #a8880f 100%);
+      color: #0d1f0d;
       font-size: clamp(14px, 1.5vw, 22px);
       font-weight: 900;
       font-family: inherit;
-      letter-spacing: .06em;
+      letter-spacing: .08em;
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(15,168,106,.5);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 4px 18px rgba(212,175,55,.35);
     }}
 
     .submit-button:hover {{
-      background: linear-gradient(135deg, #0ec077, #1ef59e);
-      box-shadow: 0 6px 28px rgba(15,168,106,.7);
+      background: linear-gradient(180deg, #e0bc45 0%, #b8950f 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 24px rgba(212,175,55,.5);
+    }}
+
+    .submit-button:active {{
+      background: linear-gradient(180deg, #a8880f 0%, #8a6e0a 100%);
+      border-bottom-width: 1px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,.3);
     }}
 
     .err {{

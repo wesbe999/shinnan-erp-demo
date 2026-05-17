@@ -40,6 +40,8 @@ from app.routes.ticket_customer_link_admin import router as ticket_customer_link
 from app.routes.employee_profiles_admin import router as employee_profiles_admin_router
 from app.routes.stats_admin import router as stats_admin_router
 from app.routes.router_ipam import router as router_ipam_router
+from app.routes.router_mgmt import router as router_mgmt_router
+from app.routes.router_mgmt_mobile import router as router_mgmt_mobile_router
 from app.routes.pages import router as pages_router
 
 from app.routes.tickets import router as tickets_router
@@ -109,6 +111,8 @@ app.include_router(ticket_customer_link_admin_router)
 app.include_router(employee_profiles_admin_router)
 app.include_router(stats_admin_router)
 app.include_router(router_ipam_router)
+app.include_router(router_mgmt_router)
+app.include_router(router_mgmt_mobile_router)
 app.include_router(pages_router)
 
 app.include_router(tickets_router)
