@@ -1568,11 +1568,9 @@ def sales_mobile_app_page(request: _EmpRequest):
     </div>
 
     <div class="bottom-nav">
-      <button type="button" onclick="location.href='/app'">APP\u9996\u9801</button>
       <button type="button" onclick="openSalesBuildingCards()">\u5927\u6a13\u540d\u9304</button>
       <button type="button" class="dispatch-entry" data-sales-dispatch-open="1" onclick="openSalesDispatchModal()">\u6d3e\u5de5</button>
       <button type="button" class="new-entry" onclick="cl15n7dOpenSalesNewCard()">\u65b0\u589e</button>
-      <button type="button" class="danger" onclick="location.href='/employee/logout?next=/'">\u767b\u51fa</button>
     </div>
   </div>
 
@@ -3017,7 +3015,7 @@ def sales_mobile_app_page(request: _EmpRequest):
 </script>
 
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """
@@ -3170,7 +3168,7 @@ def sales_mobile_new_case_page(request: _EmpRequest):
     return HTMLResponse("""<!doctype html><html><head><meta charset="utf-8">
 <script>location.replace("/app/sales#open-new");</script>
 </head><body>
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body></html>""")
 # SHINNAN_SALES_MOBILE_NEW_CASE_END
 

@@ -90,11 +90,11 @@
     const box = document.createElement('div');
     box.className = 'xn-header-actions';
 
-    // 返回上一頁
+    // 返回首頁
     const backBtn = document.createElement('button');
     backBtn.type = 'button';
-    backBtn.textContent = '返回上一頁';
-    backBtn.onclick = function () { history.back(); };
+    backBtn.textContent = '返回首頁';
+    backBtn.onclick = function () { window.location.href = '/'; };
     box.appendChild(backBtn);
 
     // 登出

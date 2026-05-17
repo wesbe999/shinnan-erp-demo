@@ -1396,11 +1396,9 @@ def billing_mobile_app_page(request: _EmpRequest):
     </main>
 
     <nav class="bottom-nav">
-      <button type="button" onclick="location.href='/app'">APP首頁</button>
       <button type="button" class="orange" onclick="alert('介紹費功能下一階段開放')">介紹費</button>
       <button type="button" class="primary" onclick="loadMonthlyBuildings()">整理</button>
       <button type="button" class="green" onclick="alert('回饋金功能下一階段開放')">回饋金</button>
-      <button type="button" class="danger" onclick="location.href='/employee/logout?next=/'">登出</button>
     </nav>
   </div>
 
@@ -1779,7 +1777,7 @@ def billing_mobile_app_page(request: _EmpRequest):
     loadOverdueCustomers();
   </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """

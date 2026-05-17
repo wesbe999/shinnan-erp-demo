@@ -954,7 +954,7 @@ window.addEventListener("resize",function(){clearTimeout(window.__statsResizeTim
 loadStats().catch(function(err){alert("stats load failed");console.error(err);});
 </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """

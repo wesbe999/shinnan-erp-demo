@@ -1090,16 +1090,14 @@ def dispatch_mobile_app_page(request: _Request):
     </main>
 
     <nav class="bottom-nav">
-      <button onclick="location.href='/app'">APP首頁</button>
       <button onclick="loadEmergencyNotices(); loadTickets();">整理</button>
       <button class="primary" onclick="showCreatePage()">新增</button>
-      <button class="danger" onclick="location.href='/employee/logout?next=/'">登出</button>
     </nav>
   </div>
 
   <script src="/static/dispatch_app.js?v=cl15l4_20260515_024129"></script>
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """

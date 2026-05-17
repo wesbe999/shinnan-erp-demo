@@ -2159,7 +2159,7 @@ async function initPage(){
 initPage();
 </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """
@@ -2260,7 +2260,7 @@ textarea{min-height:86px;resize:vertical}
 </main>
 </div>
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """
@@ -2552,7 +2552,7 @@ async function initPage(){
 initPage();
 </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """
@@ -2640,7 +2640,7 @@ textarea{min-height:86px;resize:vertical}
 </main>
 </div>
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """
@@ -3024,7 +3024,7 @@ initMonthOptions(); initLeaveCalendar(); hidePanels(); loadAll(); setTimeout(che
 </script>
 
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """
@@ -3260,7 +3260,7 @@ def unified_mobile_app_home(request: _EmpRequest):
     </main>
   </div>
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """
@@ -3507,7 +3507,6 @@ def unified_mobile_app_calculator(request: _EmpRequest):
       </section>
 
       <div class="bottom">
-        <button onclick="location.href='/app'">APP首頁</button>
         <button class="red" onclick="location.href='/employee/logout?next=/'">登出</button>
       </div>
     </main>
@@ -3545,7 +3544,7 @@ function calculate() {{
 }}
 </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """
@@ -3630,13 +3629,12 @@ button {{ height: 50px; border: 0; border-radius: 16px; background: white; color
       <a class="card" href="/app/manager/stats"><div class="card-title">\u90e8\u9580\u7d71\u8a08</div><div class="card-desc">\u67e5\u770b\u90e8\u9580\u6848\u4ef6\u6578\u3001\u8ca0\u8f09\u3001\u4eba\u529b\u8207\u71df\u904b\u7d71\u8a08\u3002</div></a>
     </div>
     <div class="bottom">
-      <button onclick="location.href='/app'">APP\u9996\u9801</button>
       <button class="red" onclick="location.href='/employee/logout?next=/'">\u767b\u51fa</button>
     </div>
   </main>
 </div>
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """)

@@ -711,11 +711,9 @@ def engineering_mobile_app_page(request: _EmpRequest):
     </div>
 
     <nav class="bottom-nav">
-      <button type="button" onclick="location.href='/app'">APP首頁</button>
       <button type="button" class="primary" onclick="openCurrentFlow()">流程</button>
       <button type="button" class="orange" onclick="quickNextFromSelected()">下一步</button>
       <button type="button" class="green" onclick="location.href='/app/engineering/schedule'">排程</button>
-      <button type="button" class="danger" onclick="location.href='/employee/logout?next=/'">登出</button>
     </nav>
   </div>
 
@@ -1133,7 +1131,7 @@ def engineering_mobile_app_page(request: _EmpRequest):
     renderHome();
   </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """
@@ -1647,7 +1645,7 @@ def engineering_schedule_landscape_page(request: _EmpRequest):
     renderScheduleTable();
   </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+  <script src="/static/app_header_actions.js?v=cl17p4"></script>
 </body>
 </html>
 """
