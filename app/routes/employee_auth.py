@@ -522,8 +522,8 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     <div class="brand-area"></div>
     <div class="card-wrap">
       <div class="card">
-        <div class="card-title">員工登入</div>
-        <div class="card-subtitle">請輸入帳號與 PIN 碼</div>
+        <div class="card-title" style="display:none"></div>
+        <div class="card-subtitle" style="display:none"></div>
         <div class="err" id="err_box">{error_html}</div>
         <div class="field-group">
           <div class="field-label">帳號</div>
