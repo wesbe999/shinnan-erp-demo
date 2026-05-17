@@ -160,165 +160,142 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
   <title>員工登入｜訊南 ERP</title>
   <style>
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-
-    html, body {{
-      width: 100%;
-      height: 100%;
-    }}
-
+    html, body {{ width: 100%; height: 100%; font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif; }}
     body {{
       min-height: 100vh;
-      min-width: 100vw;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding-top: 105px;
-      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
       overflow: hidden;
-      background-color: #04120e;
-      background-image: url("/static/login_bg_clean.png?v=cl16l");
-      background-size: auto 100vh;
+      background-color: #021a0e;
+      background-image: url("/static/login_bg_gold_green.png?v=cl17a");
+      background-size: cover;
       background-position: center center;
       background-repeat: no-repeat;
     }}
-
-    .card {{
-      position: relative;
-      z-index: 2;
-      width: calc(60.2vh - 60px);
-      max-width: calc(100vw - 32px);
-      height: calc(93.1vh - 180px);
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 20px 22px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+    .top-section {{
+      display: flex; flex-direction: column; align-items: center;
+      margin-bottom: 28px; text-align: center;
     }}
-
-    label {{
-      display: block;
-      margin: 0 0 5px;
-      color: #1b4332;
-      font-size: 13px;
-      font-weight: 1000;
+    .logo-img {{
+      width: 120px; height: auto;
+      filter: drop-shadow(0 4px 20px rgba(245,200,50,.5));
+      margin-bottom: 12px;
     }}
-
-    .field + .field {{
-      margin-top: 10px;
-    }}
-
-    input {{
-      width: 100%;
-      height: 44px;
-      border: 1.5px solid #d1d5db;
-      border-radius: 12px;
-      background: #f8fafc;
-      color: #102348;
-      padding: 0 12px;
-      font-size: 16px;
-      font-weight: 900;
-      outline: none;
-    }}
-
-    input:focus {{
-      border-color: #15803d;
-      box-shadow: 0 0 0 3px rgba(21, 128, 61, .14);
-    }}
-
-    .remember {{
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      margin-top: 10px;
-      color: #334155;
-      font-size: 13px;
-      font-weight: 900;
-      cursor: pointer;
-    }}
-
-    .remember input {{
-      width: 16px;
-      height: 16px;
-      accent-color: #15803d;
-    }}
-
-    .btn-login {{
-      width: 100%;
-      height: 46px;
-      margin-top: 16px;
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #064e2f, #15803d);
-      color: #ffffff;
-      font-size: 16px;
-      font-weight: 1000;
-      cursor: pointer;
+    .sys-title {{
+      color: #ffffff; font-size: 32px; font-weight: 1000;
+      text-shadow: 0 2px 12px rgba(0,0,0,.6), 0 0 40px rgba(245,200,50,.3);
       letter-spacing: .04em;
     }}
-
-    .btn-login:hover {{ background: linear-gradient(135deg, #064e2f, #166534); }}
-    .btn-login:active {{ transform: scale(.985); }}
-
-    .err {{
-      margin-top: 10px;
-      padding: 8px 12px;
-      border-radius: 10px;
-      background: #fee2e2;
-      color: #991b1b;
-      font-size: 13px;
-      font-weight: 900;
-      display: none;
+    .sys-sub {{
+      margin-top: 8px; color: #c9a84c; font-size: 15px;
+      font-weight: 900; letter-spacing: .12em;
     }}
-  
-
-</style>
+    .sys-sub span {{ margin: 0 4px; opacity: .8; }}
+    .card {{
+      width: min(92vw, 420px);
+      background: rgba(2, 30, 16, 0.82);
+      border: 1.5px solid rgba(180,150,60,.5);
+      border-radius: 20px;
+      padding: 28px 28px 22px;
+      box-shadow: 0 0 0 1px rgba(245,200,50,.12), 0 0 40px rgba(245,200,50,.12), 0 24px 80px rgba(0,0,0,.5);
+      backdrop-filter: blur(12px);
+    }}
+    .card-title {{ text-align: center; color: #ffffff; font-size: 22px; font-weight: 1000; margin-bottom: 4px; }}
+    .card-sub {{ text-align: center; color: rgba(255,255,255,.55); font-size: 13px; font-weight: 850; margin-bottom: 22px; }}
+    .field {{ margin-bottom: 14px; }}
+    label {{ display: block; color: rgba(255,255,255,.8); font-size: 13px; font-weight: 1000; margin-bottom: 6px; }}
+    .input-wrap {{ position: relative; display: flex; align-items: center; }}
+    .input-icon {{ position: absolute; left: 13px; color: rgba(180,150,60,.8); font-size: 16px; pointer-events: none; }}
+    input[type=text], input[type=password] {{
+      width: 100%; height: 48px;
+      background: rgba(0,20,10,.6);
+      border: 1.5px solid rgba(180,150,60,.4);
+      border-radius: 12px;
+      color: #ffffff; font-size: 16px; font-weight: 900;
+      padding: 0 40px 0 38px;
+      outline: none; font-family: inherit;
+    }}
+    input[type=text]::placeholder, input[type=password]::placeholder {{ color: rgba(255,255,255,.3); }}
+    input[type=text]:focus, input[type=password]:focus {{
+      border-color: rgba(180,150,60,.9);
+      box-shadow: 0 0 0 3px rgba(180,150,60,.15);
+    }}
+    .toggle-pin {{ position: absolute; right: 12px; background: none; border: none; color: rgba(180,150,60,.7); cursor: pointer; font-size: 15px; padding: 4px; }}
+    .remember {{ display: flex; align-items: center; gap: 8px; margin-bottom: 18px; color: rgba(255,255,255,.7); font-size: 13px; font-weight: 900; cursor: pointer; }}
+    .remember input {{ width: 16px; height: 16px; accent-color: #c9a84c; }}
+    .btn-login {{
+      width: 100%; height: 50px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, #1a5c30, #2e9d52);
+      color: #ffffff; font-size: 17px; font-weight: 1000; cursor: pointer;
+      letter-spacing: .06em;
+      box-shadow: 0 4px 20px rgba(46,157,82,.4);
+    }}
+    .btn-login:hover {{ filter: brightness(1.12); }}
+    .err {{
+      margin-top: 10px; padding: 9px 12px; border-radius: 10px;
+      background: rgba(220,50,50,.2); border: 1px solid rgba(220,50,50,.4);
+      color: #ff9999; font-size: 13px; font-weight: 900;
+      display: none; text-align: center;
+    }}
+    .demo-hint {{ margin-top: 14px; text-align: center; color: rgba(180,150,60,.6); font-size: 12px; font-weight: 850; letter-spacing: .06em; }}
+  </style>
 </head>
 <body>
+  <div class="top-section">
+    <img class="logo-img" src="/static/shinnan_logo_gold_transparent.png" alt="ShinNan">
+    <div class="sys-title">訊南工作管理系統</div>
+    <div class="sys-sub">高效<span>·</span>整合<span>·</span>智慧<span>·</span>穩定</div>
+  </div>
   <div class="card">
+    <div class="card-title">員工登入</div>
+    <div class="card-sub">請輸入員工帳號與 PIN 碼後進入系統。</div>
     <div class="field">
-      <label for="staff_code">帳號</label>
-      <input id="staff_code" type="text" placeholder="請輸入帳號" autocomplete="username" inputmode="text">
+      <label>員工帳號</label>
+      <div class="input-wrap">
+        <span class="input-icon">👤</span>
+        <input id="staff_code" type="text" placeholder="請輸入員工帳號（如：S001）" autocomplete="username">
+      </div>
     </div>
     <div class="field">
-      <label for="pin">PIN 碼</label>
-      <input id="pin" type="password" placeholder="請輸入 PIN 碼" autocomplete="current-password" inputmode="numeric">
+      <label>PIN 碼</label>
+      <div class="input-wrap">
+        <span class="input-icon">🔒</span>
+        <input id="pin" type="password" placeholder="請輸入 PIN 碼" autocomplete="current-password" inputmode="numeric">
+        <button class="toggle-pin" type="button" onclick="togglePin(this)" tabindex="-1">👁</button>
+      </div>
     </div>
     <label class="remember">
       <input type="checkbox" id="remember_me" {"checked" if remember_checked else ""}> 記住帳號
     </label>
     <div class="err" id="err_box">{error_html}</div>
-    <button class="btn-login" onclick="doLogin()">🔐 登入系統</button>
+    <button class="btn-login" onclick="doLogin()">🔐 &nbsp;登入系統</button>
+    <div class="demo-hint">S001 / 0000</div>
   </div>
-
   <script>
     (function () {{
       const saved = localStorage.getItem("shinnan_remember_staff_code");
       const cb = document.getElementById("remember_me");
-      if (saved && cb && cb.checked) {{
-        document.getElementById("staff_code").value = saved;
-      }}
+      if (saved && cb && cb.checked) {{ document.getElementById("staff_code").value = saved; }}
     }})();
-
+    function togglePin(btn) {{
+      const inp = document.getElementById("pin");
+      if (inp.type === "password") {{ inp.type = "text"; btn.textContent = "🙈"; }}
+      else {{ inp.type = "password"; btn.textContent = "👁"; }}
+    }}
     async function doLogin() {{
       const code = document.getElementById("staff_code").value.trim();
       const pin  = document.getElementById("pin").value.trim();
       const rem  = document.getElementById("remember_me").checked;
       const err  = document.getElementById("err_box");
-
-      if (!code || !pin) {{
-        err.textContent = "請輸入帳號與 PIN 碼";
-        err.style.display = "block";
-        return;
-      }}
-
+      if (!code || !pin) {{ err.textContent = "請輸入帳號與 PIN 碼"; err.style.display = "block"; return; }}
       if (rem) localStorage.setItem("shinnan_remember_staff_code", code);
       else localStorage.removeItem("shinnan_remember_staff_code");
-
       const form = document.createElement("form");
       form.method = "POST";
       form.action = "/employee/login{next_qs}";
-      [["staff_code", code], ["pin", pin], ["remember_me", rem ? "1" : ""]].forEach(function ([k, v]) {{
+      [["staff_code", code], ["pin", pin], ["remember_me", rem ? "1" : ""]].forEach(function([k,v]) {{
         const i = document.createElement("input");
         i.type = "hidden"; i.name = k; i.value = v;
         form.appendChild(i);
@@ -326,10 +303,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       document.body.appendChild(form);
       form.submit();
     }}
-
-    document.addEventListener("keydown", function (e) {{
-      if (e.key === "Enter") doLogin();
-    }});
+    document.addEventListener("keydown", function(e) {{ if (e.key === "Enter") doLogin(); }});
   </script>
 </body>
 </html>
