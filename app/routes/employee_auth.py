@@ -579,7 +579,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       position: absolute;
       z-index: 1;
       /* 框框在圖片 26.2%~47.2%，圖片高 = 100vw * 1.337 */
-      top: calc(100vw * 1.337 * 0.50);
+      top: calc(100vw * 1.337 * 0.58);
       left: 50%;
       transform: translateX(-50%);
       width: min(72vw, 300px);
