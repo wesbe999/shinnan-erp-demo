@@ -415,7 +415,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       background: transparent;
       border: none;
       border-radius: 20px;
-      padding: 18px 20px 14px;
+      padding: 48px 20px 14px;
       display: flex;
       flex-direction: column;
       align-items: center;
