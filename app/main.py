@@ -367,6 +367,17 @@ display:none;
 
 
 
+.star-overlay{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  pointer-events:none;
+  mix-blend-mode:screen;
+  opacity:0.55;
+  z-index:0;
+}
 .world-img{
   position:absolute;
   left:-114px;
@@ -642,6 +653,7 @@ position:absolute;
       
       <div class="desc">\u6574\u5408\u6d3e\u5de5\u3001\u5e33\u52d9\u3001\u5ba2\u6236\u3001\u5927\u6a13\u3001\u696d\u52d9\u8207\u5de5\u7a0b\u8cc7\u6599\uff0c\u8b93\u516c\u53f8\u7ba1\u7406\u8207\u73fe\u5834\u4f5c\u696d\u80fd\u5728\u540c\u4e00\u5957\u5e73\u53f0\u5feb\u901f\u8854\u63a5\u3002</div>
 
+      <img class="star-overlay" src="/static/star_overlay_black_to_transparent.png" alt="">
       <img class="world-img" src="/erp-static/home_globe_wire_transparent_stronger.png?v=20260512211904" alt="">
 
     </section>
