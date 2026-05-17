@@ -559,150 +559,145 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
   <title>&#x54E1;&#x5DE5;&#x767B;&#x5165;&#xFF5C;&#x8A0A;&#x5357; ERP</title>
   <style>
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-    html, body {{ width: 100%; height: 100%; font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif; }}
-    body {{
-      min-height: 100vh;
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+    html, body {{
+      width: 100%; height: 100%;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
       background: #021208;
-      padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 18px);
+      overflow: hidden;
     }}
-    body::before {{
-      content: "";
+    .bg {{
       position: fixed;
       inset: 0;
-      background-image: url("/static/mobile_login_bg.png?v=cl17k");
-      background-size: cover;
-      background-position: center top;
-      opacity: 0.97;
+      background-image: url("/static/mobile_login_bg.png?v=cl17m");
+      background-size: 100% auto;
+      background-position: top center;
+      background-repeat: no-repeat;
       z-index: 0;
     }}
-    .top-section {{ display: none; }}
-    .card {{
-      position: relative;
+    /* 整個表單絕對定位在圖片框框區域 */
+    .form-area {{
+      position: absolute;
       z-index: 1;
-      width: min(84vw, 340px);
-      margin-top: 30vh;
-      background: rgba(3, 22, 12, 0.92);
-      border: 1px solid rgba(212,175,55,.35);
-      border-radius: 18px;
-      padding: 22px 20px 18px;
-      box-shadow:
-        0 0 0 1px rgba(212,175,55,.08),
-        inset 0 1px 0 rgba(212,175,55,.1),
-        0 24px 60px rgba(0,0,0,.7);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      /* 框框在圖片 26.2%~47.2%，圖片高 = 100vw * 1.337 */
+      top: calc(100vw * 1.337 * 0.285);
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(72vw, 300px);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }}
-    .card-title {{
-      text-align: center; color: #ffffff;
-      font-size: 20px; font-weight: 1000; margin-bottom: 3px;
+    .form-title {{
+      text-align: center;
+      color: #ffffff;
+      font-size: 20px;
+      font-weight: 1000;
+      text-shadow: 0 2px 8px rgba(0,0,0,.8);
+      margin-bottom: 4px;
     }}
-    .card-sub {{
-      text-align: center; color: rgba(255,255,255,.5);
-      font-size: 12px; margin-bottom: 18px;
+    .input-wrap {{
+      position: relative;
+      display: flex;
+      align-items: center;
     }}
-    .field {{ margin-bottom: 12px; }}
-    label {{ display: block; color: rgba(255,255,255,.8); font-size: 12px; font-weight: 1000; margin-bottom: 5px; }}
-    .input-wrap {{ position: relative; display: flex; align-items: center; }}
-    .input-icon {{ position: absolute; left: 11px; color: #d4af37; font-size: 14px; pointer-events: none; opacity: .8; }}
+    .input-icon {{
+      position: absolute;
+      left: 11px;
+      color: rgba(212,175,55,.8);
+      font-size: 14px;
+      pointer-events: none;
+    }}
     input[type=text], input[type=password] {{
-      width: 100%; height: 46px;
-      background: rgba(0, 15, 8, 0.7);
-      border: 1px solid rgba(212,175,55,.3);
+      width: 100%;
+      height: 44px;
+      background: rgba(0, 15, 8, 0.75);
+      border: 1px solid rgba(212,175,55,.4);
       border-radius: 10px;
-      color: #ffffff; font-size: 16px; font-weight: 900;
-      padding: 0 38px 0 34px;
-      outline: none; font-family: inherit;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 900;
+      padding: 0 36px 0 32px;
+      outline: none;
+      font-family: inherit;
     }}
-    input[type=text]::placeholder, input[type=password]::placeholder {{ color: rgba(255,255,255,.25); }}
     input[type=text]:focus, input[type=password]:focus {{
-      border-color: rgba(212,175,55,.7);
-      box-shadow: 0 0 0 3px rgba(212,175,55,.1);
+      border-color: rgba(212,175,55,.8);
     }}
-    .toggle-pin {{ position: absolute; right: 10px; background: none; border: none; color: rgba(212,175,55,.6); cursor: pointer; font-size: 14px; padding: 4px; }}
-    .remember {{ display: flex; align-items: center; gap: 7px; margin-bottom: 14px; color: rgba(255,255,255,.65); font-size: 12px; font-weight: 900; cursor: pointer; }}
-    .remember input {{ width: 15px; height: 15px; accent-color: #d4af37; }}
+    input::placeholder {{ color: rgba(255,255,255,.3); }}
+    .toggle-pin {{
+      position: absolute; right: 10px;
+      background: none; border: none;
+      color: rgba(212,175,55,.6); cursor: pointer; font-size: 13px;
+    }}
+    .remember {{
+      display: flex; align-items: center; gap: 6px;
+      color: rgba(255,255,255,.7); font-size: 12px; font-weight: 900;
+    }}
+    .remember input {{ width: 14px; height: 14px; accent-color: #d4af37; }}
     .btn-login {{
-      width: 100%; height: 48px; border: none; border-radius: 10px;
-      background: linear-gradient(135deg, #166430 0%, #1e8a3e 50%, #25a84c 100%);
+      width: 100%; height: 46px; border: none; border-radius: 10px;
+      background: linear-gradient(135deg, #166430, #25a84c);
       color: #ffffff; font-size: 16px; font-weight: 1000; cursor: pointer;
-      letter-spacing: .04em;
-      box-shadow: 0 4px 20px rgba(30,138,62,.45);
+      box-shadow: 0 4px 16px rgba(30,138,62,.45);
     }}
     .err {{
-      margin-bottom: 10px; padding: 8px 12px; border-radius: 8px;
-      background: rgba(200,40,40,.2); border: 1px solid rgba(200,40,40,.35);
-      color: #ff9999; font-size: 12px; font-weight: 900; text-align: center;
+      padding: 7px 10px; border-radius: 8px;
+      background: rgba(200,40,40,.25); border: 1px solid rgba(200,40,40,.4);
+      color: #ff9999; font-size: 12px; text-align: center; display: none;
     }}
-    .demo-hint {{ margin-top: 12px; text-align: center; color: rgba(212,175,55,.45); font-size: 11px; letter-spacing: .08em; }}
+    .demo-hint {{
+      text-align: center; color: rgba(212,175,55,.5);
+      font-size: 11px; letter-spacing: .06em;
+    }}
   </style>
 </head>
 <body>
-  <div class="top-section">
-    <img class="logo-img" src="/static/shinnan_logo_gold_transparent.png" alt="ShinNan">
-    <div class="sys-title">訊南工作管理系統</div>
-    <div class="sys-sub">高效<span>·</span>整合<span>·</span>智慧<span>·</span>穩定</div>
-  </div>
-  <div class="card">
-    <div class="card-title">員工登入</div>
-    <div class="card-sub">請輸入帳號與 PIN 碼進入系統</div>
-    {error_html}
-    <div class="field">
-      <label>員工帳號</label>
-      <div class="input-wrap">
-        <span class="input-icon">👤</span>
-        <input id="staff_code" type="text" placeholder="請輸入帳號（如：S001）" autocomplete="username">
-      </div>
+  <div class="bg"></div>
+  <div class="form-area">
+    <div class="form-title">員工登入</div>
+    <div class="err" id="err_box">{error_html}</div>
+    <div class="input-wrap">
+      <span class="input-icon">👤</span>
+      <input id="staff_code" type="text" placeholder="帳號（如：S001）" autocomplete="username">
     </div>
-    <div class="field">
-      <label>PIN 碼</label>
-      <div class="input-wrap">
-        <span class="input-icon">🔐</span>
-        <input id="pin" type="password" placeholder="請輸入 PIN 碼" autocomplete="current-password" inputmode="numeric">
-        <button class="toggle-pin" type="button" onclick="togglePin(this)" tabindex="-1">👁</button>
-      </div>
+    <div class="input-wrap">
+      <span class="input-icon">🔐</span>
+      <input id="pin" type="password" placeholder="PIN 碼" autocomplete="current-password" inputmode="numeric">
+      <button class="toggle-pin" type="button" onclick="togglePin(this)" tabindex="-1">👁</button>
     </div>
     <label class="remember">
       <input type="checkbox" id="remember_me" {"checked" if True else ""}> 記住帳號
     </label>
-    <button class="btn-login" type="button" onclick="doLogin()">🔒 登入系統</button>
+    <button class="btn-login" onclick="doLogin()">🔒 登入系統</button>
     <div class="demo-hint">S001 / 0000</div>
   </div>
   <script>
-    (function () {{
-      const saved = localStorage.getItem("shinnan_remember_staff_code");
-      const cb = document.getElementById("remember_me");
-      if (saved && cb && cb.checked) {{ document.getElementById("staff_code").value = saved; }}
+    (function(){{
+      const s = localStorage.getItem("shinnan_remember_staff_code");
+      const c = document.getElementById("remember_me");
+      if(s && c && c.checked) document.getElementById("staff_code").value = s;
     }})();
-    function togglePin(btn) {{
-      const inp = document.getElementById("pin");
-      if (inp.type === "password") {{ inp.type = "text"; btn.textContent = "🙈"; }}
-      else {{ inp.type = "password"; btn.textContent = "👁"; }}
+    function togglePin(btn){{
+      const i = document.getElementById("pin");
+      if(i.type==="password"){{i.type="text";btn.textContent="🙈";}}
+      else{{i.type="password";btn.textContent="👁";}}
     }}
-    function doLogin() {{
+    function doLogin(){{
       const code = document.getElementById("staff_code").value.trim();
-      const pin  = document.getElementById("pin").value.trim();
-      const rem  = document.getElementById("remember_me").checked;
-      if (!code || !pin) {{ alert("請輸入帳號與 PIN 碼"); return; }}
-      if (rem) localStorage.setItem("shinnan_remember_staff_code", code);
+      const pin = document.getElementById("pin").value.trim();
+      const rem = document.getElementById("remember_me").checked;
+      const err = document.getElementById("err_box");
+      if(!code||!pin){{err.textContent="請輸入帳號與 PIN 碼";err.style.display="block";return;}}
+      if(rem) localStorage.setItem("shinnan_remember_staff_code",code);
       else localStorage.removeItem("shinnan_remember_staff_code");
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = "/employee/login";
-      [["staff_code", code], ["pin", pin], ["remember_me", rem ? "1" : ""], ["next", "{next_url}"], ["login_view", "mobile"]].forEach(function([k,v]) {{
-        const i = document.createElement("input");
-        i.type = "hidden"; i.name = k; i.value = v;
-        form.appendChild(i);
+      const f=document.createElement("form");
+      f.method="POST";f.action="/employee/login";
+      [["staff_code",code],["pin",pin],["remember_me",rem?"1":""],["next","{next_url}"],["login_view","mobile"]].forEach(([k,v])=>{{
+        const i=document.createElement("input");i.type="hidden";i.name=k;i.value=v;f.appendChild(i);
       }});
-      document.body.appendChild(form);
-      form.submit();
+      document.body.appendChild(f);f.submit();
     }}
-    document.addEventListener("keydown", function(e) {{ if (e.key === "Enter") doLogin(); }});
+    document.addEventListener("keydown",e=>{{if(e.key==="Enter")doLogin();}});
   </script>
 </body>
 </html>
