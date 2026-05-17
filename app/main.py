@@ -229,52 +229,18 @@ display:flex;
 .logo-wrap{
   position:relative;
   display:inline-block;
-  margin-left:-80px;
+  margin-left:-60px;
 }
 .logo-starburst{
   position:absolute;
   top:50%;
   left:50%;
-  transform:translate(-50%,-50%);
-  width:320px;
-  height:320px;
+  transform:translate(-50%,-52%);
+  width:420px;
+  height:420px;
   pointer-events:none;
   z-index:0;
-  background:
-    conic-gradient(
-      from 0deg,
-      transparent 0deg,
-      rgba(255,235,120,.0) 10deg,
-      rgba(255,235,120,.85) 11.5deg,
-      rgba(255,235,120,.0) 13deg,
-      transparent 40deg,
-      rgba(255,235,120,.0) 84deg,
-      rgba(255,235,120,.75) 85.5deg,
-      rgba(255,235,120,.0) 87deg,
-      transparent 130deg,
-      rgba(255,235,120,.0) 174deg,
-      rgba(255,235,120,.85) 175.5deg,
-      rgba(255,235,120,.0) 177deg,
-      transparent 220deg,
-      rgba(255,235,120,.0) 264deg,
-      rgba(255,235,120,.75) 265.5deg,
-      rgba(255,235,120,.0) 267deg,
-      transparent 310deg,
-      rgba(255,235,120,.0) 349deg,
-      rgba(255,235,120,.6) 350.5deg,
-      rgba(255,235,120,.0) 352deg,
-      transparent 360deg
-    );
-  filter:blur(1.5px);
-  mask-image:radial-gradient(ellipse 80% 80% at center, black 0%, black 35%, transparent 70%);
-}
-.logo-starburst::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:50%;
-  background:radial-gradient(circle, rgba(255,240,160,.55) 0%, rgba(255,220,80,.18) 40%, transparent 70%);
-  filter:blur(8px);
+  opacity:0.92;
 }
 .logo-img{
   width:264px;
@@ -283,7 +249,7 @@ display:flex;
   display:block;
   position:relative;
   z-index:1;
-  filter:drop-shadow(0 6px 14px rgba(0,0,0,.45));
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,.5));
 }
 
 .brand > div{
@@ -574,7 +540,60 @@ position:absolute;
   <main class="portal">
     <section class="hero">
       <div class="brand">
-        <div class="logo-wrap"><div class="logo-starburst"></div><img class="logo-img" src="/erp-static/shinnan_home_logo.png" alt="ShinNan Logo"></div>
+        <div class="logo-wrap"><svg class="logo-starburst" viewBox="-210 -210 420 420" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff8c0" stop-opacity="0.95"/>
+      <stop offset="25%" stop-color="#ffd040" stop-opacity="0.7"/>
+      <stop offset="60%" stop-color="#ffaa00" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#ff8800" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffe080" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#ffcc00" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur1"><feGaussianBlur stdDeviation="1.2"/></filter>
+    <filter id="blur2"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="blur3"><feGaussianBlur stdDeviation="7"/></filter>
+  </defs>
+  <!-- 大光暈 -->
+  <circle cx="0" cy="0" r="90" fill="url(#glow2)" filter="url(#blur3)"/>
+  <!-- 中光暈 -->
+  <circle cx="0" cy="0" r="45" fill="url(#glow)" filter="url(#blur2)"/>
+  <!-- 主光芒 x4（長） -->
+  <polygon points="0,-2 0,-190 0,2" fill="none" stroke="#ffe090" stroke-width="1.5" opacity="0.85" filter="url(#blur1)"/>
+  <polygon points="0,-2 0,-190 0,2" fill="none" stroke="#ffe090" stroke-width="1.5" opacity="0.85" filter="url(#blur1)" transform="rotate(90)"/>
+  <polygon points="0,-2 0,-190 0,2" fill="none" stroke="#ffe090" stroke-width="1.5" opacity="0.85" filter="url(#blur1)" transform="rotate(180)"/>
+  <polygon points="0,-2 0,-190 0,2" fill="none" stroke="#ffe090" stroke-width="1.5" opacity="0.85" filter="url(#blur1)" transform="rotate(270)"/>
+  <!-- 主光芒漸變填充 -->
+  <defs>
+    <linearGradient id="ray0" x1="0" y1="0" x2="0" y2="-1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#fff5a0" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#ffd000" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <polygon points="-1.5,0 0,-195 1.5,0" fill="#ffe888" opacity="0.7" filter="url(#blur1)"/>
+  <polygon points="-1.5,0 0,-195 1.5,0" fill="#ffe888" opacity="0.7" filter="url(#blur1)" transform="rotate(90)"/>
+  <polygon points="-1.5,0 0,-195 1.5,0" fill="#ffe888" opacity="0.7" filter="url(#blur1)" transform="rotate(180)"/>
+  <polygon points="-1.5,0 0,-195 1.5,0" fill="#ffe888" opacity="0.7" filter="url(#blur1)" transform="rotate(270)"/>
+  <!-- 斜光芒 x4（稍短） -->
+  <polygon points="-1,0 0,-145 1,0" fill="#ffd060" opacity="0.55" filter="url(#blur1)" transform="rotate(45)"/>
+  <polygon points="-1,0 0,-145 1,0" fill="#ffd060" opacity="0.55" filter="url(#blur1)" transform="rotate(135)"/>
+  <polygon points="-1,0 0,-145 1,0" fill="#ffd060" opacity="0.55" filter="url(#blur1)" transform="rotate(225)"/>
+  <polygon points="-1,0 0,-145 1,0" fill="#ffd060" opacity="0.55" filter="url(#blur1)" transform="rotate(315)"/>
+  <!-- 細光芒 x8（短） -->
+  <polygon points="-0.7,0 0,-90 0.7,0" fill="#ffcc40" opacity="0.4" transform="rotate(22.5)"/>
+  <polygon points="-0.7,0 0,-90 0.7,0" fill="#ffcc40" opacity="0.4" transform="rotate(67.5)"/>
+  <polygon points="-0.7,0 0,-90 0.7,0" fill="#ffcc40" opacity="0.4" transform="rotate(112.5)"/>
+  <polygon points="-0.7,0 0,-90 0.7,0" fill="#ffcc40" opacity="0.4" transform="rotate(157.5)"/>
+  <polygon points="-0.7,0 0,-90 0.7,0" fill="#ffcc40" opacity="0.4" transform="rotate(202.5)"/>
+  <polygon points="-0.7,0 0,-90 0.7,0" fill="#ffcc40" opacity="0.4" transform="rotate(247.5)"/>
+  <polygon points="-0.7,0 0,-90 0.7,0" fill="#ffcc40" opacity="0.4" transform="rotate(292.5)"/>
+  <polygon points="-0.7,0 0,-90 0.7,0" fill="#ffcc40" opacity="0.4" transform="rotate(337.5)"/>
+  <!-- 中心亮核 -->
+  <circle cx="0" cy="0" r="10" fill="#fffbe0" opacity="0.95" filter="url(#blur2)"/>
+  <circle cx="0" cy="0" r="4" fill="#ffffff" opacity="1"/>
+</svg><img class="logo-img" src="/erp-static/shinnan_home_logo.png" alt="ShinNan Logo"></div>
         <div>
           <div class="brand-zh">\u8a0a\u5357 ERP \u7cfb\u7d71</div>
           <div class="brand-en">SHINNAN ERP</div>
