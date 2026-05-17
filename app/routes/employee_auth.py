@@ -169,7 +169,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       justify-content: center;
       overflow: hidden;
       background: #021208;
-      padding-top: 42vh;
+      padding-top: 36vh;
     }}
     /* 底圖疊加 */
     body::before {{
@@ -206,7 +206,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
     .sys-sub span {{ margin: 0 6px; opacity: .6; }}
     /* Card */
     .card {{
-      width: min(90vw, 400px);
+      width: min(88vw, 360px);
       background: rgba(3, 22, 12, 0.78);
       border: 1px solid rgba(212,175,55,.35);
       border-radius: 18px;
@@ -351,10 +351,342 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
 </body>
 </html>
 """
+def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool = False):
+    if mobile:
+        return _employee_login_page_mobile(error, next_url)
+
+    error_html = ""
+    if error:
+        error_html = f'<div class="err visible">{error}</div>'
+
+    return f"""
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>&#x54E1;&#x5DE5;&#x767B;&#x5165;&#xFF5C;&#x8A0A;&#x5357; ERP</title>
+  <style>
+    * {{ box-sizing: border-box; }}
+
+    html,
+    body {{
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      background: #021208;
+    }}
+
+    body {{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }}
+
+    .login-stage {{
+      position: relative;
+      width: min(100vw, 150vh);
+      aspect-ratio: 3 / 2;
+      background-image: url("/static/login_bg_gold_green.png?v=cl17g");
+      background-size: 100% 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+      box-shadow: 0 0 90px rgba(0, 0, 0, .45);
+    }}
+
+    .login-form {{
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+    }}
+
+    .field-input {{
+      position: absolute;
+      left: 33.66%;
+      width: 32.62%;
+      height: 5.08%;
+      border: 0;
+      border-radius: 12px;
+      outline: none;
+      background: transparent;
+      color: #ffffff;
+      padding: 0 3.9%;
+      font-size: clamp(16px, 1.65vw, 27px);
+      font-weight: 1000;
+      font-family: inherit;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, .7);
+    }}
+
+    .field-input::placeholder {{
+      color: transparent;
+    }}
+
+    .field-input:not(:placeholder-shown) {{
+      background: linear-gradient(90deg, transparent 0 10.5%, rgba(0, 15, 8, .92) 10.5% 100%);
+    }}
+
+    .pin-input:not(:placeholder-shown) {{
+      background: linear-gradient(90deg, transparent 0 10.5%, rgba(0, 15, 8, .92) 10.5% 89%, transparent 89% 100%);
+    }}
+
+    .field-input:focus {{
+      box-shadow: 0 0 0 2px rgba(245, 211, 93, .85), 0 0 24px rgba(245, 211, 93, .24);
+    }}
+
+    .staff-input {{ top: 58.98%; }}
+    .pin-input {{ top: 69.33%; }}
+
+    .toggle-pin {{
+      position: absolute;
+      left: 63.35%;
+      top: 69.33%;
+      width: 3.0%;
+      height: 5.08%;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }}
+
+    .remember {{
+      position: absolute;
+      left: 33.66%;
+      top: 76.35%;
+      width: 10.8%;
+      height: 3.6%;
+      cursor: pointer;
+    }}
+
+    .remember input {{
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }}
+
+    .submit-button {{
+      position: absolute;
+      left: 33.66%;
+      top: 81.74%;
+      width: 32.62%;
+      height: 5.86%;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: transparent;
+      cursor: pointer;
+    }}
+
+    .submit-button:focus-visible,
+    .submit-button:hover {{
+      box-shadow: 0 0 0 2px rgba(255, 220, 89, .85), 0 0 28px rgba(30, 168, 76, .36);
+    }}
+
+    .err {{
+      position: absolute;
+      left: 33.66%;
+      top: 54.5%;
+      width: 32.62%;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 130, 130, .55);
+      border-radius: 10px;
+      background: rgba(90, 0, 0, .58);
+      color: #ffd5d5;
+      font-size: clamp(12px, 1vw, 15px);
+      font-weight: 900;
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }}
+  </style>
+</head>
+<body>
+  <div class="login-stage">
+    <form class="login-form" method="post" action="/employee/login" autocomplete="on">
+      {error_html}
+      <input type="hidden" name="next" value="{next_url}">
+      <input type="hidden" name="login_view" value="desktop">
+      <input class="field-input staff-input" id="staff_code" name="staff_code" type="text" autocomplete="username" placeholder=" " aria-label="&#x54E1;&#x5DE5;&#x5E33;&#x865F;">
+      <input class="field-input pin-input" id="pin" name="pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder=" " aria-label="PIN &#x78BC;">
+      <button class="toggle-pin" type="button" onclick="togglePin()" aria-label="&#x986F;&#x793A;&#x6216;&#x96B1;&#x85CF; PIN"></button>
+      <label class="remember" aria-label="&#x8A18;&#x4F4F;&#x5E33;&#x865F;"><input type="checkbox" id="remember_me" name="remember_me" value="1" checked></label>
+      <button class="submit-button" type="submit">&#x767B;&#x5165;&#x7CFB;&#x7D71;</button>
+    </form>
+  </div>
+  <script>
+    (function () {{
+      const saved = localStorage.getItem("shinnan_remember_staff_code");
+      const cb = document.getElementById("remember_me");
+      if (saved && cb && cb.checked) document.getElementById("staff_code").value = saved;
+    }})();
+
+    function togglePin() {{
+      const pin = document.getElementById("pin");
+      pin.type = pin.type === "password" ? "text" : "password";
+    }}
+
+    document.querySelector(".login-form").addEventListener("submit", function (event) {{
+      const code = document.getElementById("staff_code").value.trim();
+      const pin = document.getElementById("pin").value.trim();
+      const rem = document.getElementById("remember_me").checked;
+
+      if (!code || !pin) {{
+        event.preventDefault();
+        alert("請輸入員工帳號與 PIN 碼");
+        return;
+      }}
+
+      if (rem) localStorage.setItem("shinnan_remember_staff_code", code);
+      else localStorage.removeItem("shinnan_remember_staff_code");
+    }});
+  </script>
+</body>
+</html>
+"""
+
+
+def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
+    error_html = ""
+    if error:
+        error_html = f'<div class="err visible">{error}</div>'
+
+    return f"""
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <title>&#x54E1;&#x5DE5;&#x767B;&#x5165;&#xFF5C;&#x8A0A;&#x5357; ERP</title>
+  <style>
+    * {{ box-sizing: border-box; }}
+    html, body {{
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      background: #04120e;
+    }}
+    body {{
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
+      color: #102348;
+      background-image: url("/static/login_bg_gold_green.png?v=cl17g");
+      background-size: auto 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+    }}
+    .card {{
+      width: min(100%, 390px);
+      padding: 24px 22px;
+      border: 1px solid rgba(245, 211, 93, .72);
+      border-radius: 22px;
+      background: rgba(3, 22, 12, .84);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, .34), 0 0 32px rgba(245, 211, 93, .16);
+      backdrop-filter: blur(18px);
+    }}
+    h1 {{
+      margin: 0 0 8px;
+      color: #ffffff;
+      font-size: 28px;
+      line-height: 1.2;
+      font-weight: 1000;
+      text-align: center;
+    }}
+    .sub {{
+      margin: 0 0 22px;
+      color: rgba(255, 255, 255, .74);
+      font-size: 14px;
+      font-weight: 900;
+      text-align: center;
+    }}
+    label {{
+      display: block;
+      margin: 14px 0 7px;
+      color: rgba(255, 255, 255, .86);
+      font-size: 14px;
+      font-weight: 1000;
+    }}
+    input[type=text], input[type=password] {{
+      width: 100%;
+      height: 50px;
+      border: 1px solid rgba(245, 211, 93, .50);
+      border-radius: 13px;
+      background: rgba(0, 15, 8, .72);
+      color: #ffffff;
+      padding: 0 14px;
+      font-size: 16px;
+      font-weight: 900;
+      outline: none;
+    }}
+    button {{
+      width: 100%;
+      height: 50px;
+      margin-top: 20px;
+      border: 1px solid rgba(255, 220, 89, .92);
+      border-radius: 13px;
+      background: linear-gradient(135deg, #087334, #18a74d);
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 1000;
+      cursor: pointer;
+    }}
+    .remember {{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, .78);
+    }}
+    .remember input {{
+      width: 18px;
+      height: 18px;
+      accent-color: #1ca44b;
+    }}
+    .err {{
+      margin: 0 0 12px;
+      padding: 9px 11px;
+      border: 1px solid rgba(255, 130, 130, .55);
+      border-radius: 12px;
+      background: rgba(90, 0, 0, .58);
+      color: #ffd5d5;
+      font-size: 13px;
+      font-weight: 1000;
+      text-align: center;
+    }}
+  </style>
+</head>
+<body>
+  <form class="card" method="post" action="/employee/login">
+    <h1>&#x54E1;&#x5DE5;&#x767B;&#x5165;</h1>
+    <div class="sub">&#x8ACB;&#x8F38;&#x5165;&#x54E1;&#x5DE5;&#x5E33;&#x865F;&#x8207; PIN &#x78BC;</div>
+    {error_html}
+    <input type="hidden" name="next" value="{next_url}">
+    <input type="hidden" name="login_view" value="mobile">
+    <label>&#x54E1;&#x5DE5;&#x5E33;&#x865F;</label>
+    <input name="staff_code" autocomplete="username" placeholder="S001 / admin" required>
+    <label>PIN &#x78BC;</label>
+    <input name="pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="0000 / PIN" required>
+    <label class="remember"><input type="checkbox" name="remember_me" value="1" checked> &#x8A18;&#x4F4F;&#x5E33;&#x865F;</label>
+    <button type="submit">&#x767B;&#x5165;&#x7CFB;&#x7D71;</button>
+  </form>
+</body>
+</html>
+"""
+
+
 @router.get("/employee/login", response_class=_EmpHTMLResponse)
 def employee_login_page(next: str = "/app"):
     _employee_auth_db_init()
     return _employee_login_page("", _xunnan_employee_normalize_next_url(next))
+
+
+@router.get("/employee/login/mobile", response_class=_EmpHTMLResponse)
+def employee_login_mobile_page(next: str = "/app"):
+    _employee_auth_db_init()
+    return _employee_login_page_mobile("", _xunnan_employee_normalize_next_url(next))
 
 
 @router.post("/employee/login")
@@ -367,6 +699,8 @@ async def employee_login_submit(request: _EmpRequest):
     staff_code = (form.get("staff_code", [""])[0] or "").strip()
     pin = (form.get("pin", [""])[0] or "").strip()
     next_url = (form.get("next", ["/app"])[0] or "/app").strip()
+    login_view = (form.get("login_view", ["desktop"])[0] or "desktop").strip().lower()
+    login_mobile = login_view == "mobile"
 
     if not next_url.startswith("/"):
         next_url = "/app"
@@ -383,10 +717,10 @@ async def employee_login_submit(request: _EmpRequest):
         ).mappings().first()
 
         if not user or int(user["enabled"] or 0) != 1:
-            return _EmpHTMLResponse(_employee_login_page("帳號或 PIN 錯誤。", next_url), status_code=401)
+            return _EmpHTMLResponse(_employee_login_page("帳號或 PIN 錯誤。", next_url, mobile=login_mobile), status_code=401)
 
         if _emp_hash_pin(pin, user["pin_salt"]) != user["pin_hash"]:
-            return _EmpHTMLResponse(_employee_login_page("帳號或 PIN 錯誤。", next_url), status_code=401)
+            return _EmpHTMLResponse(_employee_login_page("帳號或 PIN 錯誤。", next_url, mobile=login_mobile), status_code=401)
 
         token = _emp_secrets.token_urlsafe(32)
         expires = (_emp_datetime.now() + _emp_timedelta(hours=12)).strftime("%Y-%m-%d %H:%M:%S")
