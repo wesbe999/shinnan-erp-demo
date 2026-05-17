@@ -231,7 +231,7 @@ display:flex;
 .logo-wrap{
   position:relative;
   display:inline-block;
-  margin-left:40px;
+  margin-left:30px;
 }
 .logo-starburst{
   position:absolute;
