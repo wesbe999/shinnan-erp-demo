@@ -577,7 +577,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       inset: 0;
       background-image: url("/static/login_bg_gold_green.png?v=cl17h");
       background-size: cover;
-      background-position: center top;
+      background-position: center 5%;
       opacity: 0.92;
       z-index: 0;
     }}
@@ -586,7 +586,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       position: relative;
       z-index: 1;
       width: min(92vw, 340px);
-      margin-top: 52vh;
+      margin-top: 62vh;
       background: rgba(3, 22, 12, 0.82);
       border: 1px solid rgba(212,175,55,.35);
       border-radius: 18px;
