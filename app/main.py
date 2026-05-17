@@ -303,13 +303,13 @@ margin-top:12px;
   box-shadow:0 0 14px rgba(164,255,67,.34);
 }
 .desc{
-margin-top:26px;
+  margin-top:auto;
   max-width:680px;
   color:#e9f8e9;
-  font-size:16px;
-  line-height:1.72;
-  font-weight:750;
-  letter-spacing:1px;
+  font-size:14px;
+  line-height:1.6;
+  font-weight:700;
+  letter-spacing:.5px;
 }
 .status{
 margin-top:24px;
@@ -524,13 +524,13 @@ position:absolute;
   position:absolute;
   left:50px;
   right:50px;
-  bottom:2px;
+  bottom:6px;
   text-align:center;
-  color:rgba(255,210,92,.72);
-  font-size:11px;
+  color:rgba(255,210,92,.82);
+  font-size:16px;
   font-weight:900;
-  letter-spacing:8px;
-  text-shadow:0 0 10px rgba(255,210,92,.22);
+  letter-spacing:10px;
+  text-shadow:0 0 16px rgba(255,210,92,.38);
 }
 @media(max-width:1380px){
   .shell{padding:10px 16px}
@@ -636,8 +636,8 @@ position:absolute;
       </div>
       <div class="headline">\u96fb\u4fe1\u71df\u904b\u7ba1\u7406</div>
       <div class="headline-sub">\u4e00\u7ad9\u5f0f\u4e2d\u6a1e</div>
+      
       <div class="desc">\u6574\u5408\u6d3e\u5de5\u3001\u5e33\u52d9\u3001\u5ba2\u6236\u3001\u5927\u6a13\u3001\u696d\u52d9\u8207\u5de5\u7a0b\u8cc7\u6599\uff0c\u8b93\u516c\u53f8\u7ba1\u7406\u8207\u73fe\u5834\u4f5c\u696d\u80fd\u5728\u540c\u4e00\u5957\u5e73\u53f0\u5feb\u901f\u8854\u63a5\u3002</div>
-      <div class="status">SHINNAN TELECOM OPERATION PLATFORM ONLINE</div>
 
       <img class="world-img" src="/erp-static/home_globe_wire_transparent_stronger.png?v=20260512211904" alt="">
 
