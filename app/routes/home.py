@@ -436,6 +436,8 @@ def erp_home_page():
 
     <div class="footer">© Shinnan ERP System｜訊南科技內部管理平台</div>
   </main>
+
+  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """

@@ -883,6 +883,8 @@ def admin_ticket_customer_link_page():
 
     loadCandidates();
   </script>
+
+  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """

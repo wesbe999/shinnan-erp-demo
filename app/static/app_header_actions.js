@@ -1,5 +1,5 @@
 /**
- * app_header_actions.js v=cl17p5
+ * app_header_actions.js v=cl17p6
  * 統一 header：返回首頁 + 登出
  * - 有自己 toolbar（web-title-actions）的頁面：只補登出按鈕
  * - 沒有 toolbar 的頁面：建立 xn-header-actions
@@ -91,9 +91,11 @@
     );
     if (!header) return;
 
-    // 情況1：頁面已有 web-title-actions（自己的 toolbar）
+    // 情況1：頁面已有任何 toolbar/actions（自己的按鈕群）
     // 只補登出按鈕，不另建框框
-    const existingActions = header.querySelector('.web-title-actions');
+    const existingActions = header.querySelector(
+      '.web-title-actions, .cl15i10-header-actions, [class*="header-actions"]'
+    );
     if (existingActions) {
       if (header.querySelector('.xn-header-actions')) return;
       const hasLogout = [...existingActions.querySelectorAll('button')]
@@ -102,7 +104,7 @@
       return;
     }
 
-    // 情況2：已由 cl15i10 inject（/admin 頁面）— 跳過
+    // 情況2：cl15i10 已處理（雙重保險）
     if (header.querySelector('.cl15i10-header-actions')) return;
 
     // 情況3：沒有 toolbar，建立 xn-header-actions
@@ -128,4 +130,24 @@
   } else {
     inject();
   }
+
+  // MutationObserver：動態注入的 toolbar（如帳務系統）也能偵測到
+  const observer = new MutationObserver(function() {
+    const header = document.querySelector(
+      '.web-title.web-title-tech, .web-title, .app-standard-hero, .hero'
+    );
+    if (!header) return;
+    const existingActions = header.querySelector(
+      '.web-title-actions, .cl15i10-header-actions, [class*="header-actions"]'
+    );
+    if (!existingActions) return;
+    if (existingActions.classList.contains('xn-logout-added')) return;
+    const hasLogout = [...existingActions.querySelectorAll('button')]
+      .some(b => b.textContent.trim() === '登出');
+    if (!hasLogout) {
+      existingActions.appendChild(makeLogoutBtn());
+      existingActions.classList.add('xn-logout-added');
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
 })();
