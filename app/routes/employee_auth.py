@@ -665,22 +665,12 @@ async def employee_login_submit(request: _EmpRequest):
     is_mobile = not is_desktop and any(k in ua for k in ("mobile", "android", "iphone", "ipad", "ipod"))
 
     if login_mobile or is_mobile:
-        # 手機版：導到 /app（功能選單）
         redirect_url = next_url
     else:
-        # 電腦版：next_url 不是 /app 就照用（代表從特定頁面來），否則依角色導向
         if next_url and next_url != "/app":
             redirect_url = next_url
         else:
-            role = str(user.get("role") or "").strip()
-            staff = str(user.get("staff_code") or "").strip()
-            is_admin = staff == "admin" or role == "admin"
-            if is_admin:
-                redirect_url = "/app/manager"
-            elif role == "manager":
-                redirect_url = "/app/manager"
-            else:
-                redirect_url = "/app/dispatch"
+            redirect_url = "/app"
 
     resp = _EmpRedirectResponse(redirect_url, status_code=303)
     resp.set_cookie(
