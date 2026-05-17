@@ -3253,6 +3253,24 @@ def unified_mobile_app_home(request: _EmpRequest):
 </html>
 """
 
+    # UA 判斷：電腦版導向 /app/manager 或角色對應頁面，手機版留在 /app
+    ua = (request.headers.get("user-agent", "") if request else "").lower()
+    is_mobile = any(k in ua for k in ("mobile", "android", "iphone", "ipad", "ipod"))
+    if not is_mobile:
+        # 電腦版：依角色導向對應系統
+        if is_admin:
+            return _EmployeeSettingsRedirectResponse("/app/manager", status_code=303)
+        elif can_open("dispatch"):
+            return _EmployeeSettingsRedirectResponse("/app/dispatch", status_code=303)
+        elif can_open("sales"):
+            return _EmployeeSettingsRedirectResponse("/app/sales", status_code=303)
+        elif can_open("billing"):
+            return _EmployeeSettingsRedirectResponse("/app/billing", status_code=303)
+        elif can_open("engineering"):
+            return _EmployeeSettingsRedirectResponse("/app/engineering", status_code=303)
+        else:
+            return _EmployeeSettingsRedirectResponse("/app/dispatch", status_code=303)
+
     return _EmployeeSettingsHTMLResponse(content=html)
 # XN_UNIFIED_APP_HOME_V1_END
 
