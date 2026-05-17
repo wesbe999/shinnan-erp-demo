@@ -322,6 +322,8 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
       const saved = localStorage.getItem("shinnan_remember_staff_code");
       const cb = document.getElementById("remember_me");
       if (saved && cb && cb.checked) document.getElementById("staff_code").value = saved;
+      // 登出後清掉密碼欄，防止瀏覽器自動填入
+      document.getElementById("pin").value = "";
     }})();
 
     function togglePin() {{
