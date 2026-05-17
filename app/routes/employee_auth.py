@@ -181,7 +181,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
       position: relative;
       width: min(100vw, 150vh);
       aspect-ratio: 3 / 2;
-      background-image: url("/static/login_bg_gold_green.png?v=cl17g");
+      background-image: url("/static/login_bg_gold_green.png?v=cl17h");
       background-size: 100% 100%;
       background-position: center;
       background-repeat: no-repeat;
@@ -196,17 +196,17 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
 
     .field-input {{
       position: absolute;
-      left: 33.66%;
-      width: 32.62%;
-      height: 5.08%;
+      left: 33.5%;
+      width: 33%;
+      height: 6%;
       border: 0;
       border-radius: 12px;
       outline: none;
       background: transparent;
       color: #ffffff;
-      padding: 0 3.9%;
-      font-size: clamp(16px, 1.65vw, 27px);
-      font-weight: 1000;
+      padding: 0 4%;
+      font-size: clamp(14px, 1.6vw, 26px);
+      font-weight: 900;
       font-family: inherit;
       text-shadow: 0 2px 8px rgba(0, 0, 0, .7);
     }}
@@ -216,26 +216,27 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
     }}
 
     .field-input:not(:placeholder-shown) {{
-      background: linear-gradient(90deg, transparent 0 10.5%, rgba(0, 15, 8, .92) 10.5% 100%);
+      background: rgba(0, 15, 8, 0.55);
     }}
 
     .pin-input:not(:placeholder-shown) {{
-      background: linear-gradient(90deg, transparent 0 10.5%, rgba(0, 15, 8, .92) 10.5% 89%, transparent 89% 100%);
+      background: rgba(0, 15, 8, 0.55);
     }}
 
     .field-input:focus {{
       box-shadow: 0 0 0 2px rgba(245, 211, 93, .85), 0 0 24px rgba(245, 211, 93, .24);
+      background: rgba(0, 15, 8, 0.65);
     }}
 
-    .staff-input {{ top: 58.98%; }}
-    .pin-input {{ top: 69.33%; }}
+    .staff-input {{ top: 48%; }}
+    .pin-input   {{ top: 58%; }}
 
     .toggle-pin {{
       position: absolute;
-      left: 63.35%;
-      top: 69.33%;
-      width: 3.0%;
-      height: 5.08%;
+      left: 63.5%;
+      top: 58%;
+      width: 3%;
+      height: 6%;
       border: 0;
       background: transparent;
       cursor: pointer;
@@ -243,10 +244,10 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
 
     .remember {{
       position: absolute;
-      left: 33.66%;
-      top: 76.35%;
-      width: 10.8%;
-      height: 3.6%;
+      left: 33.5%;
+      top: 67%;
+      width: 12%;
+      height: 4%;
       cursor: pointer;
     }}
 
@@ -259,10 +260,10 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
 
     .submit-button {{
       position: absolute;
-      left: 33.66%;
-      top: 81.74%;
-      width: 32.62%;
-      height: 5.86%;
+      left: 33.5%;
+      top: 73%;
+      width: 33%;
+      height: 6.5%;
       border: 0;
       border-radius: 12px;
       background: transparent;
@@ -277,9 +278,9 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
 
     .err {{
       position: absolute;
-      left: 33.66%;
-      top: 54.5%;
-      width: 32.62%;
+      left: 33.5%;
+      top: 43%;
+      width: 33%;
       padding: 8px 12px;
       border: 1px solid rgba(255, 130, 130, .55);
       border-radius: 10px;
