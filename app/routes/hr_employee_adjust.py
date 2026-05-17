@@ -830,6 +830,8 @@ def hr_employee_adjust_page(request: Request):
     fillSelect("position_title", POSITIONS);
     render();
   </script>
+
+  <script src="/static/app_header_actions.js?v=cl17p3"></script>
 </body>
 </html>
 """

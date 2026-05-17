@@ -452,6 +452,8 @@ max-height: calc(100vh - 120px); }}
       {body}
     </main>
   </div>
+
+  <script src="/static/app_header_actions.js?v=cl17p3"></script>
 </body>
 </html>"""
 

@@ -953,6 +953,8 @@ async function loadStats(){
 window.addEventListener("resize",function(){clearTimeout(window.__statsResizeTimer);window.__statsResizeTimer=setTimeout(loadStats,250);});
 loadStats().catch(function(err){alert("stats load failed");console.error(err);});
 </script>
+
+  <script src="/static/app_header_actions.js?v=cl17p3"></script>
 </body>
 </html>
 """

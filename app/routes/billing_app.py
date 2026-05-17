@@ -1778,6 +1778,8 @@ def billing_mobile_app_page(request: _EmpRequest):
     loadMonthlyBuildings();
     loadOverdueCustomers();
   </script>
+
+  <script src="/static/app_header_actions.js?v=cl17p3"></script>
 </body>
 </html>
 """

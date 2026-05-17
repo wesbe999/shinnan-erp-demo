@@ -376,6 +376,8 @@ def _layout(title: str, active: str, user_line: str, body: str) -> str:
       {body}
     </main>
   </div>
+
+  <script src="/static/app_header_actions.js?v=cl17p3"></script>
 </body>
 </html>
 """

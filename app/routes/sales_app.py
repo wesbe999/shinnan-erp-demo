@@ -3016,6 +3016,8 @@ def sales_mobile_app_page(request: _EmpRequest):
 })();
 </script>
 
+
+  <script src="/static/app_header_actions.js?v=cl17p3"></script>
 </body>
 </html>
 """
@@ -3167,7 +3169,9 @@ def sales_mobile_new_case_page(request: _EmpRequest):
     # 回傳一個極輕量頁面，立即 redirect 到主頁並帶 hash，主頁偵測後自動開啟 sheet
     return HTMLResponse("""<!doctype html><html><head><meta charset="utf-8">
 <script>location.replace("/app/sales#open-new");</script>
-</head><body></body></html>""")
+</head><body>
+  <script src="/static/app_header_actions.js?v=cl17p3"></script>
+</body></html>""")
 # SHINNAN_SALES_MOBILE_NEW_CASE_END
 
 

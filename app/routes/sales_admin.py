@@ -2882,6 +2882,8 @@ def shinnan_admin_sales_page():
 })();
 </script>
 
+
+  <script src="/static/app_header_actions.js?v=cl17p3"></script>
 </body>
 </html>
 """
