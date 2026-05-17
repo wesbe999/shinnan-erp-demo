@@ -585,9 +585,9 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     .card {{
       position: relative;
       z-index: 1;
-      width: min(92vw, 340px);
+      width: min(96vw, 370px);
       margin-top: 62vh;
-      background: rgba(3, 22, 12, 0.82);
+      background: rgba(3, 22, 12, 0.97);
       border: 1px solid rgba(212,175,55,.35);
       border-radius: 18px;
       padding: 22px 20px 18px;
