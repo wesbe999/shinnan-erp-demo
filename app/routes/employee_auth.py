@@ -398,7 +398,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     .brand-area {{
       position: relative;
       z-index: 2;
-      padding: 38% 0 0;
+      padding: calc(38% + 20px) 0 0;
     }}
     /* 卡片置中浮在背景上 */
     .card-wrap {{
