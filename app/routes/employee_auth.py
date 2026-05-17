@@ -265,7 +265,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
     .submit-button {{
       position: absolute;
       left: 33.5%;
-      top: 83%;
+      top: 82%;
       width: 33%;
       height: 6.5%;
       border: 0;
