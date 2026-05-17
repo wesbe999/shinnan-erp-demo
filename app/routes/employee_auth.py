@@ -379,7 +379,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 100px 24px 40px;
+      padding: 160px 24px 30px;
     }}
     .card {{
       width: 100%;
@@ -387,32 +387,32 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       background: rgba(2, 30, 12, 0.88);
       border: 1.5px solid rgba(212,175,55,.55);
       border-radius: 20px;
-      padding: 28px 24px 22px;
+      padding: 20px 22px 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
+      gap: 8px;
       backdrop-filter: blur(8px);
       box-shadow: 0 8px 40px rgba(0,0,0,.5);
     }}
     .card-icon {{
-      width: 52px; height: 52px;
+      width: 44px; height: 44px;
       background: rgba(255,255,255,.12);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 26px;
-      margin-bottom: 2px;
+      font-size: 22px;
+      margin-bottom: 0px;
     }}
     .card-title {{
       color: #ffffff;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 900;
       letter-spacing: .04em;
     }}
     .card-subtitle {{
       color: rgba(255,255,255,.55);
-      font-size: 13px;
-      margin-top: -8px;
+      font-size: 12px;
+      margin-top: -4px;
     }}
     .field-group {{
       width: 100%;
@@ -439,7 +439,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     }}
     input[type=text], input[type=password] {{
       width: 100%;
-      height: 46px;
+      height: 42px;
       background: rgba(255,255,255,.07);
       border: 1px solid rgba(212,175,55,.35);
       border-radius: 10px;
@@ -469,7 +469,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     }}
     .remember input {{ width: 16px; height: 16px; accent-color: #d4af37; cursor: pointer; }}
     .btn-login {{
-      width: 100%; height: 48px; border: none; border-radius: 10px;
+      width: 100%; height: 44px; border: none; border-radius: 10px;
       background: linear-gradient(135deg, #1a7a3a, #2ec45a);
       color: #ffffff; font-size: 16px; font-weight: 900; cursor: pointer;
       box-shadow: 0 4px 20px rgba(30,138,62,.5);
