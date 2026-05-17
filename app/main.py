@@ -255,7 +255,7 @@ display:flex;
 }
 
 .brand > div{
-  transform:translateX(-24px);
+  transform:translateX(-39px);
 }
 
 .brand-zh{
