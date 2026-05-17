@@ -1093,7 +1093,7 @@ def dispatch_mobile_app_page(request: _Request):
       <button onclick="location.href='/app'">APP首頁</button>
       <button onclick="loadEmergencyNotices(); loadTickets();">整理</button>
       <button class="primary" onclick="showCreatePage()">新增</button>
-      <button class="danger" onclick="location.href='/employee/logout?next=/employee/login'">登出</button>
+      <button class="danger" onclick="location.href='/employee/logout?next=/'">登出</button>
     </nav>
   </div>
 

@@ -3245,7 +3245,7 @@ def unified_mobile_app_home(request: _EmpRequest):
 
       <div class="footer-actions">
         <button class="btn" onclick="location.reload()">重新整理</button>
-        <button class="btn red" onclick="location.href='/employee/logout?next=/employee/login'">登出</button>
+        <button class="btn red" onclick="location.href='/employee/logout?next=/'">登出</button>
       </div>
     </main>
   </div>
@@ -3496,7 +3496,7 @@ def unified_mobile_app_calculator(request: _EmpRequest):
 
       <div class="bottom">
         <button onclick="location.href='/app'">APP首頁</button>
-        <button class="red" onclick="location.href='/employee/logout?next=/employee/login'">登出</button>
+        <button class="red" onclick="location.href='/employee/logout?next=/'">登出</button>
       </div>
     </main>
   </div>
@@ -3617,7 +3617,7 @@ button {{ height: 50px; border: 0; border-radius: 16px; background: white; color
     </div>
     <div class="bottom">
       <button onclick="location.href='/app'">APP\u9996\u9801</button>
-      <button class="red" onclick="location.href='/employee/logout?next=/employee/login'">\u767b\u51fa</button>
+      <button class="red" onclick="location.href='/employee/logout?next=/'">\u767b\u51fa</button>
     </div>
   </main>
 </div>
