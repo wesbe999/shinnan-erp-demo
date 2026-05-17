@@ -227,11 +227,15 @@ display:flex;
   margin-bottom:40px;
 }
 .logo-img{
-width:132px;
+width:264px;
   height:auto;
   object-fit:contain;
   display:block;
-  filter:drop-shadow(0 7px 12px rgba(0,0,0,.24));
+  filter:
+    drop-shadow(0 0 18px rgba(255,230,100,.85))
+    drop-shadow(0 0 36px rgba(255,210,60,.55))
+    drop-shadow(0 0 60px rgba(255,195,30,.30))
+    drop-shadow(0 8px 16px rgba(0,0,0,.35));
 }
 
 .brand > div{
@@ -484,7 +488,7 @@ position:absolute;
   .portal{gap:24px;padding:20px 28px}
   .hero{padding:0 26px 54px 20px}
   .brand{margin-bottom:32px}
-  .logo-img{width:118px}
+  .logo-img{width:210px}
   .brand-zh{font-size:29px}
   .brand-en{font-size:13px}
   .headline{font-size:43px}
