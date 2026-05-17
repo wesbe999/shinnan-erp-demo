@@ -407,7 +407,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 0 24px 40px;
+      padding: 0 54px 40px;
     }}
     .card {{
       width: 100%;
