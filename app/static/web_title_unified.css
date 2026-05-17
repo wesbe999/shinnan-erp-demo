@@ -159,6 +159,10 @@ align-self: end;
   justify-content: flex-end;
   max-width: 760px;
   padding: 9px 10px;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
 }
 
 .web-title-actions button,
