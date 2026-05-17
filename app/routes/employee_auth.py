@@ -166,24 +166,24 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: center;
       overflow: hidden;
-      /* 深綠漸層背景，仿城市夜景 */
-      background: radial-gradient(ellipse at 50% 0%, #0a3d1f 0%, #021208 55%, #000e06 100%);
+      background: #021208;
+      padding-top: 42vh;
     }}
     /* 底圖疊加 */
     body::before {{
       content: "";
       position: fixed;
       inset: 0;
-      background-image: url("/static/login_bg_gold_green.png?v=cl17d");
+      background-image: url("/static/login_bg_gold_green.png?v=cl17f");
       background-size: cover;
       background-position: center top;
-      opacity: 0.9;
+      opacity: 0.92;
       z-index: 0;
     }}
     .top-section {{ display: none; }}
-    .card {{ position: relative; z-index: 1; margin-top: auto; margin-bottom: 4vh; }}
+    .card {{ position: relative; z-index: 1; margin-bottom: 5vh; }}
     /* 頂部 logo 區 */
     .top-section {{
       display: flex; flex-direction: column; align-items: center;
