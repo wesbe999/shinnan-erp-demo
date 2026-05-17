@@ -1,6 +1,8 @@
+from fastapi.responses import RedirectResponse
+from app.routes.employee_auth import _employee_current_user_from_request
 import json as _customers_json
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.responses import Response as _CustomersResponse
 from sqlalchemy import text as _customers_sql_text
@@ -269,7 +271,10 @@ def admin_customer_billing_page():
 
 
 @router.get("/admin/customers", response_class=HTMLResponse)
-def admin_customers_page():
+def admin_customers_page(request: Request):
+    _user = _employee_current_user_from_request(request)
+    if not _user:
+        return RedirectResponse(f"/employee/login?next=/admin/customers", status_code=303)
     return """
 <!doctype html>
 <html lang="zh-Hant">

@@ -3255,7 +3255,7 @@ def unified_mobile_app_home(request: _EmpRequest):
 
       <div class="footer-actions">
         <button class="btn" onclick="location.reload()">重新整理</button>
-        <button class="btn red" onclick="location.href='/employee/logout?next=/'">登出</button>
+        <button class="btn red" onclick="localStorage.removeItem('xunnan_admin_token');localStorage.removeItem('xunnan_auth_token');localStorage.removeItem('xunnan_admin_role');localStorage.removeItem('xunnan_login_role');location.href='/employee/logout'">登出</button>
       </div>
     </main>
   </div>
@@ -3506,9 +3506,6 @@ def unified_mobile_app_calculator(request: _EmpRequest):
         </div>
       </section>
 
-      <div class="bottom">
-        <button class="red" onclick="location.href='/employee/logout?next=/'">登出</button>
-      </div>
     </main>
   </div>
 
@@ -3627,9 +3624,6 @@ button {{ height: 50px; border: 0; border-radius: 16px; background: white; color
       <a class="card" href="/app/manager/approvals"><div class="card-title">\u5f85\u5be9\u6838</div><div class="card-desc">\u8655\u7406\u8acb\u5047\u3001\u6392\u4f11\u6708\u8868\u8207\u5176\u4ed6\u5f85\u5be9\u6838\u4e8b\u9805\u3002</div></a>
       <a class="card" href="/app/manager/staff-status"><div class="card-title">\u4eba\u54e1\u72c0\u6cc1</div><div class="card-desc">\u67e5\u770b\u90e8\u9580\u4eba\u54e1\u51fa\u52e4\u3001\u4f11\u5047\u8207\u5de5\u4f5c\u72c0\u614b\u3002</div></a>
       <a class="card" href="/app/manager/stats"><div class="card-title">\u90e8\u9580\u7d71\u8a08</div><div class="card-desc">\u67e5\u770b\u90e8\u9580\u6848\u4ef6\u6578\u3001\u8ca0\u8f09\u3001\u4eba\u529b\u8207\u71df\u904b\u7d71\u8a08\u3002</div></a>
-    </div>
-    <div class="bottom">
-      <button class="red" onclick="location.href='/employee/logout?next=/'">\u767b\u51fa</button>
     </div>
   </main>
 </div>

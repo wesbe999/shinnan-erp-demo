@@ -1,11 +1,16 @@
-﻿from fastapi import APIRouter
+from fastapi.responses import RedirectResponse
+from app.routes.employee_auth import _employee_current_user_from_request
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
 router = APIRouter(tags=["router-ipam"])
 
 
 @router.get("/admin/router-ipam", response_class=HTMLResponse)
-def admin_router_ipam_page():
+def admin_router_ipam_page(request: Request):
+    _user = _employee_current_user_from_request(request)
+    if not _user:
+        return RedirectResponse(f"/employee/login?next=/admin/router-ipam", status_code=303)
     return HTMLResponse("""
 <!doctype html>
 <html lang="zh-Hant">

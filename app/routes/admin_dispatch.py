@@ -2857,7 +2857,7 @@ async function createTicket() {
   }
 
 
-  function logout() { sessionStorage.removeItem("xunnan_admin_token"); localStorage.removeItem("xunnan_admin_token"); localStorage.removeItem("xunnan_auth_token"); window.location.href = "/employee/logout?next=/"; }
+  function logout() { sessionStorage.removeItem("xunnan_admin_token"); localStorage.removeItem("xunnan_admin_token"); localStorage.removeItem("xunnan_auth_token"); localStorage.removeItem("xunnan_admin_role"); localStorage.removeItem("xunnan_login_role"); window.location.href = "/employee/logout"; }
 
 
   document.addEventListener("input", function (event) {

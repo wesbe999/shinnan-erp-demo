@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
+from app.routes.employee_auth import _employee_current_user_from_request
 
 router = APIRouter(tags=["pages"])
 
@@ -16,6 +17,9 @@ router = APIRouter(tags=["pages"])
 
 @router.get("/admin/import", response_class=HTMLResponse)
 def admin_import_page(request: Request):
+    _user = _employee_current_user_from_request(request)
+    if not _user:
+        return RedirectResponse("/employee/login?next=/admin/import", status_code=303)
     return HTMLResponse("""
 <!DOCTYPE html>
 <html lang="zh-Hant">

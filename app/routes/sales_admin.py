@@ -1,6 +1,6 @@
-
-from fastapi import APIRouter
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from app.routes.employee_auth import _employee_current_user_from_request
 
 
 router = APIRouter(tags=["sales-admin"])
@@ -8,7 +8,10 @@ router = APIRouter(tags=["sales-admin"])
 
 # SHINNAN_SALES_PAGE_ROUTE_START
 @router.get("/admin/sales", response_class=HTMLResponse, summary="業務管理系統")
-def shinnan_admin_sales_page():
+def shinnan_admin_sales_page(request: Request):
+    _user = _employee_current_user_from_request(request)
+    if not _user:
+        return RedirectResponse(f"/employee/login?next=/admin/sales", status_code=303)
     return """
 <!doctype html>
 <html lang="zh-Hant">

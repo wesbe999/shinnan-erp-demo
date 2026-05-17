@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from fastapi.responses import RedirectResponse
+from app.routes.employee_auth import _employee_current_user_from_request
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from app.routes.router_mgmt import _fetch_router_buildings
 
@@ -258,7 +260,7 @@ function goBack(){
     document.getElementById('layer1').classList.add('active');
     document.getElementById('backBtn').style.display='none';
   } else {
-    window.location.href='/';
+    window.location.href='/app';
   }
 }
 
@@ -276,5 +278,8 @@ init();
 
 
 @router.get("/router-mgmt-mobile", response_class=HTMLResponse)
-def router_mgmt_mobile_page():
+def router_mgmt_mobile_page(request: Request):
+    _user = _employee_current_user_from_request(request)
+    if not _user:
+        return RedirectResponse(f"/employee/login?next=/router-mgmt-mobile", status_code=303)
     return HTMLResponse(_MOBILE_HTML)

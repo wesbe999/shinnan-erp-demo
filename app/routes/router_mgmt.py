@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from fastapi.responses import RedirectResponse
+from app.routes.employee_auth import _employee_current_user_from_request
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from sqlalchemy import text as _sql
 from app.db import engine as _engine
@@ -145,7 +147,7 @@ body{background:#0d1117;color:#e6edf3;font-family:"Microsoft JhengHei","Segoe UI
   </div>
   <div class="header-btns">
     <a class="header-btn" href="/">&#x8fd4;&#x56de;&#x9996;&#x9801;</a>
-    <a class="header-btn" href="/logout">&#x767b;&#x51fa;</a>
+    <a class="header-btn" href="/employee/logout" onclick="localStorage.removeItem('xunnan_admin_token');localStorage.removeItem('xunnan_auth_token');localStorage.removeItem('xunnan_admin_role');localStorage.removeItem('xunnan_login_role')">&#x767b;&#x51fa;</a>
   </div>
 </header>
 
@@ -260,5 +262,8 @@ loadData();
 
 
 @router.get("/router-mgmt", response_class=HTMLResponse)
-def router_mgmt_page():
+def router_mgmt_page(request: Request):
+    _user = _employee_current_user_from_request(request)
+    if not _user:
+        return RedirectResponse(f"/employee/login?next=/router-mgmt", status_code=303)
     return HTMLResponse(_ROUTER_MGMT_HTML)

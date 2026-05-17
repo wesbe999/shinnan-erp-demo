@@ -1,3 +1,5 @@
+from fastapi.responses import RedirectResponse
+from app.routes.employee_auth import _employee_current_user_from_request
 import json as _buildings_json
 
 from fastapi import APIRouter, Request
@@ -368,7 +370,10 @@ def api_admin_building_status():
 
 
 @router.get("/admin/buildings", response_class=HTMLResponse)
-def admin_buildings_page():
+def admin_buildings_page(request: Request):
+    _user = _employee_current_user_from_request(request)
+    if not _user:
+        return RedirectResponse(f"/employee/login?next=/admin/buildings", status_code=303)
     import html as _buildings_html
 
     def _cell(value):

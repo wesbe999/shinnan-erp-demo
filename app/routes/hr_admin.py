@@ -449,7 +449,7 @@ max-height: calc(100vh - 120px); }}
       <nav class="nav">{_nav(active)}</nav>
     </aside>
     <main class="main">
-      <header class="topbar"><div><div class="page-title">{escape(title)}</div><div class="page-sub">{escape(user_line)}｜電腦版人事後台</div></div><a class="btn red" href="/employee/logout?next=/">登出</a></header>
+      <header class="topbar"><div><div class="page-title">{escape(title)}</div><div class="page-sub">{escape(user_line)}｜電腦版人事後台</div></div><a class="btn red" href="/employee/logout" onclick="localStorage.removeItem('xunnan_admin_token');localStorage.removeItem('xunnan_auth_token');localStorage.removeItem('xunnan_admin_role');localStorage.removeItem('xunnan_login_role')">登出</a></header>
       {body}
     </main>
   </div>

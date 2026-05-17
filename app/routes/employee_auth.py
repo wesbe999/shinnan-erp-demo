@@ -490,14 +490,21 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     }}
     .remember input {{ width: 16px; height: 16px; accent-color: #d4af37; cursor: pointer; }}
     .btn-login {{
-      width: 100%; height: 44px; border: none; border-radius: 10px;
-      background: linear-gradient(135deg, #1a7a3a, #2ec45a);
-      color: #ffffff; font-size: 16px; font-weight: 900; cursor: pointer;
-      box-shadow: 0 4px 20px rgba(30,138,62,.5);
+      width: 100%; height: 44px;
+      border: 1px solid #7a6010;
+      border-bottom: 2px solid #3a2c00;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #d4af37 0%, #a8880f 100%);
+      color: #0d1f0d; font-size: 16px; font-weight: 900; cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 4px 18px rgba(212,175,55,.35);
       letter-spacing: .06em;
       margin-top: 2px;
     }}
-    .btn-login:active {{ filter: brightness(.9); }}
+    .btn-login:active {{
+      background: linear-gradient(180deg, #a8880f 0%, #8a6e0a 100%);
+      border-bottom-width: 1px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,.3);
+    }}
     .err {{
       width: 100%;
       padding: 8px 12px; border-radius: 8px;
@@ -586,12 +593,6 @@ def employee_login_page(next: str = "/app", request: _EmpRequest = None):
     if is_mobile:
         return _employee_login_page_mobile("", next_url)
     return _employee_login_page("", next_url)
-
-
-@router.get("/employee/login/mobile", response_class=_EmpHTMLResponse)
-def employee_login_mobile_page(next: str = "/app"):
-    _employee_auth_db_init()
-    return _employee_login_page_mobile("", _xunnan_employee_normalize_next_url(next))
 
 
 @router.post("/employee/login")
@@ -694,8 +695,25 @@ def employee_logout(request: _EmpRequest = None, next: str = ""):
     elif is_mobile:
         dest = "/employee/login"
     else:
-        dest = "/"
+        dest = "/employee/login"
 
     resp = _EmpRedirectResponse(dest, status_code=303)
     resp.delete_cookie(_EMP_COOKIE_NAME, path="/")
     return resp
+
+
+@router.get("/employee/logout-clear", response_class=_EmpHTMLResponse)
+def employee_logout_clear():
+    """清除 localStorage 後再跳回首頁"""
+    html = """<!doctype html>
+<html><head><meta charset="utf-8"><title>登出中...</title></head>
+<body>
+<script>
+  localStorage.removeItem("xunnan_admin_token");
+  localStorage.removeItem("xunnan_admin_role");
+  localStorage.removeItem("xunnan_auth_token");
+  localStorage.removeItem("xunnan_login_role");
+  window.location.replace("/");
+</script>
+</body></html>"""
+    return _EmpHTMLResponse(html)

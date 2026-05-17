@@ -80,7 +80,9 @@
       sessionStorage.removeItem('xunnan_admin_token');
       localStorage.removeItem('xunnan_admin_token');
       localStorage.removeItem('xunnan_auth_token');
-      window.location.href = '/employee/logout?next=/';
+      localStorage.removeItem('xunnan_admin_role');
+      localStorage.removeItem('xunnan_login_role');
+      window.location.href = '/employee/logout';
     };
     return btn;
   }
@@ -118,7 +120,10 @@
     const backBtn = document.createElement('button');
     backBtn.type = 'button';
     backBtn.textContent = '返回首頁';
-    backBtn.onclick = function () { window.location.href = '/'; };
+    backBtn.onclick = function () {
+      var isApp = window.location.pathname.startsWith('/app');
+      window.location.href = isApp ? '/app' : '/';
+    };
     box.appendChild(backBtn);
     box.appendChild(makeLogoutBtn());
 
