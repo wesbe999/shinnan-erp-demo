@@ -394,34 +394,11 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       object-position: center top;
       z-index: 0;
     }}
-    /* 標題區 */
+    /* 標題區 - 只做間距用，背景圖已有文字 */
     .brand-area {{
       position: relative;
       z-index: 2;
-      text-align: center;
-      padding: 28px 24px 12px;
-    }}
-    .brand-area img {{
-      width: 56px; height: auto;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,.6));
-      margin-bottom: 4px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }}
-    .brand-name {{
-      color: #fff;
-      font-size: 20px;
-      font-weight: 900;
-      letter-spacing: .04em;
-      text-shadow: 0 2px 8px rgba(0,0,0,.7);
-    }}
-    .brand-sub {{
-      color: #d4af37;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .15em;
-      margin-top: 2px;
+      padding: 38% 0 0;
     }}
     /* 卡片置中浮在背景上 */
     .card-wrap {{
@@ -435,16 +412,14 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     .card {{
       width: 100%;
       max-width: 360px;
-      background: rgba(2, 30, 12, 0.88);
-      border: 1.5px solid rgba(212,175,55,.55);
+      background: transparent;
+      border: none;
       border-radius: 20px;
       padding: 18px 20px 14px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 6px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 8px 40px rgba(0,0,0,.5);
     }}
     .card-icon {{ display: none; }}
     .card-title {{
@@ -544,10 +519,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
 <body>
   <div class="page-wrap">
     <img class="bg-img" src="/static/mobile_login_bg.png?v=cl17n" alt="">
-    <div class="brand-area">
-      <div class="brand-name">訊南工作管理系統</div>
-      <div class="brand-sub">高效・整合・智慧・穩定</div>
-    </div>
+    <div class="brand-area"></div>
     <div class="card-wrap">
       <div class="card">
         <div class="card-title">員工登入</div>
