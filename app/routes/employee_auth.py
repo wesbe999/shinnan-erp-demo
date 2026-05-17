@@ -579,7 +579,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       position: absolute;
       z-index: 1;
       /* 框框在圖片 26.2%~47.2%，圖片高 = 100vw * 1.337 */
-      top: calc(100vw * 1.337 * 0.285);
+      top: calc(100vw * 1.337 * 0.50);
       left: 50%;
       transform: translateX(-50%);
       width: min(72vw, 300px);
@@ -587,14 +587,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       flex-direction: column;
       gap: 10px;
     }}
-    .form-title {{
-      text-align: center;
-      color: #ffffff;
-      font-size: 20px;
-      font-weight: 1000;
-      text-shadow: 0 2px 8px rgba(0,0,0,.8);
-      margin-bottom: 4px;
-    }}
+    .form-title {{ display: none; }}
     .input-wrap {{
       position: relative;
       display: flex;
