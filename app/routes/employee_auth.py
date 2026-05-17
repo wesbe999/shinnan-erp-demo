@@ -588,8 +588,10 @@ def employee_login_page(next: str = "/app", request: _EmpRequest = None):
     _employee_auth_db_init()
     next_url = _xunnan_employee_normalize_next_url(next)
     # 手機 User-Agent 自動顯示手機版
+    # Edge/Chrome 桌面版 UA 也含 "Mobile"，需排除
     ua = (request.headers.get("user-agent", "") if request else "").lower()
-    is_mobile = any(k in ua for k in ("mobile", "android", "iphone", "ipad", "ipod"))
+    is_desktop = any(k in ua for k in ("windows", "macintosh", "x11", "linux x86"))
+    is_mobile = not is_desktop and any(k in ua for k in ("mobile", "android", "iphone", "ipad", "ipod"))
     if is_mobile:
         return _employee_login_page_mobile("", next_url)
     return _employee_login_page("", next_url)
@@ -649,7 +651,8 @@ async def employee_login_submit(request: _EmpRequest):
 
     # 判斷 UA：電腦版依角色直接導到對應系統，手機版導到 /app
     ua = (request.headers.get("user-agent", "") if request else "").lower()
-    is_mobile = any(k in ua for k in ("mobile", "android", "iphone", "ipad", "ipod"))
+    is_desktop = any(k in ua for k in ("windows", "macintosh", "x11", "linux x86"))
+    is_mobile = not is_desktop and any(k in ua for k in ("mobile", "android", "iphone", "ipad", "ipod"))
 
     if login_mobile or is_mobile:
         # 手機版：導到 /app（功能選單）
@@ -688,7 +691,8 @@ def employee_logout(request: _EmpRequest = None, next: str = ""):
     # 2. 手機 UA → 手機登入頁
     # 3. 電腦 → 根目錄入口頁 /
     ua = (request.headers.get("user-agent", "") if request else "").lower()
-    is_mobile = any(k in ua for k in ("mobile", "android", "iphone", "ipad", "ipod"))
+    is_desktop = any(k in ua for k in ("windows", "macintosh", "x11", "linux x86"))
+    is_mobile = not is_desktop and any(k in ua for k in ("mobile", "android", "iphone", "ipad", "ipod"))
 
     if next and next.startswith("/") and not next.startswith("//"):
         dest = next
