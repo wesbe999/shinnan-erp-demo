@@ -245,7 +245,7 @@ display:flex;
   opacity:0.92;
 }
 .logo-img{
-  width:176px;
+  width:132px;
   height:auto;
   object-fit:contain;
   display:block;
@@ -551,7 +551,7 @@ position:absolute;
   .portal{gap:24px;padding:20px 28px}
   .hero{padding:0 26px 54px 20px}
   .brand{margin-bottom:32px}
-  .logo-img{width:140px}
+  .logo-img{width:105px}
   .brand-zh{font-size:29px}
   .brand-en{font-size:13px}
   .headline{font-size:43px}
