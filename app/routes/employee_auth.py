@@ -369,16 +369,16 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
       height: auto;
     }}
     /* 表單用絕對定位疊在圖片上，用百分比對齊白色框 */
-    /* 底圖 1086x1448，白色框約 top:38% ~ bottom:67%，left:9% ~ right:91% */
+    /* 底圖 1086x1448，白色框約 top:40% ~ bottom:68%，left:9% ~ right:91% */
     .form-area {{
       position: absolute;
-      top: 40%;
+      top: 43%;
       left: 50%;
       transform: translateX(-50%);
-      width: 74%;
+      width: 72%;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 6px;
     }}
     .input-wrap {{
       position: relative;
@@ -394,7 +394,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     }}
     input[type=text], input[type=password] {{
       width: 100%;
-      height: 44px;
+      height: 40px;
       background: rgba(0, 15, 8, 0.80);
       border: 1px solid rgba(212,175,55,.45);
       border-radius: 10px;
@@ -421,7 +421,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     }}
     .remember input {{ width: 14px; height: 14px; accent-color: #d4af37; }}
     .btn-login {{
-      width: 100%; height: 46px; border: none; border-radius: 10px;
+      width: 100%; height: 42px; border: none; border-radius: 10px;
       background: linear-gradient(135deg, #166430, #25a84c);
       color: #ffffff; font-size: 16px; font-weight: 900; cursor: pointer;
       box-shadow: 0 4px 16px rgba(30,138,62,.45);
