@@ -2159,7 +2159,7 @@ async function initPage(){
 initPage();
 </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p4"></script>
+  <script src="/static/app_header_actions.js?v=cl17p5"></script>
 </body>
 </html>
 """
@@ -2260,7 +2260,7 @@ textarea{min-height:86px;resize:vertical}
 </main>
 </div>
 
-  <script src="/static/app_header_actions.js?v=cl17p4"></script>
+  <script src="/static/app_header_actions.js?v=cl17p5"></script>
 </body>
 </html>
 """
@@ -2552,7 +2552,7 @@ async function initPage(){
 initPage();
 </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p4"></script>
+  <script src="/static/app_header_actions.js?v=cl17p5"></script>
 </body>
 </html>
 """
@@ -2640,7 +2640,7 @@ textarea{min-height:86px;resize:vertical}
 </main>
 </div>
 
-  <script src="/static/app_header_actions.js?v=cl17p4"></script>
+  <script src="/static/app_header_actions.js?v=cl17p5"></script>
 </body>
 </html>
 """
@@ -3024,7 +3024,7 @@ initMonthOptions(); initLeaveCalendar(); hidePanels(); loadAll(); setTimeout(che
 </script>
 
 
-  <script src="/static/app_header_actions.js?v=cl17p4"></script>
+  <script src="/static/app_header_actions.js?v=cl17p5"></script>
 </body>
 </html>
 """
@@ -3260,7 +3260,7 @@ def unified_mobile_app_home(request: _EmpRequest):
     </main>
   </div>
 
-  <script src="/static/app_header_actions.js?v=cl17p4"></script>
+  <script src="/static/app_header_actions.js?v=cl17p5"></script>
 </body>
 </html>
 """
@@ -3544,7 +3544,7 @@ function calculate() {{
 }}
 </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p4"></script>
+  <script src="/static/app_header_actions.js?v=cl17p5"></script>
 </body>
 </html>
 """
@@ -3634,7 +3634,7 @@ button {{ height: 50px; border: 0; border-radius: 16px; background: white; color
   </main>
 </div>
 
-  <script src="/static/app_header_actions.js?v=cl17p4"></script>
+  <script src="/static/app_header_actions.js?v=cl17p5"></script>
 </body>
 </html>
 """)

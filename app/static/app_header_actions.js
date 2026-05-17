@@ -1,6 +1,8 @@
 /**
- * app_header_actions.js v=cl17p3
- * 統一 header 右上角：返回上一頁 + 登出
+ * app_header_actions.js v=cl17p5
+ * 統一 header：返回首頁 + 登出
+ * - 有自己 toolbar（web-title-actions）的頁面：只補登出按鈕
+ * - 沒有 toolbar 的頁面：建立 xn-header-actions
  */
 (function () {
   if (document.getElementById('xn-header-actions-injected')) return;
@@ -15,13 +17,16 @@
       z-index: 9999 !important;
       display: flex !important;
       flex-direction: row !important;
-      flex-wrap: nowrap !important;
       align-items: center !important;
       gap: 7px !important;
       white-space: nowrap !important;
+      background: none !important;
+      border: none !important;
+      padding: 0 !important;
+      box-shadow: none !important;
     }
-    body .xn-header-actions button {
-      flex: 0 0 auto !important;
+    body .xn-header-actions button,
+    body .web-title-actions button.xn-logout {
       height: 28px !important;
       min-width: 68px !important;
       padding: 0 10px !important;
@@ -37,78 +42,83 @@
       justify-content: center !important;
       cursor: pointer !important;
       box-shadow: none !important;
+      flex: 0 0 auto !important;
     }
-    body .xn-header-actions button:hover {
+    body .xn-header-actions button:hover,
+    body .web-title-actions button.xn-logout:hover {
       background: #174a2a !important;
       border-color: #ead27b !important;
-      transform: translateY(-1px);
     }
-    body .xn-header-actions button.xn-logout {
+    body .xn-header-actions button.xn-logout,
+    body .web-title-actions button.xn-logout {
       background: #7f251f !important;
       border-color: rgba(244,180,140,0.82) !important;
       color: #fff4ec !important;
     }
-    body .xn-header-actions button.xn-logout:hover {
+    body .xn-header-actions button.xn-logout:hover,
+    body .web-title-actions button.xn-logout:hover {
       background: #9b2d25 !important;
       border-color: #ffd0b0 !important;
     }
     @media (max-width: 1200px) {
-      body .xn-header-actions {
-        right: 20px !important;
-        bottom: 16px !important;
-        gap: 5px !important;
-      }
-      body .xn-header-actions button {
-        height: 26px !important;
-        min-width: 58px !important;
-        padding: 0 7px !important;
-        font-size: 11px !important;
+      body .xn-header-actions { right: 20px !important; bottom: 16px !important; gap: 5px !important; }
+      body .xn-header-actions button,
+      body .web-title-actions button.xn-logout {
+        height: 26px !important; min-width: 58px !important;
+        padding: 0 7px !important; font-size: 11px !important;
       }
     }
   `;
   document.head.appendChild(style);
 
+  function makeLogoutBtn() {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = '登出';
+    btn.className = 'xn-logout';
+    btn.onclick = function () {
+      sessionStorage.removeItem('xunnan_admin_token');
+      localStorage.removeItem('xunnan_admin_token');
+      localStorage.removeItem('xunnan_auth_token');
+      window.location.href = '/employee/logout?next=/';
+    };
+    return btn;
+  }
+
   function inject() {
-    // 支援多種 header 類型
-    const header = document.querySelector([
-      '.web-title.web-title-tech',
-      '.web-title',
-      '.app-standard-hero',
-      '.hero',
-      'header',
-      '.site-header',
-      '.app-header',
-    ].join(', '));
-
+    const header = document.querySelector(
+      '.web-title.web-title-tech, .web-title, .app-standard-hero, .hero, header, .site-header, .app-header'
+    );
     if (!header) return;
-    if (header.querySelector('.xn-header-actions')) return;
 
-    // 確保 header 有相對定位
+    // 情況1：頁面已有 web-title-actions（自己的 toolbar）
+    // 只補登出按鈕，不另建框框
+    const existingActions = header.querySelector('.web-title-actions');
+    if (existingActions) {
+      if (header.querySelector('.xn-header-actions')) return;
+      const hasLogout = [...existingActions.querySelectorAll('button')]
+        .some(b => b.textContent.trim() === '登出');
+      if (!hasLogout) existingActions.appendChild(makeLogoutBtn());
+      return;
+    }
+
+    // 情況2：已由 cl15i10 inject（/admin 頁面）— 跳過
+    if (header.querySelector('.cl15i10-header-actions')) return;
+
+    // 情況3：沒有 toolbar，建立 xn-header-actions
+    if (header.querySelector('.xn-header-actions')) return;
     const pos = window.getComputedStyle(header).position;
     if (pos === 'static') header.style.position = 'relative';
 
     const box = document.createElement('div');
     box.className = 'xn-header-actions';
 
-    // 返回首頁
     const backBtn = document.createElement('button');
     backBtn.type = 'button';
     backBtn.textContent = '返回首頁';
     backBtn.onclick = function () { window.location.href = '/'; };
     box.appendChild(backBtn);
-
-    // 登出
-    const logoutBtn = document.createElement('button');
-    logoutBtn.type = 'button';
-    logoutBtn.textContent = '登出';
-    logoutBtn.className = 'xn-logout';
-    logoutBtn.onclick = function () {
-      sessionStorage.removeItem('xunnan_admin_token');
-      localStorage.removeItem('xunnan_admin_token');
-      localStorage.removeItem('xunnan_auth_token');
-      window.location.href = '/employee/logout?next=/';
-    };
-    box.appendChild(logoutBtn);
+    box.appendChild(makeLogoutBtn());
 
     header.appendChild(box);
   }

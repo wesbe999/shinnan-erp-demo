@@ -1777,7 +1777,7 @@ def billing_mobile_app_page(request: _EmpRequest):
     loadOverdueCustomers();
   </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p4"></script>
+  <script src="/static/app_header_actions.js?v=cl17p5"></script>
 </body>
 </html>
 """

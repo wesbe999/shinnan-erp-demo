@@ -942,7 +942,7 @@ async function submitTransfer(){
 loadTickets();
 </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p4"></script>
+  <script src="/static/app_header_actions.js?v=cl17p5"></script>
 </body>
 </html>
 """.replace("__USER_LINE__", user_line)
