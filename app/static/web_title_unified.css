@@ -180,6 +180,19 @@ align-self: end;
   justify-content: center;
 }
 
+/* 所有 header-actions 容器內的按鈕統一尺寸（覆寫 web-title-actions 的 36px） */
+[class*="header-actions"] button {
+  height: 28px !important;
+  min-height: 28px !important;
+  max-height: 28px !important;
+  min-width: 68px !important;
+  padding: 0 10px !important;
+  border-radius: 9px !important;
+  font-size: 12px !important;
+  font-weight: 1000 !important;
+  line-height: 1 !important;
+}
+
 .web-title-watermark {
 position: absolute;
   right: 4%;

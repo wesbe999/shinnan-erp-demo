@@ -2176,9 +2176,12 @@ def billing_page(request: Request):
       white-space: nowrap !important;
     }
 
+    body .web-title .cl15j1-billing-header-actions button,
     body .cl15j1-billing-header-actions button {
       flex: 0 0 auto !important;
       height: 28px !important;
+      min-height: 28px !important;
+      max-height: 28px !important;
       min-width: 68px !important;
       padding: 0 10px !important;
       border-radius: 9px !important;
