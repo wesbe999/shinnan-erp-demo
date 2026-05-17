@@ -226,25 +226,64 @@ display:flex;
   gap:4px;
   margin-bottom:40px;
 }
+.logo-wrap{
+  position:relative;
+  display:inline-block;
+  margin-left:-80px;
+}
+.logo-starburst{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:320px;
+  height:320px;
+  pointer-events:none;
+  z-index:0;
+  background:
+    conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgba(255,235,120,.0) 10deg,
+      rgba(255,235,120,.85) 11.5deg,
+      rgba(255,235,120,.0) 13deg,
+      transparent 40deg,
+      rgba(255,235,120,.0) 84deg,
+      rgba(255,235,120,.75) 85.5deg,
+      rgba(255,235,120,.0) 87deg,
+      transparent 130deg,
+      rgba(255,235,120,.0) 174deg,
+      rgba(255,235,120,.85) 175.5deg,
+      rgba(255,235,120,.0) 177deg,
+      transparent 220deg,
+      rgba(255,235,120,.0) 264deg,
+      rgba(255,235,120,.75) 265.5deg,
+      rgba(255,235,120,.0) 267deg,
+      transparent 310deg,
+      rgba(255,235,120,.0) 349deg,
+      rgba(255,235,120,.6) 350.5deg,
+      rgba(255,235,120,.0) 352deg,
+      transparent 360deg
+    );
+  filter:blur(1.5px);
+  mask-image:radial-gradient(ellipse 80% 80% at center, black 0%, black 35%, transparent 70%);
+}
+.logo-starburst::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,240,160,.55) 0%, rgba(255,220,80,.18) 40%, transparent 70%);
+  filter:blur(8px);
+}
 .logo-img{
-width:264px;
+  width:264px;
   height:auto;
   object-fit:contain;
   display:block;
-  margin-left:-50px;
-  filter:
-    drop-shadow(0 0 4px rgba(255,240,180,1))
-    drop-shadow(0 -28px 3px rgba(255,230,120,.7))
-    drop-shadow(0 28px 3px rgba(255,230,120,.7))
-    drop-shadow(-28px 0 3px rgba(255,230,120,.7))
-    drop-shadow(28px 0 3px rgba(255,230,120,.7))
-    drop-shadow(-18px -18px 2px rgba(255,220,100,.45))
-    drop-shadow(18px -18px 2px rgba(255,220,100,.45))
-    drop-shadow(-18px 18px 2px rgba(255,220,100,.45))
-    drop-shadow(18px 18px 2px rgba(255,220,100,.45))
-    drop-shadow(0 0 24px rgba(255,210,60,.6))
-    drop-shadow(0 0 48px rgba(255,185,30,.35))
-    drop-shadow(0 10px 18px rgba(0,0,0,.4));
+  position:relative;
+  z-index:1;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,.45));
 }
 
 .brand > div{
@@ -535,7 +574,7 @@ position:absolute;
   <main class="portal">
     <section class="hero">
       <div class="brand">
-        <img class="logo-img" src="/erp-static/shinnan_home_logo.png" alt="ShinNan Logo">
+        <div class="logo-wrap"><div class="logo-starburst"></div><img class="logo-img" src="/erp-static/shinnan_home_logo.png" alt="ShinNan Logo"></div>
         <div>
           <div class="brand-zh">\u8a0a\u5357 ERP \u7cfb\u7d71</div>
           <div class="brand-en">SHINNAN ERP</div>
