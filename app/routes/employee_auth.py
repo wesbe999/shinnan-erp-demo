@@ -169,7 +169,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       justify-content: center;
       overflow: hidden;
       background: #021208;
-      padding-top: 36vh;
+      padding-top: 30vh;
     }}
     /* 底圖疊加 */
     body::before {{
@@ -206,7 +206,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
     .sys-sub span {{ margin: 0 6px; opacity: .6; }}
     /* Card */
     .card {{
-      width: min(88vw, 360px);
+      width: min(86vw, 320px);
       background: rgba(3, 22, 12, 0.78);
       border: 1px solid rgba(212,175,55,.35);
       border-radius: 18px;
