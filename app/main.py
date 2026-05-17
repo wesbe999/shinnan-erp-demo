@@ -231,11 +231,20 @@ width:264px;
   height:auto;
   object-fit:contain;
   display:block;
+  margin-left:-50px;
   filter:
-    drop-shadow(0 0 18px rgba(255,230,100,.85))
-    drop-shadow(0 0 36px rgba(255,210,60,.55))
-    drop-shadow(0 0 60px rgba(255,195,30,.30))
-    drop-shadow(0 8px 16px rgba(0,0,0,.35));
+    drop-shadow(0 0 4px rgba(255,240,180,1))
+    drop-shadow(0 -28px 3px rgba(255,230,120,.7))
+    drop-shadow(0 28px 3px rgba(255,230,120,.7))
+    drop-shadow(-28px 0 3px rgba(255,230,120,.7))
+    drop-shadow(28px 0 3px rgba(255,230,120,.7))
+    drop-shadow(-18px -18px 2px rgba(255,220,100,.45))
+    drop-shadow(18px -18px 2px rgba(255,220,100,.45))
+    drop-shadow(-18px 18px 2px rgba(255,220,100,.45))
+    drop-shadow(18px 18px 2px rgba(255,220,100,.45))
+    drop-shadow(0 0 24px rgba(255,210,60,.6))
+    drop-shadow(0 0 48px rgba(255,185,30,.35))
+    drop-shadow(0 10px 18px rgba(0,0,0,.4));
 }
 
 .brand > div{
