@@ -176,7 +176,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app"):
       content: "";
       position: fixed;
       inset: 0;
-      background-image: url("/static/login_gold_green_transparent.png?v=cl17c");
+      background-image: url("/static/login_bg_gold_green.png?v=cl17d");
       background-size: cover;
       background-position: center 30%;
       opacity: 0.55;
