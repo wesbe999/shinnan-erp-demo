@@ -558,120 +558,152 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <title>&#x54E1;&#x5DE5;&#x767B;&#x5165;&#xFF5C;&#x8A0A;&#x5357; ERP</title>
   <style>
-    * {{ box-sizing: border-box; }}
-    html, body {{
-      margin: 0;
-      width: 100%;
-      min-height: 100%;
-      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
-      background: #04120e;
-    }}
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    html, body {{ width: 100%; height: 100%; font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif; }}
     body {{
       min-height: 100vh;
       min-height: 100dvh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: max(16px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
-      color: #102348;
-      background-image: url("/static/login_bg_gold_green.png?v=cl17g");
-      background-size: auto 100%;
-      background-position: center;
-      background-repeat: no-repeat;
+      overflow: hidden;
+      background: #021208;
+      padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 18px);
     }}
+    body::before {{
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: url("/static/login_bg_gold_green.png?v=cl17h");
+      background-size: cover;
+      background-position: center top;
+      opacity: 0.92;
+      z-index: 0;
+    }}
+    .top-section {{ display: none; }}
     .card {{
-      width: min(100%, 390px);
-      padding: 24px 22px;
-      border: 1px solid rgba(245, 211, 93, .72);
-      border-radius: 22px;
-      background: rgba(3, 22, 12, .84);
-      box-shadow: 0 18px 48px rgba(0, 0, 0, .34), 0 0 32px rgba(245, 211, 93, .16);
-      backdrop-filter: blur(18px);
+      position: relative;
+      z-index: 1;
+      width: min(92vw, 340px);
+      margin-top: 52vh;
+      background: rgba(3, 22, 12, 0.82);
+      border: 1px solid rgba(212,175,55,.35);
+      border-radius: 18px;
+      padding: 22px 20px 18px;
+      box-shadow:
+        0 0 0 1px rgba(212,175,55,.08),
+        inset 0 1px 0 rgba(212,175,55,.1),
+        0 24px 60px rgba(0,0,0,.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }}
-    h1 {{
-      margin: 0 0 8px;
-      color: #ffffff;
-      font-size: 28px;
-      line-height: 1.2;
-      font-weight: 1000;
-      text-align: center;
+    .card-title {{
+      text-align: center; color: #ffffff;
+      font-size: 20px; font-weight: 1000; margin-bottom: 3px;
     }}
-    .sub {{
-      margin: 0 0 22px;
-      color: rgba(255, 255, 255, .74);
-      font-size: 14px;
-      font-weight: 900;
-      text-align: center;
+    .card-sub {{
+      text-align: center; color: rgba(255,255,255,.5);
+      font-size: 12px; margin-bottom: 18px;
     }}
-    label {{
-      display: block;
-      margin: 14px 0 7px;
-      color: rgba(255, 255, 255, .86);
-      font-size: 14px;
-      font-weight: 1000;
-    }}
+    .field {{ margin-bottom: 12px; }}
+    label {{ display: block; color: rgba(255,255,255,.8); font-size: 12px; font-weight: 1000; margin-bottom: 5px; }}
+    .input-wrap {{ position: relative; display: flex; align-items: center; }}
+    .input-icon {{ position: absolute; left: 11px; color: #d4af37; font-size: 14px; pointer-events: none; opacity: .8; }}
     input[type=text], input[type=password] {{
-      width: 100%;
-      height: 50px;
-      border: 1px solid rgba(245, 211, 93, .50);
-      border-radius: 13px;
-      background: rgba(0, 15, 8, .72);
-      color: #ffffff;
-      padding: 0 14px;
-      font-size: 16px;
-      font-weight: 900;
-      outline: none;
+      width: 100%; height: 46px;
+      background: rgba(0, 15, 8, 0.7);
+      border: 1px solid rgba(212,175,55,.3);
+      border-radius: 10px;
+      color: #ffffff; font-size: 16px; font-weight: 900;
+      padding: 0 38px 0 34px;
+      outline: none; font-family: inherit;
     }}
-    button {{
-      width: 100%;
-      height: 50px;
-      margin-top: 20px;
-      border: 1px solid rgba(255, 220, 89, .92);
-      border-radius: 13px;
-      background: linear-gradient(135deg, #087334, #18a74d);
-      color: #ffffff;
-      font-size: 18px;
-      font-weight: 1000;
-      cursor: pointer;
+    input[type=text]::placeholder, input[type=password]::placeholder {{ color: rgba(255,255,255,.25); }}
+    input[type=text]:focus, input[type=password]:focus {{
+      border-color: rgba(212,175,55,.7);
+      box-shadow: 0 0 0 3px rgba(212,175,55,.1);
     }}
-    .remember {{
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: rgba(255, 255, 255, .78);
-    }}
-    .remember input {{
-      width: 18px;
-      height: 18px;
-      accent-color: #1ca44b;
+    .toggle-pin {{ position: absolute; right: 10px; background: none; border: none; color: rgba(212,175,55,.6); cursor: pointer; font-size: 14px; padding: 4px; }}
+    .remember {{ display: flex; align-items: center; gap: 7px; margin-bottom: 14px; color: rgba(255,255,255,.65); font-size: 12px; font-weight: 900; cursor: pointer; }}
+    .remember input {{ width: 15px; height: 15px; accent-color: #d4af37; }}
+    .btn-login {{
+      width: 100%; height: 48px; border: none; border-radius: 10px;
+      background: linear-gradient(135deg, #166430 0%, #1e8a3e 50%, #25a84c 100%);
+      color: #ffffff; font-size: 16px; font-weight: 1000; cursor: pointer;
+      letter-spacing: .04em;
+      box-shadow: 0 4px 20px rgba(30,138,62,.45);
     }}
     .err {{
-      margin: 0 0 12px;
-      padding: 9px 11px;
-      border: 1px solid rgba(255, 130, 130, .55);
-      border-radius: 12px;
-      background: rgba(90, 0, 0, .58);
-      color: #ffd5d5;
-      font-size: 13px;
-      font-weight: 1000;
-      text-align: center;
+      margin-bottom: 10px; padding: 8px 12px; border-radius: 8px;
+      background: rgba(200,40,40,.2); border: 1px solid rgba(200,40,40,.35);
+      color: #ff9999; font-size: 12px; font-weight: 900; text-align: center;
     }}
+    .demo-hint {{ margin-top: 12px; text-align: center; color: rgba(212,175,55,.45); font-size: 11px; letter-spacing: .08em; }}
   </style>
 </head>
 <body>
-  <form class="card" method="post" action="/employee/login">
-    <h1>&#x54E1;&#x5DE5;&#x767B;&#x5165;</h1>
-    <div class="sub">&#x8ACB;&#x8F38;&#x5165;&#x54E1;&#x5DE5;&#x5E33;&#x865F;&#x8207; PIN &#x78BC;</div>
+  <div class="top-section">
+    <img class="logo-img" src="/static/shinnan_logo_gold_transparent.png" alt="ShinNan">
+    <div class="sys-title">訊南工作管理系統</div>
+    <div class="sys-sub">高效<span>·</span>整合<span>·</span>智慧<span>·</span>穩定</div>
+  </div>
+  <div class="card">
+    <div class="card-title">員工登入</div>
+    <div class="card-sub">請輸入帳號與 PIN 碼進入系統</div>
     {error_html}
-    <input type="hidden" name="next" value="{next_url}">
-    <input type="hidden" name="login_view" value="mobile">
-    <label>&#x54E1;&#x5DE5;&#x5E33;&#x865F;</label>
-    <input name="staff_code" autocomplete="username" placeholder="S001 / admin" required>
-    <label>PIN &#x78BC;</label>
-    <input name="pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="0000 / PIN" required>
-    <label class="remember"><input type="checkbox" name="remember_me" value="1" checked> &#x8A18;&#x4F4F;&#x5E33;&#x865F;</label>
-    <button type="submit">&#x767B;&#x5165;&#x7CFB;&#x7D71;</button>
-  </form>
+    <div class="field">
+      <label>員工帳號</label>
+      <div class="input-wrap">
+        <span class="input-icon">👤</span>
+        <input id="staff_code" type="text" placeholder="請輸入帳號（如：S001）" autocomplete="username">
+      </div>
+    </div>
+    <div class="field">
+      <label>PIN 碼</label>
+      <div class="input-wrap">
+        <span class="input-icon">🔐</span>
+        <input id="pin" type="password" placeholder="請輸入 PIN 碼" autocomplete="current-password" inputmode="numeric">
+        <button class="toggle-pin" type="button" onclick="togglePin(this)" tabindex="-1">👁</button>
+      </div>
+    </div>
+    <label class="remember">
+      <input type="checkbox" id="remember_me" {"checked" if True else ""}> 記住帳號
+    </label>
+    <button class="btn-login" type="button" onclick="doLogin()">🔒 登入系統</button>
+    <div class="demo-hint">S001 / 0000</div>
+  </div>
+  <script>
+    (function () {{
+      const saved = localStorage.getItem("shinnan_remember_staff_code");
+      const cb = document.getElementById("remember_me");
+      if (saved && cb && cb.checked) {{ document.getElementById("staff_code").value = saved; }}
+    }})();
+    function togglePin(btn) {{
+      const inp = document.getElementById("pin");
+      if (inp.type === "password") {{ inp.type = "text"; btn.textContent = "🙈"; }}
+      else {{ inp.type = "password"; btn.textContent = "👁"; }}
+    }}
+    function doLogin() {{
+      const code = document.getElementById("staff_code").value.trim();
+      const pin  = document.getElementById("pin").value.trim();
+      const rem  = document.getElementById("remember_me").checked;
+      if (!code || !pin) {{ alert("請輸入帳號與 PIN 碼"); return; }}
+      if (rem) localStorage.setItem("shinnan_remember_staff_code", code);
+      else localStorage.removeItem("shinnan_remember_staff_code");
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "/employee/login";
+      [["staff_code", code], ["pin", pin], ["remember_me", rem ? "1" : ""], ["next", "{next_url}"], ["login_view", "mobile"]].forEach(function([k,v]) {{
+        const i = document.createElement("input");
+        i.type = "hidden"; i.name = k; i.value = v;
+        form.appendChild(i);
+      }});
+      document.body.appendChild(form);
+      form.submit();
+    }}
+    document.addEventListener("keydown", function(e) {{ if (e.key === "Enter") doLogin(); }});
+  </script>
 </body>
 </html>
 """
