@@ -39,6 +39,7 @@ from app.routes.sales_managers_admin import router as sales_managers_admin_route
 from app.routes.ticket_customer_link_admin import router as ticket_customer_link_admin_router
 from app.routes.employee_profiles_admin import router as employee_profiles_admin_router
 from app.routes.stats_admin import router as stats_admin_router
+from app.routes.router_ipam import router as router_ipam_router
 from app.routes.pages import router as pages_router
 
 from app.routes.tickets import router as tickets_router
@@ -107,6 +108,7 @@ app.include_router(sales_managers_admin_router)
 app.include_router(ticket_customer_link_admin_router)
 app.include_router(employee_profiles_admin_router)
 app.include_router(stats_admin_router)
+app.include_router(router_ipam_router)
 app.include_router(pages_router)
 
 app.include_router(tickets_router)
@@ -245,7 +247,7 @@ color:#fff;
 }
 .brand-en{
 margin-top:8px;
-  color:#a4ff43;
+  color:#d4af37;
   font-size:14px;
   font-weight:900;
   letter-spacing:10px;
@@ -265,7 +267,7 @@ margin-top:12px;
   display:flex;
   align-items:center;
   gap:18px;
-  color:#a4ff43;
+  color:#d4af37;
   font-size:34px;
   font-weight:1000;
   letter-spacing:6px;
@@ -277,7 +279,7 @@ margin-top:12px;
   content:"";
   width:74px;
   height:3px;
-  background:linear-gradient(90deg,transparent,#a4ff43,transparent);
+  background:linear-gradient(90deg,transparent,#d4af37,transparent);
   box-shadow:0 0 14px rgba(164,255,67,.34);
 }
 .desc{
@@ -304,7 +306,7 @@ margin-top:24px;
   width:14px;
   height:14px;
   border-radius:50%;
-  background:#91ff3e;
+  background:#d4af37;
   box-shadow:0 0 18px rgba(145,255,62,.7);
 }
 .world{
@@ -371,7 +373,7 @@ display:flex;
   align-items:center;
   gap:15px;
   margin:0 0 14px;
-  color:#a4ff43;
+  color:#d4af37;
   font-size:23px;
   font-weight:1000;
   letter-spacing:5px;
@@ -382,7 +384,7 @@ display:flex;
   width:10px;
   height:10px;
   border-radius:50%;
-  background:#91ff3e;
+  background:#d4af37;
   box-shadow:0 0 18px rgba(145,255,62,.75);
 }
 .panel-title:after{
@@ -416,7 +418,7 @@ position:relative;
 }
 .module:hover{
   transform:translateY(-3px);
-  border-color:#b0ff48;
+  border-color:#e8c84a;
   box-shadow:
     0 20px 36px rgba(0,0,0,.30),
     0 0 24px rgba(152,255,77,.18),
@@ -428,7 +430,7 @@ width:36px;
   display:flex;
   align-items:center;
   justify-content:flex-start;
-  color:#a4ff43;
+  color:#d4af37;
   margin-bottom:6px;
 }
 .mi svg{
@@ -460,7 +462,7 @@ position:absolute;
   right:16px;
   top:50%;
   transform:translateY(-50%);
-  color:#a4ff43;
+  color:#d4af37;
   font-size:26px;
   font-weight:700;
   line-height:1;
@@ -538,6 +540,7 @@ position:absolute;
     <section class="panel">
       <div class="panel-title">\u8acb\u9078\u64c7\u7cfb\u7d71\u5165\u53e3</div>
       <div class="grid">
+        <a class="module" href="#" onclick="return openAdminModule('/admin/router-ipam')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></svg></div><div><div class="module-name">\u8def\u7531\u7ba1\u7406</div><div class="module-desc">IP\u3001MAC\u3001\u6236\u5225\u3001\u901f\u7387\u8207\u6b20\u8cbb\u9396\u5b9a\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="/admin"><div class="mi"><svg viewBox="0 0 24 24"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="6" cy="17" r="2"/><circle cx="18" cy="17" r="2"/></svg></div><div><div class="module-name">\u6d3e\u5de5\u7cfb\u7d71</div><div class="module-desc">\u6848\u4ef6\u5efa\u7acb\u3001\u5de5\u7a0b\u5e2b\u6307\u6d3e\u3001\u6d3e\u5de5\u7ba1\u7406\u8207\u5b8c\u5de5\u8ffd\u8e64\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="/admin/sales"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M3 19h18"/><path d="M7 9l3-4 4 7 5-8"/></svg></div><div><div class="module-name">\u696d\u52d9\u7cfb\u7d71</div><div class="module-desc">\u5927\u6a13\u63a5\u89f8\u3001\u5408\u7d04\u3001\u62dc\u8a2a\u3001\u4e8b\u4ef6\u8207\u56de\u994b\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="/admin/billing"><div class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M15 9.5c-.8-.8-4-.9-4 1 0 2 4 1 4 3 0 2-3.2 1.8-4.4.8"/></svg></div><div><div class="module-name">\u5e33\u52d9\u7cfb\u7d71</div><div class="module-desc">\u8cbb\u7528\u3001\u62bc\u91d1\u3001\u6708\u79df\u3001\u6750\u6599\u8207\u8ca1\u52d9\u540c\u6b65\u7ba1\u7406\u3002</div></div><div class="arrow">&rsaquo;</div></a>
