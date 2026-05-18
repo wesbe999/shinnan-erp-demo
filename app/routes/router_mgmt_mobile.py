@@ -211,7 +211,7 @@ function renderBuildings(){
     const ip   = b.ip||'';
     const base = ip ? `http://${ip}` : '';
     const btn  = (label, hash, cls) => base
-      ? `<a class="action-btn ${cls}" href="${base}/webfig/#${hash}" target="_blank" rel="noopener">${label}</a>`
+      ? `<a class="action-btn ${cls}" href="${base}/webfig/#${hash}" onclick="window.open(this.href);return false;">${label}</a>`
       : `<span class="action-btn ${cls}" style="opacity:.35;pointer-events:none">${label}</span>`;
     return `
 <div class="building-item" id="bi_${b.building_no}">
