@@ -563,7 +563,7 @@ function render(){
   const grid = document.getElementById('grid');
   if(!list.length){ grid.innerHTML='<div class="empty" style="grid-column:1/-1">無符合資料</div>'; return; }
   grid.innerHTML = list.map(b=>{
-    const ip=b.ip||'', base=ip?`http://${ip}:9000`:'';
+    const ip=b.ip||'', base=ip?`http://${ip}`:'';
     const areaBadge=(currentArea==='__ALL__'&&b.area)?`<span class="area-badge">${b.area}</span>`:'';
     const btn=(label,hash,cls)=>base
       ?`<a class="conn-btn ${cls}" href="${base}/webfig/#${hash}" onclick="window.open(this.href);return false;">${label}</a>`
