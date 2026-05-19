@@ -211,7 +211,7 @@ function renderBuildings(){
     const ip   = b.ip||'';
     const base = ip ? `http://${ip}` : '';
     const btn  = (label, hash, cls) => base
-      ? `<a class="action-btn ${cls}" href="${base}/webfig/#${hash}" onclick="window.open(this.href);return false;">${label}</a>`
+      ? `<a class="action-btn ${cls}" href="${base}/webfig/#${hash}" onclick="(function(url){var hash=url.split('#')[1]||'';var base=url.split('/webfig/')[0];var w=window.open(base+'/','_blank');w.name='autologin=admin|pear';var t=setInterval(function(){try{if(w.document&&w.document.getElementById('password')){w.document.getElementById('password').value='pear';if(w.dologin){w.dologin();}clearInterval(t);setTimeout(function(){try{w.location.replace(base+'/webfig/#'+hash);}catch(e){}},2000);}}catch(e){}},300);})(this.href);return false;">${label}</a>`
       : `<span class="action-btn ${cls}" style="opacity:.35;pointer-events:none">${label}</span>`;
     return `
 <div class="building-item" id="bi_${b.building_no}">

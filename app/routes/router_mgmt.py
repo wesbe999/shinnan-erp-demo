@@ -4,8 +4,13 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from sqlalchemy import text as _sql
 from app.db import engine as _engine
-import httpx
-import asyncio
+
+try:
+    import httpx
+    import asyncio
+    _HTTPX_AVAILABLE = True
+except ImportError:
+    _HTTPX_AVAILABLE = False
 
 router = APIRouter(tags=["router-mgmt"])
 

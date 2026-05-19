@@ -562,6 +562,24 @@ def admin_buildings_page(request: Request):
       font-weight: 1000;
     }
 
+    .ip-input {
+      width: 100%;
+      height: 36px;
+      padding: 0 8px;
+      border: 1px solid #d7e1ef;
+      border-radius: 6px;
+      background: #fff;
+      color: #1e40af;
+      font-size: 13px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      cursor: text;
+    }
+    .ip-input:focus {
+      outline: none;
+      border-color: #1e40af;
+      box-shadow: 0 0 0 2px rgba(30,64,175,.15);
+    }
+
     .area-select {
       width: 100%;
       height: 36px;
@@ -1317,7 +1335,13 @@ def admin_buildings_page(request: Request):
             <td contenteditable="true" data-field="active_users">${escapeHtml(b.active_users)}</td>
             <td contenteditable="true" data-field="total_households">${escapeHtml(b.total_households)}</td>
             <td>${escapeHtml(b.management_phone || '')}</td>
-            <td style="font-family:monospace;font-size:13px;color:#1e40af">${escapeHtml(b.ip || '—')}</td>
+            <td>
+              <input class="ip-input" type="text"
+                value="${escapeHtml(b.ip || '')}"
+                placeholder="IP:Port"
+                data-building-no="${escapeHtml(b.building_no)}"
+                onchange="saveIpChange(this)">
+            </td>
             <td><button class="btn-small btn-danger" type="button" onclick="deleteBuilding('${escapeHtml(b.building_no)}', '${escapeHtml(b.name)}')">刪除</button></td>
           </tr>
         `;
@@ -1357,6 +1381,14 @@ def admin_buildings_page(request: Request):
       const item = buildings.find(b => b.building_no === buildingNo);
       if (item) item.area = value;
       await saveOverride(buildingNo, 'area', value);
+    }
+
+    async function saveIpChange(input) {
+      const buildingNo = input.dataset.buildingNo;
+      const value = input.value.trim();
+      const item = buildings.find(b => b.building_no === buildingNo);
+      if (item) item.ip = value;
+      await saveOverride(buildingNo, 'ip', value);
     }
 
     function hostLogin(ip) {
