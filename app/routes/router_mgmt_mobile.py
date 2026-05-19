@@ -32,6 +32,13 @@ _MOBILE_HTML = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="路由管理">
+<meta name="theme-color" content="#184d3b">
+<link rel="manifest" href="/static/router_mgmt_manifest.json">
+<link rel="apple-touch-icon" href="/static/pwa_icon_192.png">
 <title>路由管理｜訊南</title>
 <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
 <style>
@@ -356,6 +363,14 @@ document.getElementById('searchInput').addEventListener('input', e => {
 });
 
 init();
+</script>
+<script src="/static/app_header_actions.js?v=cl17p6"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/static/router_mgmt_sw.js')
+    .then(() => console.log('SW registered'))
+    .catch(e => console.log('SW error:', e));
+}
 </script>
 </body>
 </html>"""
