@@ -286,11 +286,20 @@ function render() {
       ? `<button class="btn-rb" onclick="openRB('${rbUrl}')">🖥️ 進入RB</button>`
       : `<button class="btn-rb" style="opacity:.4;cursor:not-allowed">🖥️ 進入RB</button>`
     }
-    <button class="btn-nav" title="導航功能開發中">📍 導航</button>
+    ${b.address
+      ? `<button class="btn-nav" onclick="openNav('${esc(b.address)}')" style="color:#d97706;border-color:#fbbf24;cursor:pointer">📍 導航</button>`
+      : `<button class="btn-nav" title="無地址資料">📍 導航</button>`
+    }
     <button class="btn-detail" title="詳細資訊開發中">📋 詳情</button>
   </div>
 </div>`;
   }).join('');
+}
+
+// ── 開啟導航 ──
+function openNav(address) {
+  const url = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(address);
+  window.open(url, '_blank');
 }
 
 // ── 開啟 RB ──
