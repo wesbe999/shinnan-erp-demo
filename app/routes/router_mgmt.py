@@ -1,13 +1,14 @@
-from fastapi.responses import RedirectResponse
 from app.routes.employee_auth import _employee_current_user_from_request
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sqlalchemy import text as _sql
 from app.db import engine as _engine
+import asyncio
+import subprocess
+import platform
 
 try:
     import httpx
-    import asyncio
     _HTTPX_AVAILABLE = True
 except ImportError:
     _HTTPX_AVAILABLE = False
@@ -737,3 +738,22 @@ def router_mgmt_page(request: Request):
     if not _user:
         return RedirectResponse(f"/employee/login?next=/router-mgmt", status_code=303)
     return HTMLResponse(_ROUTER_MGMT_HTML)
+
+
+@router.get("/api/router-mgmt/ping")
+def api_ping(ip: str, no: str, request: Request):
+    user = _employee_current_user_from_request(request)
+    if not user:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    # 取出純 IP（去掉 port）
+    ip_only = ip.split(':')[0]
+    try:
+        if platform.system() == "Windows":
+            cmd = ["ping", "-n", "1", "-w", "2000", ip_only]
+        else:
+            cmd = ["ping", "-c", "1", "-W", "2", ip_only]
+        result = subprocess.run(cmd, capture_output=True, timeout=5)
+        alive = result.returncode == 0
+    except Exception:
+        alive = False
+    return JSONResponse({"building_no": no, "ip": ip, "alive": alive})
