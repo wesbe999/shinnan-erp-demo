@@ -44,6 +44,16 @@ def _has_existing_data() -> bool:
             if int(table_count or 0) == 0:
                 return False
 
+            # 只要 buildings 有資料就算有資料
+            buildings_exists = conn.execute(text("""
+                SELECT COUNT(*) FROM sqlite_master
+                WHERE type='table' AND name='buildings'
+            """)).scalar_one()
+            if int(buildings_exists or 0) > 0:
+                building_count = conn.execute(text("SELECT COUNT(*) FROM buildings")).scalar_one()
+                if int(building_count or 0) > 0:
+                    return True
+
             tickets_exists = conn.execute(text("""
                 SELECT COUNT(*)
                 FROM sqlite_master
