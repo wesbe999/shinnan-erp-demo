@@ -3,7 +3,7 @@ services:
     name: shinnan-erp-demo
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install --upgrade -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: XUNNAN_DB_PATH

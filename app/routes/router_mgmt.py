@@ -20,6 +20,12 @@ _NMS_TIMEOUT = 15
 # 全域 NMS session（cookie 快取）
 _nms_cookies: dict[str, str] = {}
 
+def _ddns_from_serial(serial: str | None) -> str:
+    serial = (serial or "").strip().lower()
+    if not serial:
+        return ""
+    return f"{serial}.sn.mynetname.net"
+
 async def _nms_ensure_login() -> bool:
     """確保已登入 NMS，回傳是否成功。"""
     global _nms_cookies
@@ -74,12 +80,14 @@ async def _nms_fetch_devices(offline: bool = False) -> list[dict]:
                     "offline" if "SF_0" in css else (
                     "warning" if "SF_2" in css else "unknown"))
                 lines = a["title"].split("\n")
+                serial = lines[3].strip() if len(lines) > 3 else ""
                 self._cur = {
                     "did":      self._last_did,
                     "name":     "",
                     "model":    lines[1].strip() if len(lines) > 1 else "",
                     "identity": lines[2].strip() if len(lines) > 2 else "",
-                    "serial":   lines[3].strip() if len(lines) > 3 else "",
+                    "serial":   serial,
+                    "ddns":     _ddns_from_serial(serial),
                     "status":   status,
                     "community":lines[0].strip() if lines else "",
                 }
@@ -154,6 +162,7 @@ def _fetch_r2_devices_from_db(offline: bool = False) -> list[dict]:
             d["status"] = "offline" if cn == "SF_0" else ("warning" if cn in ("SF_2","SF_4") else "online")
             d["did"]    = d["device_id"]
             d["name"]   = d["community"] or d["building_name"]
+            d["ddns"]   = _ddns_from_serial(d.get("serial"))
             result.append(d)
         return result
     except Exception:
@@ -196,9 +205,11 @@ async def api_nms_device_detail(did: str):
                 img_urls.append(f"{_NMS_BASE}{src}")
             else:
                 img_urls.append(f"{_NMS_BASE}/app/r2/{src}")
+        serial = _pick("序號")
         return JSONResponse({
             "ok": True,
-            "serial":   _pick("序號"),
+            "serial":   serial,
+            "ddns":     _ddns_from_serial(serial),
             "model":    _pick("型號"),
             "name":     _pick("社區"),
             "identity": _pick("編號"),
@@ -383,6 +394,7 @@ body{background:#0d1117;color:#e6edf3;font-family:"Microsoft JhengHei","Segoe UI
 .nchip.warning{background:#2d2010;border-color:#e3b34140}
 .nchip .nc-name{font-size:11px;font-weight:700;line-height:1.3;color:#e6edf3}
 .nchip .nc-id  {font-size:10px;color:#8b949e;margin-top:3px;font-family:"Courier New",monospace}
+.nchip .nc-ddns{font-size:9px;color:#6e7681;margin-top:2px;font-family:"Courier New",monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nchip .nc-dot {
   position:absolute;top:6px;right:6px;
   width:6px;height:6px;border-radius:50%;
@@ -566,7 +578,7 @@ function render(){
     const ip=b.ip||'', base=ip?`http://${ip}`:'';
     const areaBadge=(currentArea==='__ALL__'&&b.area)?`<span class="area-badge">${b.area}</span>`:'';
     const btn=(label,hash,cls)=>base
-      ?`<a class="conn-btn ${cls}" href="${base}/webfig/#${hash}" onclick="window.open(this.href);return false;">${label}</a>`
+      ?`<a class="conn-btn ${cls}" href="${base}/webfig/#${hash}" onclick="(function(url){var hash=url.split('#')[1]||'';var base=url.split('/webfig/')[0];var w=window.open(base+'/','_blank');w.name='autologin=admin|pear';var t=setInterval(function(){try{if(w.document&&w.document.getElementById('password')){w.document.getElementById('password').value='pear';if(w.dologin){w.dologin();}clearInterval(t);setTimeout(function(){try{w.location.replace(base+'/webfig/#'+hash);}catch(e){}},2000);}}catch(e){}},300);})(this.href);return false;">${label}</a>`
       :`<span class="conn-btn disabled">${label}</span>`;
     return `<div class="bcard">
 <div class="bno">${b.building_no}${areaBadge}</div>
@@ -622,7 +634,7 @@ async function loadNms(force=false, live=false){
 function renderNms(){
   const q = nmsSearchQ.trim().toLowerCase();
   let list = nmsData;
-  if(q) list=list.filter(d=>d.name.toLowerCase().includes(q)||d.identity.toLowerCase().includes(q)||d.community.toLowerCase().includes(q));
+  if(q) list=list.filter(d=>d.name.toLowerCase().includes(q)||d.identity.toLowerCase().includes(q)||d.community.toLowerCase().includes(q)||(d.ddns||'').toLowerCase().includes(q));
 
   const online  = nmsData.filter(d=>d.status==='online').length;
   const offline = nmsData.filter(d=>d.status==='offline').length;
@@ -639,7 +651,8 @@ function renderNms(){
 <div class="nchip ${d.status}" onclick="openDeviceModal('${d.did}','${esc(d.name)}','${d.status}')">
   <div class="nc-dot"></div>
   <div class="nc-name">${esc(d.name)}</div>
-  <div class="nc-id">${d.identity||d.model||''}</div>
+  <div class="nc-id">${esc(d.identity||d.model||'')}</div>
+  <div class="nc-ddns" title="${esc(d.ddns||'')}">${esc(d.ddns||'-')}</div>
 </div>`).join('');
 }
 
@@ -684,6 +697,7 @@ async function openDeviceModal(did, name, status){
   <div class="info-item"><div class="i-label">版本</div><div class="i-val mono">${d.version||'-'}</div></div>
   <div class="info-item"><div class="i-label">編號</div><div class="i-val mono">${d.identity||'-'}</div></div>
   <div class="info-item"><div class="i-label">序號</div><div class="i-val mono">${d.serial||'-'}</div></div>
+  <div class="info-item"><div class="i-label">DDNS</div><div class="i-val mono">${d.ddns||'-'}</div></div>
   <div class="info-item"><div class="i-label">運行時間</div><div class="i-val">${d.uptime||'-'}</div></div>
   <div class="info-item"><div class="i-label">電路</div><div class="i-val">${d.circuit||'-'}</div></div>
   <div class="info-item"><div class="i-label">最後檢查</div><div class="i-val">${d.lastCheck||'-'}</div></div>
