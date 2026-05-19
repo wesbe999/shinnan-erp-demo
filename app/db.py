@@ -66,7 +66,9 @@ def seed_demo_database_if_needed() -> None:
     if not DATABASE_URL.startswith("sqlite"):
         return
 
-    if _has_existing_data():
+    force_reseed = os.getenv("XUNNAN_FORCE_RESEED", "0").strip().lower() in {"1", "true", "yes"}
+
+    if not force_reseed and _has_existing_data():
         return
 
     import gzip
