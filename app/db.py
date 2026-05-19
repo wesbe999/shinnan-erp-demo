@@ -70,39 +70,8 @@ def _has_existing_data() -> bool:
 
 
 def seed_demo_database_if_needed() -> None:
-    if not _demo_seed_enabled():
-        return
-
-    if not DATABASE_URL.startswith("sqlite"):
-        return
-
-    force_reseed = os.getenv("XUNNAN_FORCE_RESEED", "0").strip().lower() in {"1", "true", "yes"}
-
-    if not force_reseed and _has_existing_data():
-        return
-
-    import gzip
-
-    seed_dir = PROJECT_ROOT / "app" / "seed"
-    seed_gz  = seed_dir / "demo_seed.sql.gz"
-    seed_sql = seed_dir / "demo_seed.sql"
-
-    if seed_gz.exists():
-        with gzip.open(str(seed_gz), "rt", encoding="utf-8") as f:
-            sql_text = f.read()
-    elif seed_sql.exists():
-        sql_text = seed_sql.read_text(encoding="utf-8")
-    else:
-        return
-
-    raw_conn = engine.raw_connection()
-    try:
-        raw_conn.executescript(sql_text)
-        raw_conn.execute("DELETE FROM employee_sessions")
-        raw_conn.execute("DROP TABLE IF EXISTS _codex_write_probe")
-        raw_conn.commit()
-    finally:
-        raw_conn.close()
+    # DB 已直接存放在 repo，不需要 seed
+    return
 
 
 def get_db():
