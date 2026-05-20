@@ -1022,6 +1022,14 @@ def dispatch_mobile_app_page(request: _Request):
 </head>
 
 <body>
+  <style>
+  .bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:430px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:8px 8px 12px;background:rgba(238,244,251,.96);border-top:1px solid #d7e1ef;backdrop-filter:blur(10px);z-index:200;}
+  .bottom-nav button{height:42px;min-width:0;border:2px solid #d4af37;border-radius:12px;background:#fff;color:#102348;font-size:12px;font-weight:900;cursor:pointer;}
+  .bottom-nav button.gold{background:transparent;border:2px solid #d4af37;color:#d4af37;}
+  .bottom-nav button.primary{background:#4f63e8;border-color:#d4af37;color:#fff;}
+  .bottom-nav button.green{background:#16a34a;border-color:#d4af37;color:#fff;}
+  .bottom-nav button.danger{background:#cf3b2f;border-color:#d4af37;color:#fff;}
+  </style>
   <div class="app-shell">
     <section class="hero app-standard-hero">
       <div class="hero-main">
@@ -1090,14 +1098,15 @@ def dispatch_mobile_app_page(request: _Request):
     </main>
 
     <nav class="bottom-nav">
-      <button onclick="loadEmergencyNotices(); loadTickets();">整理</button>
-      <button class="primary" onclick="showCreatePage()">新增</button>
+      <button class="gold" onclick="window.location.href='/app'">🏠 首頁</button>
+      <button onclick="loadEmergencyNotices(); loadTickets();">🔄 整理</button>
+      <button class="primary" onclick="showCreatePage()">➕ 新增</button>
+      <button class="danger" onclick="window.location.href='/employee/logout?next=/employee/login'">登出</button>
     </nav>
   </div>
 
   <script src="/static/dispatch_app.js?v=cl15l4_20260515_024129"></script>
 
-  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """
