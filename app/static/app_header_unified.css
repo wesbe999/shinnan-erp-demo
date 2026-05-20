@@ -96,8 +96,8 @@
 
 .hero-logo {
   position: absolute !important;
-  right: calc(50% + 76px) !important;
-  top: 56% !important;
+  left: 8px !important;
+  top: 50% !important;
   transform: translateY(-50%) !important;
   width: 86px !important;
   height: 86px !important;
@@ -163,17 +163,5 @@
     height: 82px !important;
     max-width: 82px !important;
     max-height: 82px !important;
-  }
-}
-
-@media (min-width: 600px) {
-  .hero-logo {
-    right: auto !important;
-    left: 16px !important;
-    transform: translateY(-50%) !important;
-  }
-
-  .hero-title {
-    font-size: 24px !important;
   }
 }
