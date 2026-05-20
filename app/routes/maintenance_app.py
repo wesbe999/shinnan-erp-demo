@@ -673,7 +673,65 @@ label{display:block;margin:10px 0 5px;color:#475569;font-size:14px;font-weight:1
 textarea,input{width:100%;border:1px solid #cbd5e1;border-radius:14px;background:#f8fafc;color:#102348;font-size:15px;font-weight:850;padding:10px}
 textarea{min-height:80px;resize:vertical}
 .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
-</style>
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 4px;
+      padding: 8px 8px 12px;
+      background: rgba(238,244,251,.96);
+      border-top: 1px solid #d7e1ef;
+      backdrop-filter: blur(10px);
+      z-index: 20;
+    }
+    .bottom-nav button {
+      height: 42px;
+      min-width: 0;
+      border: 2px solid #d4af37;
+      border-radius: 12px;
+      background: #fff;
+      color: #102348;
+      font-size: 11px;
+      font-weight: 1000;
+      line-height: 1.1;
+      padding: 0 2px;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bottom-nav button.gold {
+      background: transparent;
+      border: 2px solid #d4af37;
+      color: #d4af37;
+    }
+    .bottom-nav button.primary {
+      background: #4f63e8;
+      border-color: #d4af37;
+      color: #fff;
+    }
+    .bottom-nav button.green {
+      background: #16a34a;
+      border-color: #d4af37;
+      color: #fff;
+    }
+    .bottom-nav button.orange {
+      background: #f97316;
+      border-color: #d4af37;
+      color: #fff;
+    }
+    .bottom-nav button.danger {
+      background: #cf3b2f;
+      border-color: #d4af37;
+      color: #fff;
+    }
+    </style>
 </head>
 <body>
 <div class="app-shell">
@@ -941,8 +999,6 @@ async function submitTransfer(){
 
 loadTickets();
 </script>
-
-  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """.replace("__USER_LINE__", user_line)

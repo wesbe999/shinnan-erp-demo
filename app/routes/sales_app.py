@@ -926,32 +926,59 @@ def sales_mobile_app_page(request: _EmpRequest):
 
     .bottom-nav {
       position: fixed;
-      left: 0;
-      right: 0;
+      left: 50%;
       bottom: 0;
-      z-index: 30;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      padding: 10px 12px 14px;
-      background: rgba(238, 243, 249, 0.94);
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 4px;
+      padding: 8px 8px 12px;
+      background: rgba(238,244,251,.96);
+      border-top: 1px solid #d7e1ef;
       backdrop-filter: blur(10px);
-      border-top: 1px solid var(--line);
+      z-index: 20;
     }
-
     .bottom-nav button {
       height: 42px;
-      border: 0;
-      border-radius: 14px;
+      min-width: 0;
+      border: 2px solid #d4af37;
+      border-radius: 12px;
       background: #fff;
-      color: var(--text);
-      font-size: 13px;
+      color: #102348;
+      font-size: 11px;
       font-weight: 1000;
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+      line-height: 1.1;
+      padding: 0 2px;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
+    .bottom-nav button.gold {
+      background: transparent;
+      border: 2px solid #d4af37;
+      color: #d4af37;
+    }
     .bottom-nav button.primary {
-      background: var(--green);
+      background: #4f63e8;
+      border-color: #d4af37;
+      color: #fff;
+    }
+    .bottom-nav button.green {
+      background: #16a34a;
+      border-color: #d4af37;
+      color: #fff;
+    }
+    .bottom-nav button.orange {
+      background: #f97316;
+      border-color: #d4af37;
+      color: #fff;
+    }
+    .bottom-nav button.danger {
+      background: #cf3b2f;
+      border-color: #d4af37;
       color: #fff;
     }
 
@@ -3014,8 +3041,12 @@ def sales_mobile_app_page(request: _EmpRequest):
 })();
 </script>
 
-
-  <script src="/static/app_header_actions.js?v=cl17p6"></script>
+    <nav class="bottom-nav">
+      <button type="button" class="gold" onclick="window.location.href='/app'">🏠 首頁</button>
+      <button type="button" class="orange" onclick="window.location.href='/app/sales/new'">➕ 新增</button>
+      <button type="button" class="primary" onclick="loadData && loadData()">🔄 重整</button>
+      <button type="button" class="danger" onclick="window.location.href='/employee/logout?next=/employee/login'">登出</button>
+    </nav>
 </body>
 </html>
 """
@@ -3168,7 +3199,6 @@ def sales_mobile_new_case_page(request: _EmpRequest):
     return HTMLResponse("""<!doctype html><html><head><meta charset="utf-8">
 <script>location.replace("/app/sales#open-new");</script>
 </head><body>
-  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body></html>""")
 # SHINNAN_SALES_MOBILE_NEW_CASE_END
 

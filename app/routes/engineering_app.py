@@ -624,33 +624,54 @@ def engineering_mobile_app_page(request: _EmpRequest):
       max-width: 430px;
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 5px;
+      gap: 4px;
       padding: 8px 8px 12px;
       background: rgba(238,244,251,.96);
       border-top: 1px solid #d7e1ef;
       backdrop-filter: blur(10px);
       z-index: 20;
     }
-
     .bottom-nav button {
       height: 42px;
       min-width: 0;
-      border: 0;
-      border-radius: 11px;
+      border: 2px solid #d4af37;
+      border-radius: 12px;
       background: #fff;
       color: #102348;
       font-size: 11px;
       font-weight: 1000;
-      box-shadow: 0 6px 14px rgba(15,23,42,.08);
+      line-height: 1.1;
+      padding: 0 2px;
+      cursor: pointer;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
-    .bottom-nav button.primary { background:#4f63e8; color:#fff; }
-    .bottom-nav button.green { background:#16a34a; color:#fff; }
-    .bottom-nav button.orange { background:#f97316; color:#fff; }
-    .bottom-nav button.danger { background:#cf3b2f; color:#fff; }
+    .bottom-nav button.gold {
+      background: transparent;
+      border: 2px solid #d4af37;
+      color: #d4af37;
+    }
+    .bottom-nav button.primary {
+      background: #4f63e8;
+      border-color: #d4af37;
+      color: #fff;
+    }
+    .bottom-nav button.green {
+      background: #16a34a;
+      border-color: #d4af37;
+      color: #fff;
+    }
+    .bottom-nav button.orange {
+      background: #f97316;
+      border-color: #d4af37;
+      color: #fff;
+    }
+    .bottom-nav button.danger {
+      background: #cf3b2f;
+      border-color: #d4af37;
+      color: #fff;
+    }
   </style>
   <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
 </head>
@@ -711,9 +732,10 @@ def engineering_mobile_app_page(request: _EmpRequest):
     </div>
 
     <nav class="bottom-nav">
-      <button type="button" class="primary" onclick="openCurrentFlow()">流程</button>
-      <button type="button" class="orange" onclick="quickNextFromSelected()">下一步</button>
-      <button type="button" class="green" onclick="location.href='/app/engineering/schedule'">排程</button>
+      <button type="button" class="gold" onclick="window.location.href='/app'">🏠 首頁</button>
+      <button type="button" class="primary" id="nav_schedule_btn">📅 排班</button>
+      <button type="button" class="green" onclick="window.location.href='/app/engineering/schedule'">📋 工程表</button>
+      <button type="button" class="danger" onclick="window.location.href='/employee/logout?next=/employee/login'">登出</button>
     </nav>
   </div>
 
@@ -1130,8 +1152,6 @@ def engineering_mobile_app_page(request: _EmpRequest):
 
     renderHome();
   </script>
-
-  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """
@@ -1644,8 +1664,6 @@ def engineering_schedule_landscape_page(request: _EmpRequest):
 
     renderScheduleTable();
   </script>
-
-  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """
