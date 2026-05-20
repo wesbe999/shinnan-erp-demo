@@ -1835,7 +1835,7 @@ def employee_leave_page(request: _EmpRequest):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>\u8acb\u5047\u7533\u8acb\uff5c\u8a0a\u5357 ERP</title>
-<link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+<link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:#eef3f9;color:#102348;font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;padding-bottom:28px}
@@ -2196,7 +2196,7 @@ def employee_comp_rest_page(request: _EmpRequest):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>\u88dc\u4f11\u7533\u8acb\uff5c\u8a0a\u5357 ERP</title>
-<link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+<link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:#eef3f9;color:#102348;font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;padding-bottom:28px}
@@ -2293,7 +2293,7 @@ def employee_rest_page(request: _EmpRequest):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>\u6392\u4f11\u8a2d\u5b9a\uff5c\u8a0a\u5357 ERP</title>
-<link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+<link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:#eef3f9;color:#102348;font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;padding-bottom:28px}
@@ -2584,7 +2584,7 @@ def employee_overtime_page(request: _EmpRequest):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>\u52a0\u73ed\u7533\u8acb\uff5c\u8a0a\u5357 ERP</title>
-<link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+<link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:#eef3f9;color:#102348;font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;padding-bottom:28px}
@@ -2718,7 +2718,7 @@ textarea{min-height:84px;padding:12px 14px}
 .bottom-nav button.primary{background:#365ee8;border-color:#d4af37;color:#fff}
 .bottom-nav button.danger{background:#cf3b2f;border-color:#d4af37;color:#fff}
 </style>
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
 
 </head>
 <body>
@@ -3205,7 +3205,7 @@ def unified_mobile_app_home(request: _EmpRequest):
       .grid {{ grid-template-columns: 1fr; }}
     }}
   </style>
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
 </head>
 <body>
   <div class="app">
@@ -3345,7 +3345,7 @@ def unified_mobile_app_calculator(request: _EmpRequest):
     }}
     .red {{ background:#dc2626 !important; color:#fff !important; }}
   </style>
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
 
 
     <style id="cl15j9_calculator_refined_button_style_v1">
@@ -3593,7 +3593,7 @@ body {{
 button {{ height: 50px; border: 0; border-radius: 16px; background: white; color: #102348; font-size: 17px; font-weight: 1000; }}
 .red {{ background: #dc2626; color: white; }}
 </style>
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
 </head>
 <body>
 <div class="app-shell">

@@ -1053,7 +1053,7 @@ def sales_mobile_app_page(request: _EmpRequest):
 
 
 
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
 
 <style id="cl15n1_sales_dispatch_card_modal_style_v1">
   .sales-action-card {

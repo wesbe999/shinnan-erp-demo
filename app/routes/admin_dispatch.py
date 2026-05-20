@@ -31,7 +31,8 @@ def admin_page(request: Request):
     current_user = _employee_current_user_from_request(request)
     if not current_user:
         return RedirectResponse("/employee/login?next=/admin", status_code=303)
-    return HTMLResponse(CLEAN_ADMIN_HTML)
+    user_line = current_user.get("display_name") or current_user.get("staff_code") or "系統管理員"
+    return HTMLResponse(CLEAN_ADMIN_HTML.replace("__DISPATCH_USER__", user_line))
 
 
 @router.get("/admin/engineers", summary="工程師名錄已改由人資系統管理")
@@ -1089,98 +1090,19 @@ CLEAN_ADMIN_HTML = r'''
   <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
 
 
-  <style id="cl15i10_dispatch_actions_to_header_right_v1">
-    body .web-title .web-title-user,
-    body .web-title-user,
-    body [data-web-title-user="1"] {
-      display: none !important;
-      visibility: hidden !important;
-      width: 0 !important;
-      height: 0 !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      overflow: hidden !important;
-    }
+  
 
-    body .web-title.web-title-tech {
-      position: relative !important;
-      overflow: hidden !important;
-    }
-
-    body .cl15i10-header-actions {
-      position: absolute !important;
-      right: 38px !important;
-      bottom: 24px !important;
-      z-index: 50 !important;
-      display: flex !important;
-      flex-direction: row !important;
-      flex-wrap: nowrap !important;
-      align-items: center !important;
-      justify-content: flex-end !important;
-      gap: 7px !important;
-      white-space: nowrap !important;
-    }
-
-    body .cl15i10-header-actions button {
-      flex: 0 0 auto !important;
-      height: 28px !important;
-      min-width: 68px !important;
-      padding: 0 10px !important;
-      border-radius: 9px !important;
-      border: 1px solid rgba(224, 201, 119, 0.82) !important;
-      background: #10361f !important;
-      color: #fff7d6 !important;
-      font-size: 12px !important;
-      font-weight: 1000 !important;
-      line-height: 1 !important;
-      box-shadow: none !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      white-space: nowrap !important;
-      cursor: pointer !important;
-    }
-
-    body .cl15i10-header-actions button:hover {
-      background: #174a2a !important;
-      border-color: #ead27b !important;
-      transform: translateY(-1px);
-    }
-
-    body .cl15i10-header-actions button.cl15i10-logout {
-      background: #7f251f !important;
-      border-color: rgba(244, 180, 140, 0.82) !important;
-      color: #fff4ec !important;
-    }
-
-    body .cl15i10-header-actions button.cl15i10-logout:hover {
-      background: #9b2d25 !important;
-      border-color: #ffd0b0 !important;
-    }
-
-    body .toolbar.cl15i10-toolbar-hidden {
-      display: none !important;
-    }
-
-    @media (max-width: 1200px) {
-      body .cl15i10-header-actions {
-        right: 20px !important;
-        bottom: 16px !important;
-        gap: 5px !important;
-      }
-
-      body .cl15i10-header-actions button {
-        height: 26px !important;
-        min-width: 58px !important;
-        padding: 0 7px !important;
-        font-size: 11px !important;
-      }
-    }
-  </style>
-
+<link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
 </head>
 
 <body>
+<section class="hero app-standard-hero">
+  <div class="hero-main">
+    <span class="hero-logo"><img class="hero-logo-img" src="/static/shinnan_home_logo.png" alt="Logo"></span>
+    <h1 class="hero-title">訊南派工系統</h1>
+  </div>
+  <div class="hero-sub">__DISPATCH_USER__</div>
+</section>
   <section class="web-title web-title-tech">
   <img class="web-title-watermark" src="/static/shinnan_logo_outline_white.png" alt="">
   <div class="web-title-map"></div>
@@ -3029,8 +2951,21 @@ async function createTicket() {
 })();
 </script>
 
-
-  <script src="/static/app_header_actions.js?v=cl17p6"></script>
+<style>
+.bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:520px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:8px 8px 12px;background:rgba(238,244,251,.96);border-top:1px solid #d7e1ef;backdrop-filter:blur(10px);z-index:200;}
+.bottom-nav button{height:42px;min-width:0;border:2px solid #d4af37;border-radius:12px;background:#fff;color:#102348;font-size:12px;font-weight:900;cursor:pointer;}
+.bottom-nav button.gold{background:transparent;border:2px solid #d4af37;color:#d4af37;}
+.bottom-nav button.primary{background:#4f63e8;border-color:#d4af37;color:#fff;}
+.bottom-nav button.green{background:#16a34a;border-color:#d4af37;color:#fff;}
+.bottom-nav button.danger{background:#cf3b2f;border-color:#d4af37;color:#fff;}
+body{padding-bottom:70px;}
+</style>
+<nav class="bottom-nav">
+  <button type="button" class="gold" onclick="window.location.href='/app'">🏠 首頁</button>
+  <button type="button" class="primary" onclick="loadAll()">🔄 重整</button>
+  <button type="button" class="green" onclick="openCreateModal()">➕ 新增</button>
+  <button type="button" class="danger" onclick="logout()">登出</button>
+</nav>
 </body>
 </html>
 '''

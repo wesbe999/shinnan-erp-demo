@@ -40,7 +40,7 @@ _MOBILE_HTML = """<!doctype html>
 <link rel="manifest" href="/static/router_mgmt_manifest.json">
 <link rel="apple-touch-icon" href="/static/pwa_icon_192.png">
 <title>路由管理｜訊南</title>
-<link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+<link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#f0f2f5;font-family:"Microsoft JhengHei","Segoe UI",sans-serif;min-height:100vh;padding-bottom:32px}

@@ -1362,7 +1362,7 @@ def billing_mobile_app_page(request: _EmpRequest):
       color: #fff;
     }
   </style>
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
 </head>
 
 <body>
