@@ -1,18 +1,114 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 from app.config import data_file
-from app.services.demo_data import generate_billing_records
 from app.routes.employee_auth import _employee_current_user_from_request
+from sqlalchemy import create_engine, text as _sql
+from app.config import PROJECT_ROOT
 
 router = APIRouter(tags=["帳務系統"])
 
+# DB 連線
+_billing_db_path = PROJECT_ROOT / "xunnan_dispatch.db"
+_billing_engine = create_engine(f"sqlite:///{_billing_db_path}", connect_args={"check_same_thread": False})
 
 _BILLING_NOTICES_FILE = data_file("billing_notices.json")
+
+
+def _load_billing_records_from_db(user: dict) -> list[dict]:
+    """從 customer_accounts DB 讀取帳單資料"""
+    role = str(user.get("role", "") or "")
+    staff_code = str(user.get("staff_code", "") or "")
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    with _billing_engine.begin() as conn:
+        # 確認欄位存在
+        cols_rows = conn.execute(_sql("PRAGMA table_info(customer_accounts)")).fetchall()
+        cols = {r[1] for r in cols_rows}
+
+        # 篩選條件：到期日前15天到逾期後90天
+        where = [
+            "COALESCE(billing_due_date, '') != ''",
+            "date(billing_due_date, '-15 day') <= date(:today)",
+            "date(billing_due_date, '+90 day') > date(:today)",
+        ]
+
+        params = {"today": today, "staff_code": staff_code}
+
+        # 非 admin 只看自己負責的
+        if role != "admin" and staff_code != "admin":
+            staff_filters = []
+            for col in ("assigned_staff_code", "billing_staff_code", "collector_staff_code", "owner_staff_code"):
+                if col in cols:
+                    staff_filters.append(f"COALESCE({col}, '') = :staff_code")
+            if staff_filters:
+                where.append("(" + " OR ".join(staff_filters) + ")")
+
+        where_sql = " AND ".join(where)
+
+        # 欄位安全取用
+        def _col(name, default="''"):
+            return name if name in cols else default
+
+        sql = f"""
+            SELECT
+                id,
+                {_col('customer_no')} AS customer_no,
+                {_col('customer_name')} AS customer_name,
+                {_col('customer_phone', _col('phone'))} AS phone,
+                {_col('area')} AS area,
+                {_col('building_no')} AS building_no,
+                {_col('building_name')} AS building_name,
+                {_col('install_address', _col('service_address', _col('address')))} AS install_address,
+                {_col('billing_due_date')} AS due_date,
+                {_col('billing_month')} AS year_month,
+                {_col('monthly_fee', '0')} AS monthly_fee,
+                {_col('payment_status')} AS payment_status,
+                {_col('arrears_months', '0')} AS arrears_months,
+                {_col('arrears_status')} AS arrears_status,
+                {_col('collected_date')} AS collected_date,
+                {_col('collected_amount', '0')} AS collected_amount,
+                {_col('billing_memo')} AS billing_memo,
+                {_col('billing_staff_code')} AS billing_staff_code,
+                {_col('account_status')} AS account_status,
+                {_col('service_status')} AS service_status,
+                {_col('plan_name')} AS plan_name,
+                {_col('overdue_fee', '0')} AS overdue_fee
+            FROM customer_accounts
+            WHERE {where_sql}
+            ORDER BY billing_due_date ASC
+            LIMIT 500
+        """
+
+        rows = conn.execute(_sql(sql), params).fetchall()
+        col_names = [
+            'id','customer_no','customer_name','phone','area','building_no',
+            'building_name','install_address','due_date','year_month','monthly_fee',
+            'payment_status','arrears_months','arrears_status','collected_date',
+            'collected_amount','billing_memo','billing_staff_code','account_status',
+            'service_status','plan_name','overdue_fee'
+        ]
+
+        records = []
+        for row in rows:
+            r = dict(zip(col_names, row))
+            # 計算逾期天數
+            try:
+                due = datetime.strptime(r['due_date'], "%Y-%m-%d")
+                r['overdue_days'] = max(0, (datetime.now() - due).days)
+            except:
+                r['overdue_days'] = 0
+            # 計算總金額
+            r['total_amount'] = (r.get('monthly_fee') or 0) + (r.get('overdue_fee') or 0)
+            r['notice_label'] = '異常' if r['overdue_days'] > 20 else '正常'
+            records.append(r)
+
+    return records
 
 
 def _load_billing_notices() -> list[dict]:
@@ -76,13 +172,46 @@ def api_billing_notices_save(payload: dict):
     return JSONResponse({"ok": True, "notices": notices, "items": notices})
 
 
+@router.patch("/api/billing/customer/{customer_id}")
+async def api_billing_update_customer(customer_id: int, request: Request):
+    """電腦版帳務：更新客戶繳費狀態到 DB"""
+    user = _employee_current_user_from_request(request)
+    if not user:
+        return JSONResponse({"ok": False, "error": "login required"}, status_code=401)
+
+    payload = await request.json()
+    allowed = {
+        "payment_status", "collected_date", "collected_amount",
+        "billing_memo", "billing_staff_code", "arrears_status",
+        "arrears_months", "overdue_fee", "is_overdue", "ip_limited",
+        "last_payment_date", "billing_due_date", "billing_month",
+    }
+    updates = {k: v for k, v in payload.items() if k in allowed}
+    if not updates:
+        return JSONResponse({"ok": False, "error": "no valid fields"}, status_code=400)
+
+    updates["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    set_sql = ", ".join(f"{k} = :{k}" for k in updates)
+    updates["id"] = customer_id
+
+    with _billing_engine.begin() as conn:
+        result = conn.execute(
+            _sql(f"UPDATE customer_accounts SET {set_sql} WHERE id = :id"),
+            updates
+        )
+        if result.rowcount == 0:
+            return JSONResponse({"ok": False, "error": "not found"}, status_code=404)
+
+    return JSONResponse({"ok": True})
+
+
 @router.get("/admin/billing", response_class=HTMLResponse, summary="帳務系統")
 def billing_page(request: Request):
     current_user = _employee_current_user_from_request(request)
     if not current_user:
         return RedirectResponse("/employee/login?next=/admin/billing", status_code=303)
 
-    records_json = json.dumps(generate_billing_records(), ensure_ascii=False)
+    records_json = json.dumps(_load_billing_records_from_db(current_user), ensure_ascii=False)
 
     html = """
 <!doctype html>
@@ -199,6 +328,12 @@ def billing_page(request: Request):
         </div>
 
         <div class="fee-note">安裝費與押金僅供顯示，不列入帳單金額；帳單金額 =（月租費1 + 月租費2 + 月租費3）× 繳費月數。</div>
+
+        <div style="margin-top:12px;display:flex;gap:10px;align-items:center;">
+          <button type="button" onclick="confirmPaymentToDb()" style="height:38px;padding:0 20px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">✅ 登記收費</button>
+          <button type="button" onclick="markOverdueToDb()" style="height:38px;padding:0 20px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">⚠️ 標記逾期</button>
+          <span id="billing_save_status" style="font-size:13px;color:#16a34a;"></span>
+        </div>
       </div>
       <!-- SHINNAN_MODAL_FEE_CALC_BLOCK_END -->
 
@@ -3240,6 +3375,84 @@ def billing_page(request: Request):
     }
     // SHINNAN_FIX_EQUIPMENT_PANEL_JS_END
 
+
+    // ── 登記收費到 DB ──
+    async function confirmPaymentToDb() {
+      if (!currentDetailCustomerNo) { alert('尚未選擇客戶'); return; }
+      const record = records.find(r => String(r.customer_no) === String(currentDetailCustomerNo));
+      if (!record || !record.id) { alert('找不到客戶資料'); return; }
+
+      const total = parseFeeNumber(document.getElementById('detail_fee_total')?.value);
+      const today = new Date().toISOString().slice(0, 10);
+
+      const status = document.getElementById('billing_save_status');
+      status.textContent = '儲存中...';
+      status.style.color = '#64748b';
+
+      try {
+        const res = await fetch('/api/billing/customer/' + record.id, {
+          method: 'PATCH',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            payment_status: '已繳費',
+            collected_date: today,
+            collected_amount: total,
+            arrears_status: '無欠費',
+            arrears_months: 0,
+            last_payment_date: today,
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          status.textContent = '✅ 已登記收費';
+          status.style.color = '#16a34a';
+          record.payment_status = '已繳費';
+          record.collected_date = today;
+          record.collected_amount = total;
+        } else {
+          status.textContent = '❌ 儲存失敗';
+          status.style.color = '#dc2626';
+        }
+      } catch(e) {
+        status.textContent = '❌ 網路錯誤';
+        status.style.color = '#dc2626';
+      }
+    }
+
+    async function markOverdueToDb() {
+      if (!currentDetailCustomerNo) { alert('尚未選擇客戶'); return; }
+      const record = records.find(r => String(r.customer_no) === String(currentDetailCustomerNo));
+      if (!record || !record.id) { alert('找不到客戶資料'); return; }
+
+      if (!confirm('確認標記為逾期未繳？')) return;
+
+      const status = document.getElementById('billing_save_status');
+      status.textContent = '儲存中...';
+
+      try {
+        const res = await fetch('/api/billing/customer/' + record.id, {
+          method: 'PATCH',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            payment_status: '逾期未繳',
+            arrears_status: '逾期未繳',
+            is_overdue: 1,
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          status.textContent = '⚠️ 已標記逾期';
+          status.style.color = '#dc2626';
+          record.payment_status = '逾期未繳';
+        } else {
+          status.textContent = '❌ 儲存失敗';
+          status.style.color = '#dc2626';
+        }
+      } catch(e) {
+        status.textContent = '❌ 網路錯誤';
+        status.style.color = '#dc2626';
+      }
+    }
 
     function openCustomerDetail(customerNo) {
       const customerRecords = records.filter(function (r) {
