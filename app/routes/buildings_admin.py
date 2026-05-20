@@ -1217,11 +1217,25 @@ def admin_buildings_page(request: Request):
       }
     }
 
-    function saveOverride(buildingNo, field, value) {
+    async function saveOverride(buildingNo, field, value) {
+      // 同步存 localStorage（即時顯示）
       const overrides = loadOverrides();
       if (!overrides[buildingNo]) overrides[buildingNo] = {};
       overrides[buildingNo][field] = value;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
+
+      // 同步存後端 DB
+      const item = buildings.find(b => b.building_no === buildingNo);
+      if (!item || !item.id) return;
+      try {
+        await fetch(`/api/admin/buildings/${item.id}`, {
+          method: 'PATCH',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({[field]: value})
+        });
+      } catch(e) {
+        console.error('Save to DB failed:', e);
+      }
     }
 
     function applyOverrides(data) {
