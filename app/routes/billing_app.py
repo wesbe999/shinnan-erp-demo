@@ -343,7 +343,7 @@ def _billing_build_monthly_building_summary(user: dict) -> dict:
             ("c.cellphone" if "cellphone" in customer_cols else
             ("c.tel" if "tel" in customer_cols else "''")))))
         )
-        c_address = "c.install_address" if "install_address" in customer_cols else ("c.service_address" if "service_address" in customer_cols else "''")
+        c_address = "COALESCE(c.room_no, c.floor_text)" if "room_no" in customer_cols else ("c.install_address" if "install_address" in customer_cols else ("c.service_address" if "service_address" in customer_cols else "''"))
         c_billing_month = "c.billing_month" if "billing_month" in customer_cols else "''"
         c_billing_due_date = "c.billing_due_date" if "billing_due_date" in customer_cols else "''"
         c_billing_amount = "c.billing_amount" if "billing_amount" in customer_cols else ("c.monthly_fee" if "monthly_fee" in customer_cols else "0")
@@ -700,7 +700,7 @@ def api_app_billing_overdue_customers(request: _EmpRequest):
             ("c.cellphone" if "cellphone" in customer_cols else
             ("c.tel" if "tel" in customer_cols else "''")))))
         )
-        c_address = "c.install_address" if "install_address" in customer_cols else ("c.service_address" if "service_address" in customer_cols else "''")
+        c_address = "COALESCE(c.room_no, c.floor_text)" if "room_no" in customer_cols else ("c.install_address" if "install_address" in customer_cols else ("c.service_address" if "service_address" in customer_cols else "''"))
         c_billing_month = "c.billing_month" if "billing_month" in customer_cols else "''"
         c_billing_due_date = "c.billing_due_date" if "billing_due_date" in customer_cols else "''"
         c_billing_amount = "c.billing_amount" if "billing_amount" in customer_cols else ("c.monthly_fee" if "monthly_fee" in customer_cols else "0")
@@ -1371,7 +1371,7 @@ def billing_mobile_app_page(request: _EmpRequest):
       </div>
 
       <section class="summary">
-        <div class="summary-card">
+        <div class="summary-card clickable" onclick="returnToBuildingList()">
           <div class="summary-label">應發大樓</div>
           <div id="building_count" class="summary-value">-</div>
         </div>
