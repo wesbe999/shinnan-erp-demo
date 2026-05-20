@@ -544,7 +544,7 @@ def hr_home_page(request: Request):
         salary_data = '{"labels":["無薪資資料"],"values":[0]}'
 
     body = f"""
-      <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 
       <section class="summary">
         <div class="summary-card"><div class="summary-label">員工總數</div><div class="summary-value">{total}</div></div>
@@ -555,40 +555,25 @@ def hr_home_page(request: Request):
 
       <section class="dashboard-grid">
 
-        <!-- 第一排：部門長條圖 + 快速入口 -->
-        <div class="dash-row col-3-1">
-          <div class="dash-panel">
-            <div class="dash-panel-title">📊 各部門人數分布</div>
-            <canvas id="deptChart" height="120"></canvas>
-          </div>
-          <div class="dash-panel">
-            <div class="dash-panel-title">⚡ 快速入口</div>
-            <div class="dash-shortcuts" style="grid-template-columns:1fr;">
-              <a href="/admin/hr/employees" class="shortcut-btn">👥 員工名冊</a>
-              <a href="/admin/hr/permissions" class="shortcut-btn">🔐 權限管理</a>
-              <a href="/admin/hr/passwords" class="shortcut-btn">🔑 密碼管理</a>
-              <a href="/admin/hr/leave-requests" class="shortcut-btn">📋 請假審核</a>
-              <a href="/admin/hr/leave-management" class="shortcut-btn">📅 排休管理</a>
-              <a href="/admin/hr/payroll" class="shortcut-btn">💰 薪資試算</a>
-              <a href="/admin/hr/employee-adjust" class="shortcut-btn">📝 薪資調整</a>
-              <a href="/admin/hr/change-logs" class="shortcut-btn">📌 異動紀錄</a>
-            </div>
-          </div>
+        <!-- 第一排：部門長條圖（全寬） -->
+        <div class="dash-panel">
+          <div class="dash-panel-title">📊 各部門人數分布</div>
+          <canvas id="deptChart" height="80"></canvas>
         </div>
 
-        <!-- 第二排：在職狀況 + 帳號狀態 + 薪資分布 -->
+        <!-- 第二排：3個圓餅圖 -->
         <div class="dash-row col-1-1-1">
           <div class="dash-panel">
             <div class="dash-panel-title">👤 在職狀況</div>
-            <canvas id="statusChart" height="180"></canvas>
+            <canvas id="statusChart" height="200"></canvas>
           </div>
           <div class="dash-panel">
             <div class="dash-panel-title">🔑 帳號狀態</div>
-            <canvas id="accountChart" height="180"></canvas>
+            <canvas id="accountChart" height="200"></canvas>
           </div>
           <div class="dash-panel">
             <div class="dash-panel-title">💼 職務類型分布</div>
-            <canvas id="roleChart" height="180"></canvas>
+            <canvas id="roleChart" height="200"></canvas>
           </div>
         </div>
 
@@ -605,15 +590,15 @@ def hr_home_page(request: Request):
             </ul>
           </div>
           <div class="dash-panel">
-            <div class="dash-panel-title">💰 薪資概況</div>
-            <canvas id="salaryChart" height="180"></canvas>
+            <div class="dash-panel-title">💰 各部門平均薪資</div>
+            <canvas id="salaryChart" height="200"></canvas>
           </div>
         </div>
 
       </section>
 
       <script>
-      // 各部門長條圖
+      window.addEventListener('load', function() {{
       new Chart(document.getElementById('deptChart'), {{
         type: 'bar',
         data: {{
@@ -668,6 +653,7 @@ def hr_home_page(request: Request):
         }},
         options: {{ plugins: {{ legend: {{ display: false }} }},
           scales: {{ y: {{ beginAtZero: true, ticks: {{ callback: v => '$' + v.toLocaleString() }} }} }} }}
+      }});
       }});
       </script>
     """
