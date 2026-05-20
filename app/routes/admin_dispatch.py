@@ -31,8 +31,7 @@ def admin_page(request: Request):
     current_user = _employee_current_user_from_request(request)
     if not current_user:
         return RedirectResponse("/employee/login?next=/admin", status_code=303)
-    user_line = current_user.get("display_name") or current_user.get("staff_code") or "系統管理員"
-    return HTMLResponse(CLEAN_ADMIN_HTML.replace("__DISPATCH_USER__", user_line))
+    return HTMLResponse(CLEAN_ADMIN_HTML)
 
 
 @router.get("/admin/engineers", summary="工程師名錄已改由人資系統管理")
