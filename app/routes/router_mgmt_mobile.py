@@ -380,5 +380,5 @@ if ('serviceWorker' in navigator) {
 def router_mgmt_mobile_page(request: Request):
     user = _employee_current_user_from_request(request)
     if not user:
-        return RedirectResponse("/employee/login?next=/router-mgmt-mobile", status_code=303)
+        return RedirectResponse("/employee/login/mobile?next=/router-mgmt-mobile", status_code=303)
     return HTMLResponse(_MOBILE_HTML)
