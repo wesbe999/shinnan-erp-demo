@@ -927,7 +927,7 @@ def sales_mobile_app_page(request: _EmpRequest):
     .bottom-nav {
       position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
       width: 100%; max-width: 430px;
-      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 4px; padding: 8px 8px 12px;
       background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
       backdrop-filter: blur(10px); z-index: 20;
@@ -1031,7 +1031,7 @@ def sales_mobile_app_page(request: _EmpRequest):
   .bottom-nav {
       position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
       width: 100%; max-width: 430px;
-      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 4px; padding: 8px 8px 12px;
       background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
       backdrop-filter: blur(10px); z-index: 20;
@@ -1095,7 +1095,7 @@ def sales_mobile_app_page(request: _EmpRequest):
   .bottom-nav {
       position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
       width: 100%; max-width: 430px;
-      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 4px; padding: 8px 8px 12px;
       background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
       backdrop-filter: blur(10px); z-index: 20;
@@ -1403,7 +1403,7 @@ def sales_mobile_app_page(request: _EmpRequest):
   .bottom-nav {
       position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
       width: 100%; max-width: 430px;
-      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 4px; padding: 8px 8px 12px;
       background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
       backdrop-filter: blur(10px); z-index: 20;
@@ -1425,7 +1425,7 @@ def sales_mobile_app_page(request: _EmpRequest):
     .bottom-nav {
       position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
       width: 100%; max-width: 430px;
-      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 4px; padding: 8px 8px 12px;
       background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
       backdrop-filter: blur(10px); z-index: 20;
@@ -1450,7 +1450,7 @@ def sales_mobile_app_page(request: _EmpRequest):
   .bottom-nav {
       position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
       width: 100%; max-width: 430px;
-      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 4px; padding: 8px 8px 12px;
       background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
       backdrop-filter: blur(10px); z-index: 20;
@@ -1472,7 +1472,7 @@ def sales_mobile_app_page(request: _EmpRequest):
     .bottom-nav {
       position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
       width: 100%; max-width: 430px;
-      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 4px; padding: 8px 8px 12px;
       background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
       backdrop-filter: blur(10px); z-index: 20;
@@ -1497,7 +1497,7 @@ def sales_mobile_app_page(request: _EmpRequest):
   .bottom-nav {
       position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
       width: 100%; max-width: 430px;
-      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 4px; padding: 8px 8px 12px;
       background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
       backdrop-filter: blur(10px); z-index: 20;
@@ -1519,7 +1519,7 @@ def sales_mobile_app_page(request: _EmpRequest):
     .bottom-nav {
       position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
       width: 100%; max-width: 430px;
-      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 4px; padding: 8px 8px 12px;
       background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
       backdrop-filter: blur(10px); z-index: 20;
@@ -3059,8 +3059,9 @@ def sales_mobile_app_page(request: _EmpRequest):
 
     <nav class="bottom-nav">
       <button type="button" class="gold" onclick="window.location.href='/app'">🏠 首頁</button>
+      <button type="button" class="primary" onclick="openSalesBuildingCards && openSalesBuildingCards()">🏢 名冊</button>
+      <button type="button" class="green" onclick="openSalesDispatchModal && openSalesDispatchModal()">📋 派工</button>
       <button type="button" class="orange" onclick="window.location.href='/app/sales/new'">➕ 新增</button>
-      <button type="button" class="primary" onclick="loadData && loadData()">🔄 重整</button>
       <button type="button" class="danger" onclick="window.location.href='/employee/logout?next=/employee/login'">登出</button>
     </nav>
 </body>
