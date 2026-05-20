@@ -406,10 +406,10 @@ max-height: calc(100vh - 120px); }}
     .pill.yellow {{ background:#fef3c7; color:#92400e; }}
     .note {{ border-radius:16px; background:#fff7ed; border:1px solid #fdba74; color:#7c2d12; padding:12px 14px; font-size:15px; font-weight:900; line-height:1.55; margin-bottom:16px; }}
     
-.dashboard-grid {{ display:grid; grid-template-columns:2fr 1fr; gap:20px; margin-top:20px; }}
-    .dash-charts {{ display:flex; flex-direction:column; gap:16px; }}
-    .dash-row2 {{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }}
-    .dash-side {{ display:flex; flex-direction:column; gap:0; }}
+.dashboard-grid {{ display:flex; flex-direction:column; gap:20px; margin-top:20px; }}
+    .dash-row {{ display:grid; gap:16px; }}
+    .dash-row.col-3-1 {{ grid-template-columns:3fr 1fr; }}
+    .dash-row.col-1-1 {{ grid-template-columns:1fr 1fr; }}
     .dash-panel {{ background:#fff; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,.07); border:1px solid #e5e7eb; }}
     .dash-panel-title {{ font-size:15px; font-weight:800; color:#1e3a5f; margin-bottom:14px; padding-bottom:10px; border-bottom:2px solid #eef3f9; }}
     .dash-list {{ list-style:none; padding:0; margin:0; }}
@@ -524,6 +524,25 @@ def hr_home_page(request: Request):
     role_labels = str(list(role_count.keys())).replace("'", '"')
     role_values = str(list(role_count.values()))
 
+    # 各部門平均薪資
+    dept_salary = {}
+    dept_scnt = {}
+    for e in employees:
+        d = e.get("department") or "未分類"
+        sal = int(e.get("base_salary") or e.get("monthly_salary") or 0)
+        if sal > 0:
+            dept_salary[d] = dept_salary.get(d, 0) + sal
+            dept_scnt[d] = dept_scnt.get(d, 0) + 1
+    salary_sorted = sorted(
+        [(d, dept_salary[d] // dept_scnt[d]) for d in dept_salary if dept_scnt[d] > 0],
+        key=lambda x: -x[1]
+    )[:8]
+    import json as _json
+    if salary_sorted:
+        salary_data = _json.dumps({"labels": [s[0] for s in salary_sorted], "values": [s[1] for s in salary_sorted]}, ensure_ascii=False)
+    else:
+        salary_data = '{"labels":["無薪資資料"],"values":[0]}'
+
     body = f"""
       <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
@@ -536,33 +555,15 @@ def hr_home_page(request: Request):
 
       <section class="dashboard-grid">
 
-        <!-- 左：圖表區 -->
-        <div class="dash-charts">
-
+        <!-- 第一排：部門長條圖 + 快速入口 -->
+        <div class="dash-row col-3-1">
           <div class="dash-panel">
-            <div class="dash-panel-title">📊 各部門人數</div>
-            <canvas id="deptChart" height="200"></canvas>
+            <div class="dash-panel-title">📊 各部門人數分布</div>
+            <canvas id="deptChart" height="120"></canvas>
           </div>
-
-          <div class="dash-row2">
-            <div class="dash-panel">
-              <div class="dash-panel-title">👤 在職狀況</div>
-              <canvas id="statusChart" height="180"></canvas>
-            </div>
-            <div class="dash-panel">
-              <div class="dash-panel-title">🔑 帳號狀態</div>
-              <canvas id="accountChart" height="180"></canvas>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- 右：快速入口 + 待辦 -->
-        <div class="dash-side">
-
           <div class="dash-panel">
             <div class="dash-panel-title">⚡ 快速入口</div>
-            <div class="dash-shortcuts">
+            <div class="dash-shortcuts" style="grid-template-columns:1fr;">
               <a href="/admin/hr/employees" class="shortcut-btn">👥 員工名冊</a>
               <a href="/admin/hr/permissions" class="shortcut-btn">🔐 權限管理</a>
               <a href="/admin/hr/passwords" class="shortcut-btn">🔑 密碼管理</a>
@@ -573,17 +574,40 @@ def hr_home_page(request: Request):
               <a href="/admin/hr/change-logs" class="shortcut-btn">📌 異動紀錄</a>
             </div>
           </div>
+        </div>
 
-          <div class="dash-panel" style="margin-top:16px">
+        <!-- 第二排：在職狀況 + 帳號狀態 + 薪資分布 -->
+        <div class="dash-row col-1-1-1">
+          <div class="dash-panel">
+            <div class="dash-panel-title">👤 在職狀況</div>
+            <canvas id="statusChart" height="180"></canvas>
+          </div>
+          <div class="dash-panel">
+            <div class="dash-panel-title">🔑 帳號狀態</div>
+            <canvas id="accountChart" height="180"></canvas>
+          </div>
+          <div class="dash-panel">
+            <div class="dash-panel-title">💼 職務類型分布</div>
+            <canvas id="roleChart" height="180"></canvas>
+          </div>
+        </div>
+
+        <!-- 第三排：待辦 + 薪資概況 -->
+        <div class="dash-row col-1-1">
+          <div class="dash-panel">
             <div class="dash-panel-title">📋 待辦事項</div>
             <ul class="dash-list">
               <li><a href="/admin/hr/leave-requests">→ 請假審核 — 查看待審假單</a></li>
-              <li><a href="/admin/hr/leave-management">→ 排休管理 — 確認本月值班</a></li>
-              <li><a href="/admin/hr/passwords">→ 帳號管理 — 檢查停用帳號</a></li>
-              <li><a href="/admin/hr/change-logs">→ 異動紀錄 — 近期人事異動</a></li>
+              <li><a href="/admin/hr/leave-management">→ 排休管理 — 確認本月值班安排</a></li>
+              <li><a href="/admin/hr/passwords">→ 帳號管理 — 檢查停用或異常帳號</a></li>
+              <li><a href="/admin/hr/change-logs">→ 異動紀錄 — 查看近期人事異動</a></li>
+              <li><a href="/admin/hr/employee-adjust">→ 薪資調整 — 確認待更新薪資</a></li>
             </ul>
           </div>
-
+          <div class="dash-panel">
+            <div class="dash-panel-title">💰 薪資概況</div>
+            <canvas id="salaryChart" height="180"></canvas>
+          </div>
         </div>
 
       </section>
@@ -620,6 +644,30 @@ def hr_home_page(request: Request):
             backgroundColor: ['#1d4ed8','#f87171'], borderWidth: 0 }}]
         }},
         options: {{ plugins: {{ legend: {{ position: 'bottom' }} }}, cutout: '65%' }}
+      }});
+
+      // 職務類型圓餅
+      new Chart(document.getElementById('roleChart'), {{
+        type: 'doughnut',
+        data: {{
+          labels: {role_labels},
+          datasets: [{{ data: {role_values},
+            backgroundColor: ['#7c3aed','#0891b2','#d97706','#16a34a','#dc2626','#64748b'], borderWidth: 0 }}]
+        }},
+        options: {{ plugins: {{ legend: {{ position: 'bottom' }} }}, cutout: '65%' }}
+      }});
+
+      // 薪資概況長條圖（依部門平均月薪）
+      const salaryData = {salary_data};
+      new Chart(document.getElementById('salaryChart'), {{
+        type: 'bar',
+        data: {{
+          labels: salaryData.labels,
+          datasets: [{{ label: '平均月薪', data: salaryData.values,
+            backgroundColor: 'rgba(16,163,74,0.75)', borderRadius: 6 }}]
+        }},
+        options: {{ plugins: {{ legend: {{ display: false }} }},
+          scales: {{ y: {{ beginAtZero: true, ticks: {{ callback: v => '$' + v.toLocaleString() }} }} }} }}
       }});
       </script>
     """
