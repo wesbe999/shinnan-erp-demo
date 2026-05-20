@@ -410,7 +410,10 @@ max-height: calc(100vh - 120px); }}
     .dash-row {{ display:grid; gap:16px; }}
     .dash-row.col-3-1 {{ grid-template-columns:3fr 1fr; }}
     .dash-row.col-1-1 {{ grid-template-columns:1fr 1fr; }}
-    .dash-panel {{ background:#fff; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,.07); border:1px solid #e5e7eb; }}
+    .dash-row.col-1-1-1 {{ grid-template-columns:1fr 1fr 1fr; }}
+    .dash-panel {{ background:#fff; border-radius:12px; padding:14px 16px; box-shadow:0 2px 8px rgba(0,0,0,.07); border:1px solid #e5e7eb; }}
+    .dash-panel canvas {{ max-height:160px; }}
+    .dash-panel-title {{ font-size:13px; }}
     .dash-panel-title {{ font-size:15px; font-weight:800; color:#1e3a5f; margin-bottom:14px; padding-bottom:10px; border-bottom:2px solid #eef3f9; }}
     .dash-list {{ list-style:none; padding:0; margin:0; }}
     .dash-list li {{ padding:8px 0; border-bottom:1px solid #f1f5f9; font-size:13px; }}
@@ -558,22 +561,22 @@ def hr_home_page(request: Request):
         <!-- 第一排：部門長條圖（全寬） -->
         <div class="dash-panel">
           <div class="dash-panel-title">📊 各部門人數分布</div>
-          <canvas id="deptChart" height="80"></canvas>
+          <canvas id="deptChart" height="60"></canvas>
         </div>
 
         <!-- 第二排：3個圓餅圖 -->
         <div class="dash-row col-1-1-1">
           <div class="dash-panel">
             <div class="dash-panel-title">👤 在職狀況</div>
-            <canvas id="statusChart" height="200"></canvas>
+            <canvas id="statusChart" height="120"></canvas>
           </div>
           <div class="dash-panel">
             <div class="dash-panel-title">🔑 帳號狀態</div>
-            <canvas id="accountChart" height="200"></canvas>
+            <canvas id="accountChart" height="120"></canvas>
           </div>
           <div class="dash-panel">
             <div class="dash-panel-title">💼 職務類型分布</div>
-            <canvas id="roleChart" height="200"></canvas>
+            <canvas id="roleChart" height="120"></canvas>
           </div>
         </div>
 
@@ -591,7 +594,7 @@ def hr_home_page(request: Request):
           </div>
           <div class="dash-panel">
             <div class="dash-panel-title">💰 各部門平均薪資</div>
-            <canvas id="salaryChart" height="200"></canvas>
+            <canvas id="salaryChart" height="120"></canvas>
           </div>
         </div>
 
