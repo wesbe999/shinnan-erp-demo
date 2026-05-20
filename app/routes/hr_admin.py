@@ -406,7 +406,10 @@ max-height: calc(100vh - 120px); }}
     .pill.yellow {{ background:#fef3c7; color:#92400e; }}
     .note {{ border-radius:16px; background:#fff7ed; border:1px solid #fdba74; color:#7c2d12; padding:12px 14px; font-size:15px; font-weight:900; line-height:1.55; margin-bottom:16px; }}
     
-    .dashboard-grid {{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:20px; }}
+.dashboard-grid {{ display:grid; grid-template-columns:2fr 1fr; gap:20px; margin-top:20px; }}
+    .dash-charts {{ display:flex; flex-direction:column; gap:16px; }}
+    .dash-row2 {{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }}
+    .dash-side {{ display:flex; flex-direction:column; gap:0; }}
     .dash-panel {{ background:#fff; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,.07); border:1px solid #e5e7eb; }}
     .dash-panel-title {{ font-size:15px; font-weight:800; color:#1e3a5f; margin-bottom:14px; padding-bottom:10px; border-bottom:2px solid #eef3f9; }}
     .dash-list {{ list-style:none; padding:0; margin:0; }}
@@ -499,10 +502,31 @@ def hr_home_page(request: Request):
     employees = _load_employees()
     total = len(employees)
     active = len([e for e in employees if e.get("employment_status") == "在職"])
+    inactive = total - active
     enabled = len([e for e in employees if int(e.get("account_enabled") or 0)])
+    disabled = total - enabled
     departments = len(set([e.get("department") for e in employees if e.get("department")]))
 
+    # 各部門人數
+    dept_count = {}
+    for e in employees:
+        d = e.get("department") or "未分類"
+        dept_count[d] = dept_count.get(d, 0) + 1
+    dept_sorted = sorted(dept_count.items(), key=lambda x: -x[1])[:10]
+    dept_labels = str([d[0] for d in dept_sorted]).replace("'", '"')
+    dept_values = str([d[1] for d in dept_sorted])
+
+    # 職務類型分布
+    role_count = {}
+    for e in employees:
+        r = _role_label_zh(e.get("role") or "")
+        role_count[r] = role_count.get(r, 0) + 1
+    role_labels = str(list(role_count.keys())).replace("'", '"')
+    role_values = str(list(role_count.values()))
+
     body = f"""
+      <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
       <section class="summary">
         <div class="summary-card"><div class="summary-label">員工總數</div><div class="summary-value">{total}</div></div>
         <div class="summary-card"><div class="summary-label">在職員工</div><div class="summary-value">{active}</div></div>
@@ -511,33 +535,93 @@ def hr_home_page(request: Request):
       </section>
 
       <section class="dashboard-grid">
-        <div class="dash-panel">
-          <div class="dash-panel-title">📋 待辦事項</div>
-          <ul class="dash-list">
-            <li><a href="/admin/hr/leave-requests">請假審核 — 點此查看待審假單</a></li>
-            <li><a href="/admin/hr/leave-management">排休管理 — 確認本月值班安排</a></li>
-            <li><a href="/admin/hr/passwords">帳號管理 — 檢查停用或異常帳號</a></li>
-          </ul>
-        </div>
-        <div class="dash-panel">
-          <div class="dash-panel-title">👥 人員狀況</div>
-          <table class="dash-table">
-            <tr><td>在職人數</td><td class="val">{active} 人</td></tr>
-            <tr><td>帳號啟用</td><td class="val">{enabled} 人</td></tr>
-            <tr><td>帳號停用</td><td class="val">{total - enabled} 人</td></tr>
-            <tr><td>部門數</td><td class="val">{departments} 個</td></tr>
-          </table>
-        </div>
-        <div class="dash-panel">
-          <div class="dash-panel-title">⚡ 快速入口</div>
-          <div class="dash-shortcuts">
-            <a href="/admin/hr/employees" class="shortcut-btn">員工名冊</a>
-            <a href="/admin/hr/permissions" class="shortcut-btn">權限管理</a>
-            <a href="/admin/hr/payroll" class="shortcut-btn">薪資試算</a>
-            <a href="/admin/hr/change-logs" class="shortcut-btn">異動紀錄</a>
+
+        <!-- 左：圖表區 -->
+        <div class="dash-charts">
+
+          <div class="dash-panel">
+            <div class="dash-panel-title">📊 各部門人數</div>
+            <canvas id="deptChart" height="200"></canvas>
           </div>
+
+          <div class="dash-row2">
+            <div class="dash-panel">
+              <div class="dash-panel-title">👤 在職狀況</div>
+              <canvas id="statusChart" height="180"></canvas>
+            </div>
+            <div class="dash-panel">
+              <div class="dash-panel-title">🔑 帳號狀態</div>
+              <canvas id="accountChart" height="180"></canvas>
+            </div>
+          </div>
+
         </div>
+
+        <!-- 右：快速入口 + 待辦 -->
+        <div class="dash-side">
+
+          <div class="dash-panel">
+            <div class="dash-panel-title">⚡ 快速入口</div>
+            <div class="dash-shortcuts">
+              <a href="/admin/hr/employees" class="shortcut-btn">👥 員工名冊</a>
+              <a href="/admin/hr/permissions" class="shortcut-btn">🔐 權限管理</a>
+              <a href="/admin/hr/passwords" class="shortcut-btn">🔑 密碼管理</a>
+              <a href="/admin/hr/leave-requests" class="shortcut-btn">📋 請假審核</a>
+              <a href="/admin/hr/leave-management" class="shortcut-btn">📅 排休管理</a>
+              <a href="/admin/hr/payroll" class="shortcut-btn">💰 薪資試算</a>
+              <a href="/admin/hr/employee-adjust" class="shortcut-btn">📝 薪資調整</a>
+              <a href="/admin/hr/change-logs" class="shortcut-btn">📌 異動紀錄</a>
+            </div>
+          </div>
+
+          <div class="dash-panel" style="margin-top:16px">
+            <div class="dash-panel-title">📋 待辦事項</div>
+            <ul class="dash-list">
+              <li><a href="/admin/hr/leave-requests">→ 請假審核 — 查看待審假單</a></li>
+              <li><a href="/admin/hr/leave-management">→ 排休管理 — 確認本月值班</a></li>
+              <li><a href="/admin/hr/passwords">→ 帳號管理 — 檢查停用帳號</a></li>
+              <li><a href="/admin/hr/change-logs">→ 異動紀錄 — 近期人事異動</a></li>
+            </ul>
+          </div>
+
+        </div>
+
       </section>
+
+      <script>
+      // 各部門長條圖
+      new Chart(document.getElementById('deptChart'), {{
+        type: 'bar',
+        data: {{
+          labels: {dept_labels},
+          datasets: [{{ label: '人數', data: {dept_values},
+            backgroundColor: 'rgba(29,78,216,0.75)', borderRadius: 6 }}]
+        }},
+        options: {{ plugins: {{ legend: {{ display: false }} }}, scales: {{ y: {{ beginAtZero: true, ticks: {{ stepSize: 1 }} }} }} }}
+      }});
+
+      // 在職狀況圓餅
+      new Chart(document.getElementById('statusChart'), {{
+        type: 'doughnut',
+        data: {{
+          labels: ['在職', '離職'],
+          datasets: [{{ data: [{active}, {inactive}],
+            backgroundColor: ['#16a34a','#e5e7eb'], borderWidth: 0 }}]
+        }},
+        options: {{ plugins: {{ legend: {{ position: 'bottom' }} }}, cutout: '65%' }}
+      }});
+
+      // 帳號狀態圓餅
+      new Chart(document.getElementById('accountChart'), {{
+        type: 'doughnut',
+        data: {{
+          labels: ['啟用', '停用'],
+          datasets: [{{ data: [{enabled}, {disabled}],
+            backgroundColor: ['#1d4ed8','#f87171'], borderWidth: 0 }}]
+        }},
+        options: {{ plugins: {{ legend: {{ position: 'bottom' }} }}, cutout: '65%' }}
+      }});
+      </script>
     """
 
     return _layout("人事系統總覽", "home", _user_line(user), body)
