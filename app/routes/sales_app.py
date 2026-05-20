@@ -925,62 +925,25 @@ def sales_mobile_app_page(request: _EmpRequest):
     }
 
     .bottom-nav {
-      position: fixed;
-      left: 50%;
-      bottom: 0;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 430px;
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 4px;
-      padding: 8px 8px 12px;
-      background: rgba(238,244,251,.96);
-      border-top: 1px solid #d7e1ef;
-      backdrop-filter: blur(10px);
-      z-index: 20;
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px; padding: 8px 8px 12px;
+      background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
+      backdrop-filter: blur(10px); z-index: 20;
     }
     .bottom-nav button {
-      height: 42px;
-      min-width: 0;
-      border: 2px solid #d4af37;
-      border-radius: 12px;
-      background: #fff;
-      color: #102348;
-      font-size: 11px;
-      font-weight: 1000;
-      line-height: 1.1;
-      padding: 0 2px;
-      cursor: pointer;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      height: 42px; min-width: 0; border: 2px solid #d4af37;
+      border-radius: 12px; background: #fff; color: #102348;
+      font-size: 12px; font-weight: 900; cursor: pointer;
     }
-    .bottom-nav button.gold {
-      background: transparent;
-      border: 2px solid #d4af37;
-      color: #d4af37;
-    }
-    .bottom-nav button.primary {
-      background: #4f63e8;
-      border-color: #d4af37;
-      color: #fff;
-    }
-    .bottom-nav button.green {
-      background: #16a34a;
-      border-color: #d4af37;
-      color: #fff;
-    }
-    .bottom-nav button.orange {
-      background: #f97316;
-      border-color: #d4af37;
-      color: #fff;
-    }
-    .bottom-nav button.danger {
-      background: #cf3b2f;
-      border-color: #d4af37;
-      color: #fff;
-    }
+    .bottom-nav button.gold { background: transparent; border: 2px solid #d4af37; color: #d4af37; }
+    .bottom-nav button.primary { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.green { background: #16a34a; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.orange { background: #f97316; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.danger { background: #cf3b2f; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.dispatch-entry { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.new-entry { background: #16a34a; border-color: #d4af37; color: #fff; }
 
     .modal-mask {
       position: fixed;
@@ -1066,42 +1029,25 @@ def sales_mobile_app_page(request: _EmpRequest):
 
 <style id="sales_bottom_nav_employee_settings_v2">
   .bottom-nav {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    z-index: 40 !important;
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 8px !important;
-    padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) !important;
-    background: rgba(238, 243, 249, .94) !important;
-    backdrop-filter: blur(12px) !important;
-    border-top: 1px solid #d7e1ef !important;
-    max-width: 520px !important;
-    margin: 0 auto !important;
-  }
-
-  .bottom-nav button {
-    height: 54px !important;
-    border: 0 !important;
-    border-radius: 18px !important;
-    background: #fff !important;
-    color: #102348 !important;
-    font-size: 15px !important;
-    font-weight: 1000 !important;
-    box-shadow: 0 8px 20px rgba(15,23,42,.08) !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    line-height: 1 !important;
-    padding: 0 4px !important;
-  }
-
-  .bottom-nav button.danger {
-    background: #dc2626 !important;
-    color: #fff !important;
-  }
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px; padding: 8px 8px 12px;
+      background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
+      backdrop-filter: blur(10px); z-index: 20;
+    }
+    .bottom-nav button {
+      height: 42px; min-width: 0; border: 2px solid #d4af37;
+      border-radius: 12px; background: #fff; color: #102348;
+      font-size: 12px; font-weight: 900; cursor: pointer;
+    }
+    .bottom-nav button.gold { background: transparent; border: 2px solid #d4af37; color: #d4af37; }
+    .bottom-nav button.primary { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.green { background: #16a34a; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.orange { background: #f97316; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.danger { background: #cf3b2f; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.dispatch-entry { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.new-entry { background: #16a34a; border-color: #d4af37; color: #fff; }
 </style>
 
 
@@ -1147,13 +1093,25 @@ def sales_mobile_app_page(request: _EmpRequest):
   }
 
   .bottom-nav {
-    grid-template-columns: repeat(4, 1fr) !important;
-  }
-
-  .bottom-nav button.dispatch-entry {
-    background: #15803d !important;
-    color: #ffffff !important;
-  }
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px; padding: 8px 8px 12px;
+      background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
+      backdrop-filter: blur(10px); z-index: 20;
+    }
+    .bottom-nav button {
+      height: 42px; min-width: 0; border: 2px solid #d4af37;
+      border-radius: 12px; background: #fff; color: #102348;
+      font-size: 12px; font-weight: 900; cursor: pointer;
+    }
+    .bottom-nav button.gold { background: transparent; border: 2px solid #d4af37; color: #d4af37; }
+    .bottom-nav button.primary { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.green { background: #16a34a; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.orange { background: #f97316; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.danger { background: #cf3b2f; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.dispatch-entry { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.new-entry { background: #16a34a; border-color: #d4af37; color: #fff; }
 
   .sales-dispatch-mask {
     position: fixed;
@@ -1443,83 +1401,141 @@ def sales_mobile_app_page(request: _EmpRequest):
 
 <style id="cl15n7b_sales_app_new_button_style_v1">
   .bottom-nav {
-    grid-template-columns: repeat(5, 1fr) !important;
-  }
-
-  .bottom-nav button.new-entry {
-    background: #365ee8 !important;
-    color: #ffffff !important;
-  }
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px; padding: 8px 8px 12px;
+      background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
+      backdrop-filter: blur(10px); z-index: 20;
+    }
+    .bottom-nav button {
+      height: 42px; min-width: 0; border: 2px solid #d4af37;
+      border-radius: 12px; background: #fff; color: #102348;
+      font-size: 12px; font-weight: 900; cursor: pointer;
+    }
+    .bottom-nav button.gold { background: transparent; border: 2px solid #d4af37; color: #d4af37; }
+    .bottom-nav button.primary { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.green { background: #16a34a; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.orange { background: #f97316; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.danger { background: #cf3b2f; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.dispatch-entry { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.new-entry { background: #16a34a; border-color: #d4af37; color: #fff; }
 
   @media (max-width: 520px) {
     .bottom-nav {
-      grid-template-columns: repeat(5, 1fr) !important;
-      gap: 8px !important;
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px; padding: 8px 8px 12px;
+      background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
+      backdrop-filter: blur(10px); z-index: 20;
     }
-
     .bottom-nav button {
-      min-width: 0 !important;
-      padding-left: 6px !important;
-      padding-right: 6px !important;
-      font-size: 16px !important;
+      height: 42px; min-width: 0; border: 2px solid #d4af37;
+      border-radius: 12px; background: #fff; color: #102348;
+      font-size: 12px; font-weight: 900; cursor: pointer;
     }
+    .bottom-nav button.gold { background: transparent; border: 2px solid #d4af37; color: #d4af37; }
+    .bottom-nav button.primary { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.green { background: #16a34a; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.orange { background: #f97316; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.danger { background: #cf3b2f; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.dispatch-entry { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.new-entry { background: #16a34a; border-color: #d4af37; color: #fff; }
   }
 </style>
 
 
 <style id="cl15n7c_sales_bottom_nav_force_style_v1">
   .bottom-nav {
-    grid-template-columns: repeat(5, 1fr) !important;
-  }
-
-  .bottom-nav button.new-entry {
-    background: #365ee8 !important;
-    color: #ffffff !important;
-  }
-
-  .bottom-nav button.dispatch-entry {
-    background: #15803d !important;
-    color: #ffffff !important;
-  }
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px; padding: 8px 8px 12px;
+      background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
+      backdrop-filter: blur(10px); z-index: 20;
+    }
+    .bottom-nav button {
+      height: 42px; min-width: 0; border: 2px solid #d4af37;
+      border-radius: 12px; background: #fff; color: #102348;
+      font-size: 12px; font-weight: 900; cursor: pointer;
+    }
+    .bottom-nav button.gold { background: transparent; border: 2px solid #d4af37; color: #d4af37; }
+    .bottom-nav button.primary { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.green { background: #16a34a; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.orange { background: #f97316; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.danger { background: #cf3b2f; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.dispatch-entry { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.new-entry { background: #16a34a; border-color: #d4af37; color: #fff; }
 
   @media (max-width: 520px) {
     .bottom-nav {
-      grid-template-columns: repeat(5, 1fr) !important;
-      gap: 8px !important;
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px; padding: 8px 8px 12px;
+      background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
+      backdrop-filter: blur(10px); z-index: 20;
     }
-
     .bottom-nav button {
-      min-width: 0 !important;
-      padding-left: 6px !important;
-      padding-right: 6px !important;
-      font-size: 16px !important;
+      height: 42px; min-width: 0; border: 2px solid #d4af37;
+      border-radius: 12px; background: #fff; color: #102348;
+      font-size: 12px; font-weight: 900; cursor: pointer;
     }
+    .bottom-nav button.gold { background: transparent; border: 2px solid #d4af37; color: #d4af37; }
+    .bottom-nav button.primary { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.green { background: #16a34a; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.orange { background: #f97316; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.danger { background: #cf3b2f; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.dispatch-entry { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.new-entry { background: #16a34a; border-color: #d4af37; color: #fff; }
   }
 </style>
 
 
 <style id="cl15n7d_sales_new_button_route_style_v1">
   .bottom-nav {
-    grid-template-columns: repeat(5, 1fr) !important;
-  }
-
-  .bottom-nav button.new-entry {
-    background: #365ee8 !important;
-    color: #ffffff !important;
-  }
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px; padding: 8px 8px 12px;
+      background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
+      backdrop-filter: blur(10px); z-index: 20;
+    }
+    .bottom-nav button {
+      height: 42px; min-width: 0; border: 2px solid #d4af37;
+      border-radius: 12px; background: #fff; color: #102348;
+      font-size: 12px; font-weight: 900; cursor: pointer;
+    }
+    .bottom-nav button.gold { background: transparent; border: 2px solid #d4af37; color: #d4af37; }
+    .bottom-nav button.primary { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.green { background: #16a34a; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.orange { background: #f97316; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.danger { background: #cf3b2f; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.dispatch-entry { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.new-entry { background: #16a34a; border-color: #d4af37; color: #fff; }
 
   @media (max-width: 520px) {
     .bottom-nav {
-      grid-template-columns: repeat(5, 1fr) !important;
-      gap: 8px !important;
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px; padding: 8px 8px 12px;
+      background: rgba(238,244,251,.96); border-top: 1px solid #d7e1ef;
+      backdrop-filter: blur(10px); z-index: 20;
     }
-
     .bottom-nav button {
-      min-width: 0 !important;
-      padding-left: 6px !important;
-      padding-right: 6px !important;
-      font-size: 16px !important;
+      height: 42px; min-width: 0; border: 2px solid #d4af37;
+      border-radius: 12px; background: #fff; color: #102348;
+      font-size: 12px; font-weight: 900; cursor: pointer;
     }
+    .bottom-nav button.gold { background: transparent; border: 2px solid #d4af37; color: #d4af37; }
+    .bottom-nav button.primary { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.green { background: #16a34a; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.orange { background: #f97316; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.danger { background: #cf3b2f; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.dispatch-entry { background: #4f63e8; border-color: #d4af37; color: #fff; }
+    .bottom-nav button.new-entry { background: #16a34a; border-color: #d4af37; color: #fff; }
   }
 </style>
 

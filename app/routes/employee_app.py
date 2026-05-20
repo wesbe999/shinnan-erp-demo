@@ -2713,9 +2713,9 @@ textarea{min-height:84px;padding:12px 14px}
 .leave-main{font-size:17px;font-weight:1000}
 .leave-sub{margin-top:5px;color:#64748b;font-size:13px;font-weight:900;line-height:1.4}
 .bottom-nav{position:fixed;left:0;right:0;bottom:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:rgba(238,243,249,.94);display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:520px;margin:0 auto;border-top:1px solid #d7e1ef}
-.bottom-nav button{height:54px;border:2px solid #d4af37;border-radius:18px;background:#fff;color:#102348;font-size:16px;font-weight:1000}
-.bottom-nav button.primary{background:#365ee8;border-color:#d4af37;color:#fff}
+.bottom-nav button{height:54px;border:2px solid #d4af37;border-radius:18px;background:#fff;color:#102348;font-size:16px;font-weight:1000;cursor:pointer}
 .bottom-nav button.gold{background:transparent;border:2px solid #d4af37;color:#d4af37}
+.bottom-nav button.primary{background:#365ee8;border-color:#d4af37;color:#fff}
 .bottom-nav button.danger{background:#cf3b2f;border-color:#d4af37;color:#fff}
 </style>
   <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
