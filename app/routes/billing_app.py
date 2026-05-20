@@ -1317,7 +1317,7 @@ def billing_mobile_app_page(request: _EmpRequest):
     .bottom-nav button {
       height: 42px;
       min-width: 0;
-      border: 0;
+      border: 2px solid #d4af37;
       border-radius: 12px;
       background: #fff;
       color: #102348;
@@ -1340,21 +1340,25 @@ def billing_mobile_app_page(request: _EmpRequest):
 
     .bottom-nav button.primary {
       background: #4f63e8;
+      border-color: #d4af37;
       color: #fff;
     }
 
     .bottom-nav button.green {
       background: #16a34a;
+      border-color: #d4af37;
       color: #fff;
     }
 
     .bottom-nav button.orange {
       background: #f97316;
+      border-color: #d4af37;
       color: #fff;
     }
 
     .bottom-nav button.danger {
       background: #cf3b2f;
+      border-color: #d4af37;
       color: #fff;
     }
   </style>
@@ -1407,7 +1411,7 @@ def billing_mobile_app_page(request: _EmpRequest):
       <button type="button" class="orange" onclick="alert('介紹費功能下一階段開放')">介紹費</button>
       <button type="button" class="primary" onclick="loadMonthlyBuildings()">整理</button>
       <button type="button" class="green" onclick="alert('回饋金功能下一階段開放')">回饋金</button>
-      <button type="button" class="gold" onclick="window.location.href='/employee/logout?next=/employee/login'">登出</button>
+      <button type="button" class="danger" onclick="window.location.href='/employee/logout?next=/employee/login'">登出</button>
     </nav>
   </div>
 
