@@ -106,6 +106,24 @@ def _load_billing_records_from_db(user: dict) -> list[dict]:
             # 計算總金額
             r['total_amount'] = (r.get('monthly_fee') or 0) + (r.get('overdue_fee') or 0)
             r['notice_label'] = '異常' if r['overdue_days'] > 20 else '正常'
+            # 補齊前端需要的欄位
+            r['billing_no'] = f"R{r['id']:08d}"
+            r['confirm_no'] = r.get('customer_no', '')
+            r['invoice_no'] = ''
+            r['install_time'] = r.get('year_month', '')
+            r['change_fee'] = 0
+            r['material_fee'] = 0
+            # 統一 payment_status 格式
+            ps = str(r.get('payment_status') or '')
+            if ps in ('正常', '已繳費', '繳費正常'):
+                r['payment_status'] = '繳費正常'
+                r['notice_label'] = '正常'
+            elif ps in ('逾期', '逾期未繳', '繳費異常', '欠費'):
+                r['payment_status'] = '繳費異常'
+                r['notice_label'] = '異常'
+            else:
+                r['payment_status'] = '繳費正常' if r['overdue_days'] <= 20 else '繳費異常'
+                r['notice_label'] = '正常' if r['overdue_days'] <= 20 else '異常'
             records.append(r)
 
     return records
