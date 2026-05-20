@@ -405,11 +405,89 @@ max-height: calc(100vh - 120px); }}
     .pill.red {{ background:#fee2e2; color:#991b1b; }}
     .pill.yellow {{ background:#fef3c7; color:#92400e; }}
     .note {{ border-radius:16px; background:#fff7ed; border:1px solid #fdba74; color:#7c2d12; padding:12px 14px; font-size:15px; font-weight:900; line-height:1.55; margin-bottom:16px; }}
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .dash-panel {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+      border: 1px solid #e5e7eb;
+    }
+    .dash-panel-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1e3a5f;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #eef3f9;
+    }
+    .dash-list { list-style: none; padding: 0; margin: 0; }
+    .dash-list li { padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .dash-list li:last-child { border-bottom: none; }
+    .dash-list a { color: #1d4ed8; text-decoration: none; }
+    .dash-list a:hover { text-decoration: underline; }
+    .dash-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .dash-table tr { border-bottom: 1px solid #f1f5f9; }
+    .dash-table td { padding: 8px 4px; color: #475569; }
+    .dash-table td.val { font-weight: 800; color: #1e3a5f; text-align: right; }
+    .dash-shortcuts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .shortcut-btn {
+      display: block; text-align: center; padding: 12px 8px;
+      background: #eef3f9; border-radius: 8px; font-size: 13px;
+      font-weight: 700; color: #1e3a5f; text-decoration: none;
+      border: 1px solid #d7e1ef; transition: .15s;
+    }
+    .shortcut-btn:hover { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
     .cards {{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }}
     .big-card {{ background:#fff; border:1px solid #d7e1ef; border-radius:20px; padding:18px; box-shadow:0 10px 26px rgba(15,23,42,.06); text-decoration:none; color:#102348; }}
     .big-card h3 {{ margin:0 0 10px; font-size:22px; }}
     .big-card p {{ margin:0; color:#64748b; font-weight:900; line-height:1.55; }}
-    @media(max-width:980px) {{ .layout {{ grid-template-columns:1fr; }} .sidebar {{ display:none; }} .summary {{ grid-template-columns:repeat(2,1fr); }} .cards {{ grid-template-columns:1fr; }} }}
+    @media(max-width:980px) {{ .layout {{ grid-template-columns:1fr; }} .sidebar {{ display:none; }} .summary {{ grid-template-columns:repeat(2,1fr); }} 
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .dash-panel {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+      border: 1px solid #e5e7eb;
+    }
+    .dash-panel-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1e3a5f;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #eef3f9;
+    }
+    .dash-list { list-style: none; padding: 0; margin: 0; }
+    .dash-list li { padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .dash-list li:last-child { border-bottom: none; }
+    .dash-list a { color: #1d4ed8; text-decoration: none; }
+    .dash-list a:hover { text-decoration: underline; }
+    .dash-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .dash-table tr { border-bottom: 1px solid #f1f5f9; }
+    .dash-table td { padding: 8px 4px; color: #475569; }
+    .dash-table td.val { font-weight: 800; color: #1e3a5f; text-align: right; }
+    .dash-shortcuts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .shortcut-btn {
+      display: block; text-align: center; padding: 12px 8px;
+      background: #eef3f9; border-radius: 8px; font-size: 13px;
+      font-weight: 700; color: #1e3a5f; text-decoration: none;
+      border: 1px solid #d7e1ef; transition: .15s;
+    }
+    .shortcut-btn:hover { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+    .cards {{ grid-template-columns:1fr; }} }}
   
     /* HR_TABLE_COMPACT_FIX_START */
     .panel table th,
@@ -454,7 +532,7 @@ max-height: calc(100vh - 120px); }}
     </main>
   </div>
 
-  <script src="/static/app_header_actions.js?v=cl17p6"></script>
+  <!-- app_header_actions 已移除 -->
 </body>
 </html>"""
 
@@ -493,19 +571,33 @@ def hr_home_page(request: Request):
         <div class="summary-card"><div class="summary-label">部門數</div><div class="summary-value">{departments}</div></div>
       </section>
 
-      <section class="cards">
-        <a class="big-card" href="/admin/hr/employees"><h3>員工名冊</h3><p>查看員工編號、姓名、部門、職務類型、APP 權限與帳號狀態。</p></a>
-        <a class="big-card" href="/admin/hr/employee-adjust"><h3>職務薪資調整</h3><p>調整部門、職稱、職務類型、本薪、津貼、獎金與扣款。</p></a>
-        <a class="big-card" href="/admin/hr/permissions"><h3>權限管理</h3><p>設定派工、帳務、工程、業務、人事與管理後台權限。</p></a>
-        <a class="big-card" href="/admin/hr/passwords"><h3>密碼管理</h3><p>重設員工 PIN、啟用或停用帳號。</p></a>
-        <a class="big-card" href="/admin/hr/leave-management"><h3>休假管理</h3><p>管理 5、6 月排休，檢查一線單位每日是否有人值班。</p></a>
-        <a class="big-card" href="/admin/hr/leave-requests"><h3>請假審核</h3><p>查看假單、審核請假、保留證明與審核紀錄。</p></a>
-        <a class="big-card" href="/admin/hr/proxy-management"><h3>代理人管理</h3><p>設定代理人與代理範圍。</p></a>
-        <a class="big-card" href="/admin/hr/departments"><h3>部門職務</h3><p>管理部門、職稱、職級與一線單位設定。</p></a>
-        <a class="big-card" href="/admin/hr/salary"><h3>薪資結構</h3><p>查看薪資主檔、應發項目與扣款項目。</p></a>
-        <a class="big-card" href="/admin/hr/insurance"><h3>勞健保勞退</h3><p>試算勞保、健保、職災、工資墊償與勞退。</p></a>
-        <a class="big-card" href="/admin/hr/payroll"><h3>薪資試算</h3><p>計算應發、應扣、實發薪資與公司總成本。</p></a>
-        <a class="big-card" href="/admin/hr/change-logs"><h3>異動紀錄</h3><p>查看人事、權限、職務與薪資異動紀錄。</p></a>
+      <section class="dashboard-grid">
+        <div class="dash-panel">
+          <div class="dash-panel-title">📋 待辦事項</div>
+          <ul class="dash-list">
+            <li><a href="/admin/hr/leave-requests">請假審核 — 點此查看待審假單</a></li>
+            <li><a href="/admin/hr/leave-management">排休管理 — 確認本月值班安排</a></li>
+            <li><a href="/admin/hr/passwords">帳號管理 — 檢查停用或異常帳號</a></li>
+          </ul>
+        </div>
+        <div class="dash-panel">
+          <div class="dash-panel-title">👥 人員狀況</div>
+          <table class="dash-table">
+            <tr><td>在職人數</td><td class="val">{active} 人</td></tr>
+            <tr><td>帳號啟用</td><td class="val">{enabled} 人</td></tr>
+            <tr><td>帳號停用</td><td class="val">{total - enabled} 人</td></tr>
+            <tr><td>部門數</td><td class="val">{departments} 個</td></tr>
+          </table>
+        </div>
+        <div class="dash-panel">
+          <div class="dash-panel-title">⚡ 快速入口</div>
+          <div class="dash-shortcuts">
+            <a href="/admin/hr/employees" class="shortcut-btn">員工名冊</a>
+            <a href="/admin/hr/permissions" class="shortcut-btn">權限管理</a>
+            <a href="/admin/hr/payroll" class="shortcut-btn">薪資試算</a>
+            <a href="/admin/hr/change-logs" class="shortcut-btn">異動紀錄</a>
+          </div>
+        </div>
       </section>
     """
 
