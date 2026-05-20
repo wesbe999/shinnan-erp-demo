@@ -1331,6 +1331,13 @@ def billing_mobile_app_page(request: _EmpRequest):
       text-overflow: ellipsis;
     }
 
+    .bottom-nav button.gold {
+      background: transparent;
+      border: 2px solid #d4af37;
+      color: #d4af37;
+      font-weight: 900;
+    }
+
     .bottom-nav button.primary {
       background: #4f63e8;
       color: #fff;
@@ -1396,9 +1403,11 @@ def billing_mobile_app_page(request: _EmpRequest):
     </main>
 
     <nav class="bottom-nav">
+      <button type="button" class="gold" onclick="window.location.href='/app'">🏠 首頁</button>
       <button type="button" class="orange" onclick="alert('介紹費功能下一階段開放')">介紹費</button>
       <button type="button" class="primary" onclick="loadMonthlyBuildings()">整理</button>
       <button type="button" class="green" onclick="alert('回饋金功能下一階段開放')">回饋金</button>
+      <button type="button" class="gold" onclick="window.location.href='/employee/logout?next=/employee/login'">登出</button>
     </nav>
   </div>
 
@@ -1777,7 +1786,7 @@ def billing_mobile_app_page(request: _EmpRequest):
     loadOverdueCustomers();
   </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p6"></script>
+  <!-- app_header_actions 已移除，返回首頁/登出按鈕移到底部 nav -->
 </body>
 </html>
 """
