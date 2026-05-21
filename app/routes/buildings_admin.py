@@ -1297,19 +1297,13 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
     }
 
     function loadOverrides() {
-      try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-      } catch (e) {
-        return {};
-      }
+      localStorage.removeItem(STORAGE_KEY);
+      return {};
     }
 
     async function saveOverride(buildingNo, field, value) {
       // 同步存 localStorage（即時顯示）
-      const overrides = loadOverrides();
-      if (!overrides[buildingNo]) overrides[buildingNo] = {};
-      overrides[buildingNo][field] = value;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
+      localStorage.removeItem(STORAGE_KEY);
 
       // 同步存後端 DB
       const item = buildings.find(b => b.building_no === buildingNo);
@@ -1326,14 +1320,8 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
     }
 
     function applyOverrides(data) {
-      const overrides = loadOverrides();
-
-      return data.map(function (item) {
-        if (overrides[item.building_no]) {
-          return Object.assign({}, item, overrides[item.building_no]);
-        }
-        return item;
-      });
+      localStorage.removeItem(STORAGE_KEY);
+      return data;
     }
 
     async function loadBuildings() {
@@ -1614,15 +1602,12 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
   const ADD_STORAGE_KEY = "shinnan_building_directory_additional_v1";
 
   function loadAdditionalBuildings() {
-    try {
-      return JSON.parse(localStorage.getItem(ADD_STORAGE_KEY) || "[]");
-    } catch (e) {
-      return [];
-    }
+    localStorage.removeItem(ADD_STORAGE_KEY);
+    return [];
   }
 
   function saveAdditionalBuildings(items) {
-    localStorage.setItem(ADD_STORAGE_KEY, JSON.stringify(items));
+    localStorage.removeItem(ADD_STORAGE_KEY);
   }
 
   function nextBuildingNo() {
@@ -1645,7 +1630,7 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
     return "B" + String(next).padStart(3, "0");
   }
 
-  function openCreateBuildingModal() {
+  window.openCreateBuildingModal = function() {
     const modal = document.getElementById("create_building_modal");
     if (modal) modal.classList.add("active");
   }
@@ -1655,7 +1640,7 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
     if (modal) modal.classList.remove("active");
   }
 
-  function createBuilding() {
+  async function createBuilding() {
     const name = document.getElementById("new_building_name").value.trim();
     const area = document.getElementById("new_building_area").value;
     const address = document.getElementById("new_building_address").value.trim();
@@ -1686,14 +1671,24 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
       ip: ip || "未設定"
     };
 
-    const additional = loadAdditionalBuildings();
-    additional.push(item);
-    saveAdditionalBuildings(additional);
-
-    buildings.push(item);
+    try {
+      const res = await fetch("/api/admin/buildings", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(item)
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        alert("新增失敗：" + text.slice(0, 200));
+        return;
+      }
+      await loadBuildings();
+    } catch (e) {
+      alert("新增失敗：" + e.message);
+      return;
+    }
 
     closeCreateBuildingModal();
-    renderRows();
 
     document.getElementById("new_building_name").value = "";
     document.getElementById("new_building_address").value = "";
@@ -1714,8 +1709,8 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
     window.loadBuildings = async function () {
       const res = await fetch("/api/admin/buildings?ts=" + Date.now());
       const data = await res.json();
-      const merged = data.concat(loadAdditionalBuildings());
-      buildings = applyOverrides(merged);
+      localStorage.removeItem(ADD_STORAGE_KEY);
+      buildings = applyOverrides(data);
       renderRows();
     };
   }
