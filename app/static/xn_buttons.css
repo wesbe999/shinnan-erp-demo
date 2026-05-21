@@ -160,3 +160,41 @@ button[disabled], .btn[disabled] {
   font-size: 13px !important;
   font-weight: 1000 !important;
 }
+
+/* ── Header 右上角按鈕區（全域）── */
+.web-title .xn-header-actions,
+#xn-page-header .xn-header-actions {
+  position: absolute !important;
+  right: 28px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 7px !important;
+  z-index: 20 !important;
+}
+
+/* header 內的按鈕統一小尺寸 */
+.web-title .xn-header-actions button,
+#xn-page-header .xn-header-actions button {
+  height: 28px !important;
+  min-width: 60px !important;
+  padding: 0 12px !important;
+  font-size: 12px !important;
+  border-radius: 9px !important;
+}
+
+/* 登出按鈕紅色 */
+.web-title .xn-header-actions button.danger,
+#xn-page-header .xn-header-actions button.danger,
+.web-title .xn-header-actions .xn-logout,
+#xn-page-header .xn-header-actions .xn-logout {
+  background: #b91c1c !important;
+  border-color: rgba(240,180,140,.85) !important;
+  color: #fff !important;
+}
+.web-title .xn-header-actions button.danger:hover,
+#xn-page-header .xn-header-actions button.danger:hover {
+  background: #991b1b !important;
+}
