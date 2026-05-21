@@ -85,4 +85,5 @@ xunnan_dispatch.before_*.db
 
 # 只保留根目錄DB
 data/xunnan_dispatch.db
+data/*.db
 _debug_buildings_scripts/
