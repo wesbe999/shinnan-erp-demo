@@ -384,7 +384,7 @@ display:none;
 }
 .world-img{
   position:absolute;
-  left:-114px;
+  left:-94px;
   right:auto;
   top:auto;
   bottom:-27px;
@@ -564,7 +564,7 @@ position:absolute;
   .status{font-size:12px;margin-top:20px}
   .world-img{
   position:absolute;
-  left:-114px;
+  left:-94px;
   right:auto;
   top:auto;
   bottom:-27px;
