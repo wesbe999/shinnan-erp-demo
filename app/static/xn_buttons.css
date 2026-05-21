@@ -175,7 +175,7 @@ button[disabled], .btn[disabled] {
   z-index: 20 !important;
 }
 
-/* header 內的按鈕統一小尺寸 */
+/* header 內的按鈕統一小尺寸 + 金邊 */
 .web-title .xn-header-actions button,
 #xn-page-header .xn-header-actions button {
   height: 28px !important;
@@ -183,6 +183,8 @@ button[disabled], .btn[disabled] {
   padding: 0 12px !important;
   font-size: 12px !important;
   border-radius: 9px !important;
+  border: 1.5px solid #d4af37 !important;
+  box-shadow: 0 0 0 1px rgba(212,175,55,0.3) !important;
 }
 
 /* 登出按鈕紅色 */

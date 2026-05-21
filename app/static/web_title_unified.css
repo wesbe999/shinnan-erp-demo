@@ -13,7 +13,7 @@ position: relative;
     radial-gradient(circle at 78% 20%, rgba(73, 196, 95, .25) 0, rgba(73, 196, 95, 0) 36%),
     linear-gradient(105deg, #031b12 0%, #062d1c 38%, #07391f 64%, #04170f 100%);
   box-shadow: 0 10px 24px rgba(15, 23, 42, .20);
-  border-bottom: 1px solid rgba(236, 201, 92, .38);
+  border-bottom: 2px solid rgba(212, 175, 55, .85);
   isolation: isolate;
 }
 
