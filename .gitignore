@@ -41,6 +41,7 @@ _sales_user_no_department_v1.py
 *.bak_*
 
 *.db
+!xunnan_dispatch.db
 !data/xunnan_dispatch.db
 
 *.txt
