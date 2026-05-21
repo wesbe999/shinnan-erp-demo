@@ -1087,9 +1087,6 @@ def admin_buildings_page(request: Request):
 </section>
 
   <main class="page">
-    <div class="web-title-user" data-web-title-user="1" style="margin-bottom:8px;padding:6px 16px;border:1px solid rgba(247,211,111,.6);border-radius:10px;background:rgba(5,42,24,.15);color:#555;font-size:13px;font-weight:700;display:inline-block;">
-      <span class="web-title-user-label">登入者：</span><span class="web-title-user-name" id="web_title_user_name">載入中</span>
-    </div>
     <div class="toolbar">
       <button type="button" onclick="goBackFromBuildings(event)">返回上一頁</button>
       <button type="button" id="create_building_button">新增資料</button>
