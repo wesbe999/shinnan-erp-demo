@@ -379,7 +379,7 @@ def _billing_build_monthly_building_summary(user: dict) -> dict:
                 {c_phone} AS phone,
                 {c_address} AS install_address,
                 {c_building_no} AS building_no,
-                COALESCE({b_name_expr}, {c_building_name}, {c_building_no}, '未命名大樓') AS building_name,
+                COALESCE({c_building_name}, '未命名大樓') AS building_name,
                 COALESCE({b_area_expr}, {c_area}, '') AS area,
                 COALESCE({c_billing_month}, '') AS billing_month,
                 COALESCE({c_billing_due_date}, '') AS billing_due_date,
@@ -547,7 +547,7 @@ def _billing_build_monthly_building_summary(user: dict) -> dict:
         overdue_sql = f"""
             SELECT
                 {c_building_no_for_overdue} AS building_no,
-                COALESCE({b_name_expr_for_overdue}, {c_building_name_for_overdue}, {c_building_no_for_overdue}, '未命名大樓') AS building_name,
+                COALESCE({c_building_name_for_overdue}, '未命名大樓') AS building_name,
                 COALESCE({b_area_expr_for_overdue}, {c_area_for_overdue}, '') AS area,
                 COUNT(*) AS overdue_unpaid_count
             FROM customer_accounts c
@@ -742,7 +742,7 @@ def api_app_billing_overdue_customers(request: _EmpRequest):
                 {c_phone} AS phone,
                 {c_address} AS install_address,
                 {c_building_no} AS building_no,
-                COALESCE({b_name_expr}, {c_building_name}, {c_building_no}, '未命名大樓') AS building_name,
+                COALESCE({c_building_name}, '未命名大樓') AS building_name,
                 COALESCE({b_area_expr}, {c_area}, '') AS area,
                 COALESCE({c_billing_month}, '') AS billing_month,
                 COALESCE({c_billing_due_date}, '') AS billing_due_date,
