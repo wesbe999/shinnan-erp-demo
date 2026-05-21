@@ -82,3 +82,7 @@ xunnan_dispatch.before_*.db
 # 暫存腳本（D槽根目錄）
 /D:/*.py
 /D:/*.bat
+
+# 只保留根目錄DB
+data/xunnan_dispatch.db
+_debug_buildings_scripts/
