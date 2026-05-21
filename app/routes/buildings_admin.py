@@ -457,8 +457,7 @@ def admin_buildings_page(request: Request):
     }
 
     .toolbar {
-      display: grid;
-      grid-template-columns: 150px 150px 220px minmax(420px, 1fr);
+      display: flex;
       gap: 14px;
       align-items: center;
       margin-bottom: 22px;
@@ -1146,7 +1145,7 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
   </div>
   <div class="xn-header-actions">
     <button type="button" id="xn-save-all-btn" style="background:#1a6b3a !important;border-color:rgba(100,220,130,0.8) !important;" onclick="xnSaveAllBuildings(this)">💾 儲存</button>
-    <button type="button" style="background:#1a4a8a !important;border-color:rgba(120,180,255,0.8) !important;" onclick="document.getElementById('create_building_button') && document.getElementById('create_building_button').click()">＋ 新增</button>
+    <button type="button" style="background:#1a4a8a !important;border-color:rgba(120,180,255,0.8) !important;" onclick="openCreateBuildingModal && openCreateBuildingModal()">＋ 新增</button>
     <button type="button" style="background:#6b3fa0 !important;border-color:rgba(180,130,255,0.8) !important;" onclick="window.location.href='/'">🏠 首頁</button>
     <button type="button" class="danger" onclick="window.location.href='/employee/logout?next=/'">登出</button>
   </div>
@@ -1154,10 +1153,7 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
 
   <main class="page">
     <div class="toolbar">
-      <button type="button" onclick="goBackFromBuildings(event)">返回上一頁</button>
-      <button type="button" id="create_building_button">新增資料</button>
-
-      <select id="area_filter">
+      <select id="area_filter" style="flex:0 0 200px">
         <option value="全部">全部區域</option>
         <option value="東區">東區</option>
         <option value="北區">北區</option>
@@ -1169,7 +1165,7 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
         <option value="透天">透天</option>
       </select>
 
-      <input id="keyword" placeholder="搜尋大樓 / 地址 / 管理公司 / IP">
+      <input id="keyword" style="flex:1" placeholder="搜尋大樓 / 地址 / 管理公司 / IP">
     </div>
 
     <section class="card">
