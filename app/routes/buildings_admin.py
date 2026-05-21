@@ -1886,6 +1886,27 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
     margin-bottom: 5px;
   }
 
+  .building-detail-input {
+    width: 100%;
+    border: 1px solid #c8d8ee;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #102348;
+    background: #fff;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .building-detail-input:focus {
+    border-color: #1a5276;
+    box-shadow: 0 0 0 2px rgba(26,82,118,.15);
+  }
+  input.building-detail-input {
+    height: 36px;
+  }
   .building-detail-value {
     color: #102348;
     font-size: 16px;
@@ -1929,7 +1950,10 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
         <div id="building_detail_title" class="building-detail-title">大樓詳細資料</div>
         <div id="building_detail_sub" class="building-detail-sub"></div>
       </div>
-      <button class="building-detail-close" type="button" onclick="window.closeBuildingDetailModal && window.closeBuildingDetailModal()">關閉</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="building-detail-save btn-green" type="button" id="building_detail_save_btn" onclick="window.saveBuildingDetail && window.saveBuildingDetail()">💾 儲存</button>
+        <button class="building-detail-close btn-gray" type="button" onclick="window.closeBuildingDetailModal && window.closeBuildingDetailModal()">關閉</button>
+      </div>
     </div>
 
     <div id="building_detail_body" class="building-detail-grid"></div>
@@ -1940,7 +1964,8 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
 (function () {
   if (!location.pathname.includes("/admin/buildings")) return;
 
-  const BUSINESS_STORAGE_KEY = "shinnan_building_business_records_v1";
+  let _currentBuildingId = null;
+  let _currentBuildingNo = null;
 
   function safeText(value) {
     return String(value ?? "")
@@ -1951,36 +1976,33 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
       .replaceAll("'", "&#039;");
   }
 
-  function readJson(key, fallback) {
-    try {
-      return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
-    } catch (err) {
-      return fallback;
-    }
-  }
-
-  function normalizeName(value) {
-    return String(value || "").trim();
-  }
-
-  function findBusinessRecordForBuilding(building) {
-    const records = readJson(BUSINESS_STORAGE_KEY, []);
-    const buildingName = normalizeName(building.name || building.building_name);
-
-    if (!Array.isArray(records) || !buildingName) return null;
-
-    return records.find(function (item) {
-      return normalizeName(item.building_name) === buildingName;
-    }) || null;
-  }
-
-  function card(label, value, extraClass) {
-    return `
-      <div class="building-detail-card ${extraClass || ""}">
+  // 可編輯欄位 card（data-field 對應 DB 欄位名）
+  function card(label, value, extraClass, field, multiline) {
+    const cls = extraClass ? ` ${extraClass}` : "";
+    const val = safeText(value);
+    const fld = field || "";
+    if (multiline) {
+      return `
+      <div class="building-detail-card${cls}">
         <div class="building-detail-label">${safeText(label)}</div>
-        <div class="building-detail-value">${safeText(value || "-")}</div>
-      </div>
-    `;
+        <textarea class="building-detail-input" data-field="${fld}" rows="3">${val}</textarea>
+      </div>`;
+    }
+    return `
+    <div class="building-detail-card${cls}">
+      <div class="building-detail-label">${safeText(label)}</div>
+      <input class="building-detail-input" type="text" data-field="${fld}" value="${val}">
+    </div>`;
+  }
+
+  // 唯讀 card（編號等不可改的欄位）
+  function cardReadonly(label, value, extraClass) {
+    const cls = extraClass ? ` ${extraClass}` : "";
+    return `
+    <div class="building-detail-card${cls}" style="opacity:.75">
+      <div class="building-detail-label">${safeText(label)}</div>
+      <div class="building-detail-value">${safeText(value || "-")}</div>
+    </div>`;
   }
 
   function section(title) {
@@ -1990,68 +2012,118 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
   window.closeBuildingDetailModal = function () {
     const mask = document.getElementById("building_detail_mask");
     if (mask) mask.classList.remove("active");
+    _currentBuildingId = null;
+    _currentBuildingNo = null;
+  };
+
+  // 儲存：收集所有 input/textarea，打 PATCH API
+  window.saveBuildingDetail = async function () {
+    if (!_currentBuildingId) { alert("找不到大樓 ID，無法儲存"); return; }
+    const btn = document.getElementById("building_detail_save_btn");
+    const inputs = document.querySelectorAll("#building_detail_body .building-detail-input[data-field]");
+    const payload = {};
+    inputs.forEach(el => {
+      const f = el.dataset.field;
+      if (f) payload[f] = el.value.trim();
+    });
+    if (Object.keys(payload).length === 0) return;
+
+    const origText = btn.textContent;
+    btn.textContent = "儲存中...";
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(`/api/admin/buildings/${_currentBuildingId}`, {
+        method: "PATCH",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload),
+        credentials: "same-origin"
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || res.status);
+
+      // 同步更新 buildings 陣列
+      if (_currentBuildingNo && window.buildings) {
+        const b = window.buildings.find(x => x.building_no === _currentBuildingNo);
+        if (b) Object.assign(b, payload);
+      }
+      btn.textContent = "✅ 已儲存";
+      setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 1800);
+
+      // 重新渲染列表
+      if (window.renderRows) renderRows();
+    } catch (e) {
+      alert("儲存失敗：" + e.message);
+      btn.textContent = origText;
+      btn.disabled = false;
+    }
   };
 
   window.openBuildingDetailModal = function (building) {
     building = building || {};
 
-    const record = findBusinessRecordForBuilding(building) || {};
-    const title = document.getElementById("building_detail_title");
-    const sub = document.getElementById("building_detail_sub");
-    const body = document.getElementById("building_detail_body");
-    const mask = document.getElementById("building_detail_mask");
+    _currentBuildingId  = building.id || null;
+    _currentBuildingNo  = building.building_no || null;
+
+    const record = {};   // 所有欄位已整合在 building 物件
+    const title  = document.getElementById("building_detail_title");
+    const sub    = document.getElementById("building_detail_sub");
+    const body   = document.getElementById("building_detail_body");
+    const mask   = document.getElementById("building_detail_mask");
 
     if (!body || !mask) return;
 
-    const buildingName = building.name || building.building_name || record.building_name || "未命名大樓";
-
+    const buildingName = building.name || "未命名大樓";
     if (title) title.textContent = buildingName;
     if (sub) {
       sub.textContent =
-        "區域：" + (building.area || record.area || "-") +
+        "區域：" + (building.area || "-") +
         "｜地址：" + (building.raw_address || building.address || "-");
     }
 
     body.innerHTML = [
       section("大樓基本資料"),
-      card("編號", building.building_no || building.no || ""),
-      card("區域", building.area || record.area || ""),
-      card("地址", building.raw_address || building.address || ""),
-      card("管理公司", building.management_company || record.management_company || ""),
-      card("用戶數量", building.active_users ?? building.user_count ?? ""),
-      card("住戶總數", building.total_households ?? building.households ?? ""),
-      card("IP", building.ip || ""),
-      card("主機", building.host || building.main_host || ""),
+      cardReadonly("編號",   building.building_no || ""),
+      card("大樓名稱",       building.name || "",               "",     "name"),
+      card("區域",           building.area || "",               "",     "area"),
+      card("地址",           building.raw_address || building.address || "", "", "address"),
+      card("管理公司",       building.management_company || "", "",     "management_company"),
+      card("用戶數量",       building.active_users ?? "",       "",     "active_users"),
+      card("住戶總數",       building.total_households ?? "",   "",     "total_households"),
+      card("IP",             building.ip || "",                 "",     "ip"),
+      card("主機",           building.host || "",               "",     "host"),
 
       section("管理室／總幹事"),
-      card("管理室電話", building.phone || record.management_phone || ""),
-      card("總幹事姓名", record.manager_name || ""),
-      card("總幹事電話", record.manager_phone || ""),
-      card("總幹事年齡", record.manager_age ? record.manager_age + " 歲" : ""),
-      card("總幹事資歷", record.manager_experience || ""),
-      card("總幹事興趣", record.manager_interest || ""),
-      card("可拜訪時段", record.visit_time || ""),
-      card("管理室資訊／注意事項", record.management_note || "", "full"),
+      card("管理室電話",     building.management_phone || "",   "",     "management_phone"),
+      card("總幹事姓名",     building.manager_name || "",       "",     "manager_name"),
+      card("總幹事電話",     building.manager_phone || "",      "",     "manager_phone"),
+      card("總幹事年齡",     building.manager_age || "",        "",     "manager_age"),
+      card("總幹事資歷",     building.manager_experience || "", "",     "manager_experience"),
+      card("總幹事興趣",     building.manager_interest || "",   "",     "manager_interest"),
+      card("可拜訪時段",     building.visit_time || "",         "",     "visit_time"),
+      card("注意事項",       building.note || "",               "full", "note",    true),
 
       section("會議／合約"),
-      card("委員會時間", record.committee_time || ""),
-      card("住戶大會時間", record.resident_meeting_time || ""),
-      card("合約狀態", record.contract_status || ""),
-      card("合約到期日", record.contract_end_date || ""),
+      card("委員會時間",     building.committee_time || "",         "", "committee_time"),
+      card("住戶大會時間",   building.resident_meeting_time || "",  "", "resident_meeting_time"),
+      card("合約狀態",       building.contract_status || "",        "", "contract_status"),
 
-      section("業務資訊"),
-      card("業務類型", record.business_type || ""),
-      card("目前狀態", record.status || ""),
-      card("負責業務", record.owner || ""),
-      card("下次拜訪", record.next_visit || ""),
-      card("業務事件", record.event_type && record.event_type !== "無" ? record.event_type + "｜" + (record.event_status || "") : ""),
-      card("事件安排日期", record.event_schedule_date || ""),
-      card("回饋項目", record.feedback_type && record.feedback_type !== "無" ? record.feedback_type + "｜" + (record.feedback_status || "") : ""),
-      card("業務紀錄／拜訪結果", record.business_note || "", "full")
+      section("設備資訊"),
+      card("大樓類型",       building.building_type || "",          "", "building_type"),
+      card("服務等級",       building.service_level || "",          "", "service_level"),
+      card("公設狀況",       building.public_facility_status || "", "full", "public_facility_status", true),
     ].join("");
 
     mask.classList.add("active");
   };
+
+  function readJson(key, fallback) {
+    try {
+      return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+    } catch (err) {
+      return fallback;
+    }
+  }
 
   document.addEventListener("click", function (event) {
     const mask = document.getElementById("building_detail_mask");
