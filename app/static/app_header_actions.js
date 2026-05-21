@@ -51,13 +51,13 @@
     }
     body .xn-header-actions button.xn-logout,
     body .web-title-actions button.xn-logout {
-      background: #7f251f !important;
+      background: #cf3b2f !important;
       border-color: rgba(244,180,140,0.82) !important;
-      color: #fff4ec !important;
+      color: #fff !important;
     }
     body .xn-header-actions button.xn-logout:hover,
     body .web-title-actions button.xn-logout:hover {
-      background: #9b2d25 !important;
+      background: #b02a20 !important;
       border-color: #ffd0b0 !important;
     }
     @media (max-width: 1200px) {
