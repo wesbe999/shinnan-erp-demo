@@ -1962,7 +1962,7 @@ def admin_buildings_page(request: Request):
       card("主機", building.host || building.main_host || ""),
 
       section("管理室／總幹事"),
-      card("管理室電話", record.management_phone || ""),
+      card("管理室電話", building.phone || record.management_phone || ""),
       card("總幹事姓名", record.manager_name || ""),
       card("總幹事電話", record.manager_phone || ""),
       card("總幹事年齡", record.manager_age ? record.manager_age + " 歲" : ""),
@@ -2013,8 +2013,9 @@ def admin_buildings_page(request: Request):
         management_company: cells[4] ? cells[4].textContent.trim() : "",
         active_users: cells[5] ? cells[5].textContent.trim() : "",
         total_households: cells[6] ? cells[6].textContent.trim() : "",
-        ip: cells[7] ? (cells[7].querySelector('input') ? cells[7].querySelector('input').value : cells[7].textContent.trim()) : "",
-        host: cells[8] ? cells[8].textContent.trim() : ""
+        phone: cells[7] ? cells[7].textContent.trim() : "",
+        ip: cells[8] ? (cells[8].querySelector('input') ? cells[8].querySelector('input').value : cells[8].textContent.trim()) : "",
+        host: ""
       };
 
       nameCell.innerHTML = "";
