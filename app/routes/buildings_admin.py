@@ -1144,6 +1144,11 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
       </div>
     </div>
   </div>
+  <div class="xn-header-actions">
+    <button type="button" id="xn-save-all-btn" onclick="xnSaveAllBuildings(this)">💾 儲存</button>
+    <button type="button" onclick="window.location.href='/'">返回首頁</button>
+    <button type="button" class="danger" onclick="window.location.href='/employee/logout?next=/'">登出</button>
+  </div>
 </section>
 
   <main class="page">
@@ -1193,6 +1198,34 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
     let sortField = 'building_no';
     let sortAsc = true;
     const STORAGE_KEY = "shinnan_building_directory_overrides_v2";
+
+    // 儲存大樓名錄 localStorage overrides 到 DB
+    async function xnSaveAllBuildings(btn) {
+      const origText = btn.textContent;
+      btn.textContent = '儲存中…';
+      btn.disabled = true;
+      try {
+        const overrides = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        let count = 0;
+        for (const b of buildings) {
+          const ov = overrides[b.building_no];
+          if (!ov || !b.id) continue;
+          await fetch('/api/admin/buildings/' + b.id, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(ov)
+          });
+          count++;
+        }
+        localStorage.removeItem(STORAGE_KEY);
+        btn.textContent = count > 0 ? ('✅ 已儲存 ' + count + ' 筆') : '✅ 已是最新';
+        setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 2500);
+      } catch (e) {
+        btn.textContent = '❌ 失敗';
+        btn.disabled = false;
+        setTimeout(() => { btn.textContent = origText; }, 2500);
+      }
+    }
 
     function escapeHtml(value) {
       return String(value ?? "")
