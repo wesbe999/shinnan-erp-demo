@@ -2358,6 +2358,15 @@ def billing_page(request: Request):
       transform: translateY(-1px);
     }
 
+    body .cl15j1-billing-header-actions button.xn-logout {
+      background: #cf3b2f !important;
+      border-color: rgba(244,180,140,0.82) !important;
+      color: #fff !important;
+    }
+    body .cl15j1-billing-header-actions button.xn-logout:hover {
+      background: #b02a20 !important;
+    }
+
     body.cl15j1-billing-layout .toolbar {
       display: grid !important;
       grid-template-columns: 180px minmax(520px, 1fr) 70px 70px !important;
