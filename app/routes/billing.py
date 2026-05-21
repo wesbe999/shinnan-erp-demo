@@ -463,22 +463,10 @@ def billing_page(request: Request):
       border: 1px solid var(--line);
     }
 
-    button, select, input {
       font-family: inherit;
       font-size: 16px;
     }
 
-    button {
-      border: 0;
-      border-radius: 12px;
-      padding: 8px 10px;
-      min-height: 40px;
-      color: white;
-      font-weight: 1000;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.10);
-      white-space: nowrap;
-    }
 
     .btn-blue { background: var(--blue); }
     .btn-green { background: var(--green); }
@@ -2222,6 +2210,7 @@ def billing_page(request: Request):
 </style>
 
   <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
+<link rel="stylesheet" href="/static/xn_buttons.css?v=cl_btn_v1">
 
 
 

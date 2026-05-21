@@ -669,6 +669,7 @@ STATS_HTML = r"""
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>&#x8cc7;&#x6599;&#x7d71;&#x8a08;&#xff5c;&#x4e2d;&#x592e;&#x63a7;&#x7ba1;&#x7cfb;&#x7d71;</title>
 <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl13b">
+<link rel="stylesheet" href="/static/xn_buttons.css?v=cl_btn_v1">
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#edf3ef;color:#102018;font-family:"Microsoft JhengHei","Segoe UI",Arial,sans-serif}

@@ -1,0 +1,162 @@
+/* ============================================================
+   app/static/xn_buttons.css
+   訊南 ERP 公版按鈕樣式
+   v1 - cl_btn_v1
+   ============================================================ */
+
+/* ── 基礎重設 ── */
+button, .btn {
+  font-family: "Microsoft JhengHei", "Segoe UI", Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 1000 !important;
+  height: 34px !important;
+  min-width: 60px !important;
+  padding: 0 14px !important;
+  border-radius: 9px !important;
+  border: 1.5px solid rgba(212, 175, 55, 0.75) !important;
+  background: #10361f !important;
+  color: #fff7d6 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  transition: background .15s, border-color .15s !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,.12) !important;
+  vertical-align: middle !important;
+}
+
+button:hover, .btn:hover {
+  background: #174a2a !important;
+  border-color: #e8c84a !important;
+}
+
+button:active, .btn:active {
+  opacity: .85 !important;
+}
+
+/* ── 顏色變體 ── */
+
+/* 藍色 */
+button.btn-blue, .btn-blue,
+button[class*="btn-blue"] {
+  background: #1a3a6b !important;
+  border-color: rgba(212,175,55,.75) !important;
+  color: #fff !important;
+}
+button.btn-blue:hover, .btn-blue:hover {
+  background: #142d56 !important;
+}
+
+/* 綠色 */
+button.btn-green, .btn-green {
+  background: #0f5132 !important;
+  border-color: rgba(212,175,55,.75) !important;
+  color: #fff !important;
+}
+button.btn-green:hover, .btn-green:hover {
+  background: #0a3d26 !important;
+}
+
+/* 橘色 */
+button.btn-orange, .btn-orange {
+  background: #b45309 !important;
+  border-color: rgba(212,175,55,.75) !important;
+  color: #fff !important;
+}
+button.btn-orange:hover, .btn-orange:hover {
+  background: #92400e !important;
+}
+
+/* 灰色 */
+button.btn-gray, .btn-gray {
+  background: #374151 !important;
+  border-color: rgba(212,175,55,.55) !important;
+  color: #e5e7eb !important;
+}
+button.btn-gray:hover, .btn-gray:hover {
+  background: #1f2937 !important;
+}
+
+/* 紫色 */
+button.btn-purple, .btn-purple {
+  background: #4c1d95 !important;
+  border-color: rgba(212,175,55,.75) !important;
+  color: #fff !important;
+}
+button.btn-purple:hover, .btn-purple:hover {
+  background: #3b1578 !important;
+}
+
+/* 紅色 / 危險 */
+button.btn-red, .btn-red,
+button.btn-danger, .btn-danger {
+  background: #b91c1c !important;
+  border-color: rgba(240,180,140,.85) !important;
+  color: #fff !important;
+}
+button.btn-red:hover, .btn-red:hover,
+button.btn-danger:hover, .btn-danger:hover {
+  background: #991b1b !important;
+  border-color: #f0a070 !important;
+}
+
+/* 金色 / 主要操作 */
+button.btn-gold, .btn-gold,
+button.btn-primary, .btn-primary {
+  background: #92400e !important;
+  border-color: #d4af37 !important;
+  color: #fff7d6 !important;
+}
+button.btn-gold:hover, .btn-gold:hover,
+button.btn-primary:hover, .btn-primary:hover {
+  background: #78350f !important;
+}
+
+/* home 按鈕 */
+button.btn-home, .btn-home {
+  background: #1a3a6b !important;
+  border-color: rgba(212,175,55,.75) !important;
+  color: #fff !important;
+}
+
+/* refresh 按鈕 */
+button.btn-refresh, .btn-refresh {
+  background: #b45309 !important;
+  border-color: rgba(212,175,55,.75) !important;
+  color: #fff !important;
+}
+
+/* ── 尺寸變體 ── */
+button.btn-sm, .btn-sm,
+button.btn-small, .btn-small {
+  height: 26px !important;
+  min-width: 46px !important;
+  padding: 0 8px !important;
+  font-size: 12px !important;
+  border-radius: 7px !important;
+}
+
+button.btn-lg, .btn-lg {
+  height: 42px !important;
+  min-width: 80px !important;
+  padding: 0 20px !important;
+  font-size: 14px !important;
+  border-radius: 11px !important;
+}
+
+/* ── 停用狀態 ── */
+button:disabled, .btn:disabled,
+button[disabled], .btn[disabled] {
+  opacity: .45 !important;
+  cursor: not-allowed !important;
+}
+
+/* ── tab 按鈕（不套金邊，保留原樣但統一字體）── */
+.tab-button {
+  font-family: "Microsoft JhengHei", "Segoe UI", Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 1000 !important;
+}

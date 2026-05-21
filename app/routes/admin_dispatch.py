@@ -302,18 +302,6 @@ CLEAN_ADMIN_HTML = r'''
 
     .page { width:min(1760px, calc(100% - 56px)); margin:14px auto 42px; }
 
-    button {
-      height:40px;
-      border:0;
-      border-radius:12px;
-      padding:0 18px;
-      color:#fff;
-      font-size:15px;
-      font-weight:1000;
-      cursor:pointer;
-      white-space:nowrap;
-      font-family:inherit;
-    }
 
     .btn-blue { background:var(--blue); }
     .btn-green { background:var(--green); }
@@ -1087,6 +1075,7 @@ CLEAN_ADMIN_HTML = r'''
 
 </style>
   <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
+<link rel="stylesheet" href="/static/xn_buttons.css?v=cl_btn_v1">
 
 
 

@@ -464,20 +464,10 @@ def admin_buildings_page(request: Request):
       margin-bottom: 22px;
     }
 
-    button, select, input {
       font-family: inherit;
       font-size: 18px;
     }
 
-    button {
-      border: 0;
-      border-radius: 14px;
-      padding: 13px 18px;
-      color: white;
-      font-weight: 1000;
-      cursor: pointer;
-      background: var(--blue);
-    }
 
     input, select {
       width: 100%;
@@ -1135,6 +1125,7 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
 </style>
 
   <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
+<link rel="stylesheet" href="/static/xn_buttons.css?v=cl_btn_v1">
 </head>
 
 <body>

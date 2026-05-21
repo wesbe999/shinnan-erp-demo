@@ -77,16 +77,6 @@ def shinnan_admin_sales_page(request: Request):
       justify-content: flex-end;
     }
 
-    button {
-      height: 36px;
-      border: 0;
-      border-radius: 10px;
-      padding: 0 14px;
-      color: #fff;
-      font-size: 15px;
-      font-weight: 900;
-      cursor: pointer;
-    }
 
     .btn-home { background:#4f7ee8; }
     .btn-green { background:var(--green); }
@@ -921,6 +911,7 @@ def shinnan_admin_sales_page(request: Request):
 </style>
 
   <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
+<link rel="stylesheet" href="/static/xn_buttons.css?v=cl_btn_v1">
 
 
 
