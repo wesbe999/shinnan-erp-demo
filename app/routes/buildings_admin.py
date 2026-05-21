@@ -1081,9 +1081,9 @@ def admin_buildings_page(request: Request):
     <div class="web-title-logo-box"><img class="web-title-logo" src="/static/shinnan_logo_gold_transparent.png?v=20260513_cl9h" alt="ShinNan Logo"></div>
     <div class="web-title-text">
       <h1 class="web-title-system">&#x5927;&#x6a13;&#x540d;&#x9304;</h1>
+      <div class="web-title-user" data-web-title-user="1" style="margin:4px 0;justify-self:center;align-self:center;"><span class="web-title-user-label">&#x767b;&#x5165;&#x8005;&#xff1a;</span><span class="web-title-user-name" id="web_title_user_name">&#x8f09;&#x5165;&#x4e2d;</span></div>
       <div class="web-title-sub"><span class="web-title-sub-dot"></span>&#x4e2d;&#x592e;&#x63a7;&#x7ba1;&#x7cfb;&#x7d71;<span class="web-title-sub-dot"></span></div>
     </div>
-    <div class="web-title-user" data-web-title-user="1"><span class="web-title-user-label">&#x767b;&#x5165;&#x8005;&#xff1a;</span><span class="web-title-user-name" id="web_title_user_name">&#x8f09;&#x5165;&#x4e2d;</span></div>
   </div>
 </section>
 

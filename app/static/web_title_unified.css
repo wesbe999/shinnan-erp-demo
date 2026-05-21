@@ -281,8 +281,10 @@ content: "";
 
 
 .web-title-user {
-align-self: end;
-  justify-self: end;
+  align-self: end;
+  justify-self: center;
+  grid-column: 2;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   gap: 10px;
