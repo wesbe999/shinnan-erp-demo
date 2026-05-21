@@ -2007,13 +2007,13 @@ def admin_buildings_page(request: Request):
       const building = {
         building_no: cells[0] ? cells[0].textContent.trim() : "",
         name: name,
-        area: cells[2] ? cells[2].textContent.trim() : "",
+        area: cells[2] ? (cells[2].querySelector('select') ? cells[2].querySelector('select').value : cells[2].textContent.trim()) : "",
         address: cells[3] ? cells[3].textContent.trim() : "",
         raw_address: cells[3] ? cells[3].textContent.trim() : "",
         management_company: cells[4] ? cells[4].textContent.trim() : "",
         active_users: cells[5] ? cells[5].textContent.trim() : "",
         total_households: cells[6] ? cells[6].textContent.trim() : "",
-        ip: cells[7] ? cells[7].textContent.trim() : "",
+        ip: cells[7] ? (cells[7].querySelector('input') ? cells[7].querySelector('input').value : cells[7].textContent.trim()) : "",
         host: cells[8] ? cells[8].textContent.trim() : ""
       };
 
