@@ -679,8 +679,6 @@ body{margin:0;background:#edf3ef;color:#102018;font-family:"Microsoft JhengHei",
 .intro p{margin:8px 0 0;color:#5b6b62;font-weight:800;line-height:1.6}
 .actions{display:flex;gap:10px;flex-wrap:wrap}
 .btn{height:38px;border:0;border-radius:11px;padding:0 16px;font-weight:1000;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
-.btn-home{background:#0f5132;color:#fff}
-.btn-refresh{background:#d8a63f;color:#16210f}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
 .kpi{background:#fff;border:1px solid #dfe8e2;border-radius:20px;padding:17px 18px;box-shadow:0 12px 26px rgba(31,59,42,.08);min-height:132px}
 .kpi .label{font-size:14px;font-weight:1000;color:#607268}

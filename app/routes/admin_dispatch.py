@@ -303,12 +303,6 @@ CLEAN_ADMIN_HTML = r'''
     .page { width:min(1760px, calc(100% - 56px)); margin:14px auto 42px; }
 
 
-    .btn-blue { background:var(--blue); }
-    .btn-green { background:var(--green); }
-    .btn-gray { background:#64748b; }
-    .btn-red { background:var(--red); }
-    .btn-orange { background:var(--orange); }
-    .btn-purple { background:var(--purple); }
 
     .notice-panel {
       border:1px solid #fdba74;

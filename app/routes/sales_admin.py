@@ -78,12 +78,6 @@ def shinnan_admin_sales_page(request: Request):
     }
 
 
-    .btn-home { background:#4f7ee8; }
-    .btn-green { background:var(--green); }
-    .btn-blue { background:var(--blue); }
-    .btn-gray { background:#64748b; }
-    .btn-orange { background:var(--orange); }
-    .btn-purple { background:var(--purple); }
 
     .stats {
       display: grid;

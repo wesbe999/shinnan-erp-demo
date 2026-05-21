@@ -468,11 +468,6 @@ def billing_page(request: Request):
     }
 
 
-    .btn-blue { background: var(--blue); }
-    .btn-green { background: var(--green); }
-    .btn-orange { background: var(--orange); }
-    .btn-gray { background: var(--gray); }
-    .btn-purple { background: var(--purple); }
     .btn-red {
       background: #ffe4e6;
       color: #ff0000;
