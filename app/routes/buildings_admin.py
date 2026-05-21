@@ -1144,10 +1144,10 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
     </div>
   </div>
   <div class="xn-header-actions">
-    <button type="button" id="xn-save-all-btn" style="background:#1a6b3a !important;border-color:#d4af37 !important;" onclick="xnSaveAllBuildings(this)">💾 儲存</button>
-    <button type="button" style="background:#1a4a8a !important;border-color:#d4af37 !important;" onclick="openCreateBuildingModal && openCreateBuildingModal()">＋ 新增</button>
-    <button type="button" style="background:#6b3fa0 !important;border-color:#d4af37 !important;" onclick="window.location.href='/'">🏠 首頁</button>
-    <button type="button" class="danger" onclick="window.location.href='/employee/logout?next=/'">登出</button>
+    <button type="button" id="xn-save-all-btn" style="background:#1a6b3a !important;border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important;" onclick="xnSaveAllBuildings(this)">💾 儲存</button>
+    <button type="button" style="background:#1a4a8a !important;border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important;" onclick="openCreateBuildingModal && openCreateBuildingModal()">＋ 新增</button>
+    <button type="button" style="background:#6b3fa0 !important;border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important;" onclick="window.location.href='/'">🏠 首頁</button>
+    <button type="button" class="danger" style="border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important;" onclick="window.location.href='/employee/logout?next=/'">登出</button>
   </div>
 </section>
 
