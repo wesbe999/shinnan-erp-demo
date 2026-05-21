@@ -1169,7 +1169,6 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
     </div>
 
     <section class="card">
-      <div class="hint">提示：大樓名稱、區域、地址、管理公司、用戶數量、住戶總數、IP 可直接點擊修改。選擇大樓時會帶出「大樓名稱 + 地址」。</div>
 
       <table>
         <thead>
