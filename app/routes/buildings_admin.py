@@ -1145,8 +1145,9 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
     </div>
   </div>
   <div class="xn-header-actions">
-    <button type="button" id="xn-save-all-btn" onclick="xnSaveAllBuildings(this)">💾 儲存</button>
-    <button type="button" onclick="window.location.href='/'">返回首頁</button>
+    <button type="button" id="xn-save-all-btn" style="background:#1a6b3a !important;border-color:rgba(100,220,130,0.8) !important;" onclick="xnSaveAllBuildings(this)">💾 儲存</button>
+    <button type="button" style="background:#1a4a8a !important;border-color:rgba(120,180,255,0.8) !important;" onclick="document.getElementById('create_building_button') && document.getElementById('create_building_button').click()">＋ 新增</button>
+    <button type="button" style="background:#6b3fa0 !important;border-color:rgba(180,130,255,0.8) !important;" onclick="window.location.href='/'">🏠 首頁</button>
     <button type="button" class="danger" onclick="window.location.href='/employee/logout?next=/'">登出</button>
   </div>
 </section>
