@@ -1093,17 +1093,20 @@ CLEAN_ADMIN_HTML = r'''
 </head>
 
 <body>
-  <section class="web-title web-title-tech">
+<section class="web-title web-title-tech" id="xn-page-header">
   <img class="web-title-watermark" src="/static/shinnan_logo_outline_white.png" alt="">
   <div class="web-title-map"></div>
   <div class="web-title-radar"></div>
   <div class="web-title-main">
-    <div class="web-title-logo-box"><img class="web-title-logo" src="/static/shinnan_logo_gold_transparent.png?v=20260513_cl9h" alt="ShinNan Logo"></div>
-    <div class="web-title-text">
-      <h1 class="web-title-system">&#x8a0a;&#x5357;&#x79d1;&#x6280;&#x6d3e;&#x5de5;&#x7cfb;&#x7d71;</h1>
-      <div class="web-title-sub"><span class="web-title-sub-dot"></span>&#x4e2d;&#x592e;&#x63a7;&#x7ba1;&#x7cfb;&#x7d71;<span class="web-title-sub-dot"></span></div>
+    <div class="web-title-logo-box">
+      <img class="web-title-logo" src="/static/shinnan_logo_gold_transparent.png?v=cl_header_v1" alt="ShinNan Logo">
     </div>
-    <div class="web-title-user" data-web-title-user="1"><span class="web-title-user-label">&#x767b;&#x5165;&#x8005;&#xff1a;</span><span class="web-title-user-name" id="web_title_user_name">&#x8f09;&#x5165;&#x4e2d;</span></div>
+    <div class="web-title-text">
+      <h1 class="web-title-system">訊南科技派工系統</h1>
+      <div class="web-title-sub">
+        <span class="web-title-sub-dot"></span>中央控管系統<span class="web-title-sub-dot"></span>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -2908,34 +2911,6 @@ async function createTicket() {
     return btn;
   }
 
-  function installHeaderActions() {
-    if (document.querySelector(".cl15i10-header-actions")) return;
-
-    const header = document.querySelector(".web-title.web-title-tech") || document.querySelector(".web-title");
-    if (!header) return;
-
-    const backBtn = findButtonByText(["返回上一頁", "上一頁"]);
-    const refreshBtn = findButtonByText(["重新整理"]);
-    const createBtn = findButtonByText(["新增案件"]);
-    const clearBtn = findButtonByText(["清除篩選"]);
-    const logoutBtn = findButtonByText(["登出"]);
-
-    const box = document.createElement("div");
-    box.className = "cl15i10-header-actions";
-
-    box.appendChild(cloneButton(backBtn, "返回上一頁", ""));
-    box.appendChild(cloneButton(refreshBtn, "重新整理", ""));
-    box.appendChild(cloneButton(createBtn, "新增案件", ""));
-    box.appendChild(cloneButton(clearBtn, "清除篩選", ""));
-    box.appendChild(cloneButton(logoutBtn, "登出", "cl15i10-logout"));
-
-    header.appendChild(box);
-
-    const toolbar = document.querySelector(".toolbar");
-    if (toolbar) {
-      toolbar.classList.add("cl15i10-toolbar-hidden");
-    }
-  }
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", installHeaderActions);

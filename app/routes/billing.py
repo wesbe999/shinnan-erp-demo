@@ -2223,267 +2223,6 @@ def billing_page(request: Request):
 
   <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
 
-  <style id="cl15j1_billing_layout_unify_v1">
-    body .web-title .web-title-user,
-    body .web-title-user,
-    body [data-web-title-user="1"] {
-      display: none !important;
-      visibility: hidden !important;
-      width: 0 !important;
-      height: 0 !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      overflow: hidden !important;
-    }
-
-    body .web-title.web-title-tech {
-      position: relative !important;
-      height: 150px !important;
-      min-height: 150px !important;
-      padding: 0 28px !important;
-      overflow: hidden !important;
-      display: flex !important;
-      align-items: center !important;
-    }
-
-    body .web-title .web-title-main {
-      width: 100% !important;
-      height: 100% !important;
-      display: grid !important;
-      grid-template-columns: 210px minmax(420px, auto) 1fr !important;
-      grid-template-areas: "logo title spacer" !important;
-      align-items: center !important;
-      column-gap: 24px !important;
-      position: relative !important;
-      z-index: 10 !important;
-    }
-
-    body .web-title .web-title-logo-box {
-      grid-area: logo !important;
-      width: 190px !important;
-      min-width: 190px !important;
-      height: 118px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-
-    body .web-title .web-title-logo {
-      width: 118px !important;
-      max-height: 92px !important;
-      object-fit: contain !important;
-    }
-
-    body .web-title .web-title-text {
-      grid-area: title !important;
-      min-width: 420px !important;
-      width: auto !important;
-      display: flex !important;
-      flex-direction: column !important;
-      justify-content: center !important;
-      align-items: flex-start !important;
-      gap: 8px !important;
-      white-space: nowrap !important;
-      overflow: visible !important;
-      transform: translateY(0) !important;
-    }
-
-    body .web-title .web-title-system {
-      margin: 0 !important;
-      padding: 0 !important;
-      font-size: 38px !important;
-      line-height: 1.02 !important;
-      letter-spacing: 2px !important;
-      white-space: nowrap !important;
-      word-break: keep-all !important;
-      overflow-wrap: normal !important;
-      max-width: none !important;
-    }
-
-    body .web-title .web-title-sub {
-      margin: 0 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: flex-start !important;
-      gap: 12px !important;
-      font-size: 17px !important;
-      line-height: 1.1 !important;
-      white-space: nowrap !important;
-      word-break: keep-all !important;
-      max-width: none !important;
-    }
-
-    body .cl15j1-billing-header-actions {
-      position: absolute !important;
-      right: 38px !important;
-      bottom: 24px !important;
-      z-index: 50 !important;
-      display: flex !important;
-      flex-direction: row !important;
-      flex-wrap: nowrap !important;
-      align-items: center !important;
-      justify-content: flex-end !important;
-      gap: 7px !important;
-      white-space: nowrap !important;
-    }
-
-    body .web-title .cl15j1-billing-header-actions button,
-    body .cl15j1-billing-header-actions button {
-      flex: 0 0 auto !important;
-      height: 28px !important;
-      min-height: 28px !important;
-      max-height: 28px !important;
-      min-width: 68px !important;
-      padding: 0 10px !important;
-      border-radius: 9px !important;
-      border: 1px solid rgba(224, 201, 119, 0.82) !important;
-      background: #10361f !important;
-      color: #fff7d6 !important;
-      font-size: 12px !important;
-      font-weight: 1000 !important;
-      line-height: 1 !important;
-      box-shadow: none !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      white-space: nowrap !important;
-      cursor: pointer !important;
-    }
-
-    body .cl15j1-billing-header-actions button:hover {
-      background: #174a2a !important;
-      border-color: #ead27b !important;
-      transform: translateY(-1px);
-    }
-
-    body .cl15j1-billing-header-actions button.xn-logout {
-      background: #cf3b2f !important;
-      border-color: rgba(244,180,140,0.82) !important;
-      color: #fff !important;
-    }
-    body .cl15j1-billing-header-actions button.xn-logout:hover {
-      background: #b02a20 !important;
-    }
-
-    body.cl15j1-billing-layout .toolbar {
-      display: grid !important;
-      grid-template-columns: 180px minmax(520px, 1fr) 70px 70px !important;
-      gap: 10px !important;
-      align-items: center !important;
-      width: 100% !important;
-      padding: 10px 12px !important;
-      border-radius: 18px !important;
-      margin: 12px 0 14px !important;
-      background: rgba(255,255,255,0.62) !important;
-      border: 1px solid #d7e1ef !important;
-      box-shadow: 0 8px 22px rgba(15,23,42,0.06) !important;
-    }
-
-    body.cl15j1-billing-layout .toolbar > button:first-child {
-      display: none !important;
-    }
-
-    body.cl15j1-billing-layout #area_filter {
-      width: 100% !important;
-      height: 40px !important;
-      min-height: 40px !important;
-      border-radius: 12px !important;
-      font-size: 15px !important;
-      font-weight: 900 !important;
-    }
-
-    body.cl15j1-billing-layout #global_search {
-      width: 100% !important;
-      height: 40px !important;
-      min-height: 40px !important;
-      border-radius: 12px !important;
-      font-size: 15px !important;
-      font-weight: 850 !important;
-    }
-
-    body.cl15j1-billing-layout #search_button,
-    body.cl15j1-billing-layout #clear_button,
-    body.cl15j1-billing-layout .billing-notice-send,
-    body.cl15j1-billing-layout .billing-notice-clear,
-    body.cl15j1-billing-layout .billing-notice-delete {
-      height: 30px !important;
-      min-height: 30px !important;
-      min-width: 62px !important;
-      padding: 0 10px !important;
-      border-radius: 9px !important;
-      font-size: 12px !important;
-      font-weight: 1000 !important;
-      box-shadow: none !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      line-height: 1 !important;
-      white-space: nowrap !important;
-    }
-
-    body.cl15j1-billing-layout #search_button,
-    body.cl15j1-billing-layout .billing-notice-send {
-      background: #174a2a !important;
-      color: #fff7d6 !important;
-      border: 1px solid rgba(224,201,119,.82) !important;
-    }
-
-    body.cl15j1-billing-layout #clear_button,
-    body.cl15j1-billing-layout .billing-notice-clear {
-      background: #4b5563 !important;
-      color: #ffffff !important;
-      border: 1px solid rgba(203,213,225,.9) !important;
-    }
-
-    body.cl15j1-billing-layout .billing-notice-delete {
-      background: #b63a2d !important;
-      color: #ffffff !important;
-      border: 1px solid rgba(244,180,140,.82) !important;
-    }
-
-    body.cl15j1-billing-layout .tabs {
-      display: none !important;
-    }
-
-    body.cl15j1-billing-layout #billing_notice_panel {
-      margin-top: 14px !important;
-      border-radius: 18px !important;
-    }
-
-    body.cl15j1-billing-layout .billing-notice-input-box {
-      display: grid !important;
-      grid-template-columns: minmax(520px, 1fr) 70px 70px !important;
-      gap: 8px !important;
-      align-items: center !important;
-    }
-
-    body.cl15j1-billing-layout .billing-notice-input-box textarea {
-      min-height: 40px !important;
-      height: 40px !important;
-      border-radius: 12px !important;
-      padding: 8px 12px !important;
-    }
-
-    @media (max-width: 1100px) {
-      body .cl15j1-billing-header-actions {
-        right: 20px !important;
-        bottom: 16px !important;
-        gap: 5px !important;
-      }
-
-      body .cl15j1-billing-header-actions button {
-        height: 26px !important;
-        min-width: 58px !important;
-        padding: 0 7px !important;
-        font-size: 11px !important;
-      }
-
-      body.cl15j1-billing-layout .toolbar,
-      body.cl15j1-billing-layout .billing-notice-input-box {
-        grid-template-columns: 1fr !important;
-      }
-    }
-  </style>
 
 
   <style id="cl15j5_billing_notice_three_column_fix_v1">
@@ -2745,17 +2484,20 @@ def billing_page(request: Request):
 </head>
 
 <body>
-  <section class="web-title web-title-tech">
+<section class="web-title web-title-tech" id="xn-page-header">
   <img class="web-title-watermark" src="/static/shinnan_logo_outline_white.png" alt="">
   <div class="web-title-map"></div>
   <div class="web-title-radar"></div>
   <div class="web-title-main">
-    <div class="web-title-logo-box"><img class="web-title-logo" src="/static/shinnan_logo_gold_transparent.png?v=20260513_cl9h" alt="ShinNan Logo"></div>
-    <div class="web-title-text">
-      <h1 class="web-title-system">&#x5e33;&#x52d9;&#x7cfb;&#x7d71;</h1>
-      <div class="web-title-sub"><span class="web-title-sub-dot"></span>&#x4e2d;&#x592e;&#x63a7;&#x7ba1;&#x7cfb;&#x7d71;<span class="web-title-sub-dot"></span></div>
+    <div class="web-title-logo-box">
+      <img class="web-title-logo" src="/static/shinnan_logo_gold_transparent.png?v=cl_header_v1" alt="ShinNan Logo">
     </div>
-    <div class="web-title-user" data-web-title-user="1"><span class="web-title-user-label">&#x767b;&#x5165;&#x8005;&#xff1a;</span><span class="web-title-user-name" id="web_title_user_name">&#x8f09;&#x5165;&#x4e2d;</span></div>
+    <div class="web-title-text">
+      <h1 class="web-title-system">帳務系統</h1>
+      <div class="web-title-sub">
+        <span class="web-title-sub-dot"></span>中央控管系統<span class="web-title-sub-dot"></span>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -3845,27 +3587,6 @@ def billing_page(request: Request):
     return btn;
   }
 
-  function installHeaderActions() {
-    if (document.querySelector(".cl15j1-billing-header-actions")) return;
-
-    const header = document.querySelector(".web-title.web-title-tech") || document.querySelector(".web-title");
-    if (!header) return;
-
-    const homeBtn = findButtonByText(["\u8fd4\u56de\u9996\u9801"]);
-    const createBtn = document.getElementById("create_customer_button") || findTabByText(["\u5efa\u7acb\u8cc7\u6599"]);
-    const invoiceBtn = findTabByText(["\u958b\u7acb\u767c\u7968"]);
-    const customerBtn = findTabByText(["\u5ba2\u6236\u6e05\u55ae"]);
-
-    const box = document.createElement("div");
-    box.className = "cl15j1-billing-header-actions";
-
-    box.appendChild(cloneButton(homeBtn, "\u8fd4\u56de\u9996\u9801"));
-    box.appendChild(cloneButton(createBtn, "\u5efa\u7acb\u8cc7\u6599"));
-    box.appendChild(cloneButton(invoiceBtn, "\u958b\u7acb\u767c\u7968"));
-    box.appendChild(cloneButton(customerBtn, "\u5ba2\u6236\u6e05\u55ae"));
-
-    header.appendChild(box);
-  }
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", installHeaderActions);
@@ -3932,7 +3653,6 @@ def billing_page(request: Request):
 </script>
 
 
-  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """

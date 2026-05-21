@@ -726,17 +726,20 @@ body{margin:0;background:#edf3ef;color:#102018;font-family:"Microsoft JhengHei",
 </style>
 </head>
 <body>
-<section class="web-title web-title-tech">
+<section class="web-title web-title-tech" id="xn-page-header">
   <img class="web-title-watermark" src="/static/shinnan_logo_outline_white.png" alt="">
   <div class="web-title-map"></div>
   <div class="web-title-radar"></div>
   <div class="web-title-main">
-    <div class="web-title-logo-box"><img class="web-title-logo" src="/static/shinnan_logo_gold_transparent.png?v=20260513_cl9h" alt="ShinNan Logo"></div>
-    <div class="web-title-text">
-      <h1 class="web-title-system">&#x8cc7;&#x6599;&#x7d71;&#x8a08;</h1>
-      <div class="web-title-sub"><span class="web-title-sub-dot"></span>&#x4e2d;&#x592e;&#x63a7;&#x7ba1;&#x7cfb;&#x7d71;<span class="web-title-sub-dot"></span></div>
+    <div class="web-title-logo-box">
+      <img class="web-title-logo" src="/static/shinnan_logo_gold_transparent.png?v=cl_header_v1" alt="ShinNan Logo">
     </div>
-    <div class="web-title-user"><span class="web-title-user-label">&#x5831;&#x544a;&#x4e2d;&#x5fc3;</span></div>
+    <div class="web-title-text">
+      <h1 class="web-title-system">資料統計</h1>
+      <div class="web-title-sub">
+        <span class="web-title-sub-dot"></span>中央控管系統<span class="web-title-sub-dot"></span>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -959,7 +962,6 @@ window.addEventListener("resize",function(){clearTimeout(window.__statsResizeTim
 loadStats().catch(function(err){alert("stats load failed");console.error(err);});
 </script>
 
-  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """

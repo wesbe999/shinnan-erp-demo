@@ -1138,15 +1138,19 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
 </head>
 
 <body>
-  <section class="web-title web-title-tech">
+<section class="web-title web-title-tech" id="xn-page-header">
   <img class="web-title-watermark" src="/static/shinnan_logo_outline_white.png" alt="">
   <div class="web-title-map"></div>
   <div class="web-title-radar"></div>
   <div class="web-title-main">
-    <div class="web-title-logo-box"><img class="web-title-logo" src="/static/shinnan_logo_gold_transparent.png?v=20260513_cl9h" alt="ShinNan Logo"></div>
+    <div class="web-title-logo-box">
+      <img class="web-title-logo" src="/static/shinnan_logo_gold_transparent.png?v=cl_header_v1" alt="ShinNan Logo">
+    </div>
     <div class="web-title-text">
-      <h1 class="web-title-system">&#x5927;&#x6a13;&#x540d;&#x9304;</h1>
-      <div class="web-title-sub"><span class="web-title-sub-dot"></span>&#x4e2d;&#x592e;&#x63a7;&#x7ba1;&#x7cfb;&#x7d71;<span class="web-title-sub-dot"></span></div>
+      <h1 class="web-title-system">大樓名錄</h1>
+      <div class="web-title-sub">
+        <span class="web-title-sub-dot"></span>中央控管系統<span class="web-title-sub-dot"></span>
+      </div>
     </div>
   </div>
 </section>
@@ -2563,7 +2567,6 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
 </script>
 
 
-  <script src="/static/app_header_actions.js?v=cl17p6"></script>
 </body>
 </html>
 """.replace("__INITIAL_BUILDING_ROWS__", "\n".join(initial_rows))
