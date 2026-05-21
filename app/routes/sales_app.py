@@ -463,7 +463,7 @@ def api_app_sales_dispatch_create(request: _EmpRequest, payload: dict = Body(def
     request_unit = _sales_safe_text(payload.get("request_unit"))
     request_type = _sales_safe_text(payload.get("request_type")) or "\u516c\u8a2d"
     building_no = _sales_safe_text(payload.get("building_no"))
-    building_name = _sales_safe_text(payload.get("building_name"))
+    building_name = _sales_safe_text(payload.get("building_name")) or building_no
     service_address = _sales_safe_text(payload.get("service_address"))
     contact_name = _sales_safe_text(payload.get("contact_name"))
     contact_phone = _sales_safe_text(payload.get("contact_phone"))
@@ -514,18 +514,7 @@ def api_app_sales_dispatch_create(request: _EmpRequest, payload: dict = Body(def
         ticket_cols = _sales_table_columns(conn, "tickets")
 
         building = None
-        if building_no:
-            building = conn.execute(
-                _sales_sql_text("""
-                    SELECT *
-                    FROM buildings
-                    WHERE building_no = :building_no
-                    LIMIT 1
-                """),
-                {"building_no": building_no},
-            ).mappings().first()
-
-        if not building and building_name:
+        if building_name:
             building = conn.execute(
                 _sales_sql_text("""
                     SELECT *
@@ -536,9 +525,20 @@ def api_app_sales_dispatch_create(request: _EmpRequest, payload: dict = Body(def
                 {"name": building_name},
             ).mappings().first()
 
+        if not building and building_no:
+            building = conn.execute(
+                _sales_sql_text("""
+                    SELECT *
+                    FROM buildings
+                    WHERE building_no = :building_no
+                    LIMIT 1
+                """),
+                {"building_no": building_no},
+            ).mappings().first()
+
         if building:
-            building_no = _sales_safe_text(building.get("building_no")) or building_no
             building_name = _sales_safe_text(building.get("name")) or building_name
+            building_no = building_name
             service_address = (
                 _sales_safe_text(building.get("display_address"))
                 or _sales_safe_text(building.get("address"))
@@ -552,6 +552,7 @@ def api_app_sales_dispatch_create(request: _EmpRequest, payload: dict = Body(def
 
         if not building_name:
             building_name = service_address or "\u696d\u52d9\u6d3e\u5de5"
+        building_no = building_name
 
         max_id = conn.execute(_sales_sql_text("SELECT COALESCE(MAX(id), 0) FROM tickets")).scalar() or 0
         ticket_no = "SREQ" + now_text[:10].replace("-", "") + str(int(max_id) + 1).zfill(4)
@@ -588,7 +589,7 @@ def api_app_sales_dispatch_create(request: _EmpRequest, payload: dict = Body(def
             "assigned_engineer": "",
             "assigned_engineer_staff_code": "",
             "customer_no": "",
-            "building_no": building_no,
+            "building_no": building_name,
             "description": full_description,
             "internal_note": "\u696d\u52d9APP\u5efa\u7acb\uff1b\u8981\u6c42\u55ae\u4f4d\uff1a" + request_unit,
             "completion_note": "",
@@ -2185,7 +2186,7 @@ def sales_mobile_app_page(request: _EmpRequest):
         return;
       }
 
-      noEl.value = b.building_no || "";
+      noEl.value = b.name || "";
 
       if (addressEl && !String(addressEl.value || "").trim()) addressEl.value = b.address || "";
       if (contactEl && !String(contactEl.value || "").trim()) contactEl.value = b.manager_name || "";
@@ -2297,7 +2298,7 @@ def sales_mobile_app_page(request: _EmpRequest):
           populateSalesDispatchBuildingNameList();
         }
 
-        if (noEl) noEl.value = b.building_no || "";
+        if (noEl) noEl.value = b.name || "";
         if (nameEl) nameEl.value = b.name || "";
         if (addressEl) addressEl.value = b.address || "";
         if (contactEl) contactEl.value = b.manager_name || "";
@@ -2366,7 +2367,7 @@ def sales_mobile_app_page(request: _EmpRequest):
         target_department: getValue("sales_dispatch_target_department"),
         request_unit: getValue("sales_dispatch_request_unit"),
         request_type: getValue("sales_dispatch_request_type"),
-        building_no: getValue("sales_dispatch_building_no"),
+        building_no: getValue("sales_dispatch_building_name") || getValue("sales_dispatch_building_no"),
         building_name: getValue("sales_dispatch_building_name"),
         service_address: getValue("sales_dispatch_service_address"),
         contact_name: getValue("sales_dispatch_contact_name"),
@@ -2915,7 +2916,7 @@ def sales_mobile_app_page(request: _EmpRequest):
   function useSnBuilding(no) {
     const b = findSnBuilding(no);
     if (!b) return;
-    snSetVal("sn_building_no", b.building_no || "");
+    snSetVal("sn_building_no", b.name || "");
     snSetVal("sn_building_area", b.area || "");
     snSetVal("sn_building_name", b.name || "");
     snSetVal("sn_building_address", b.address || "");
@@ -2996,7 +2997,7 @@ def sales_mobile_app_page(request: _EmpRequest):
     }
 
     const params = new URLSearchParams({
-      building_no: snGetVal("sn_building_no"),
+      building_no: buildingName,
       building_name: buildingName,
       building_area: snGetVal("sn_building_area"),
       building_address: snGetVal("sn_building_address"),

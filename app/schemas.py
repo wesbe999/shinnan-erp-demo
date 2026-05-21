@@ -49,6 +49,7 @@ class TicketCreate(BaseModel):
     internal_note: Optional[str] = None
     customer_no: Optional[str] = None
     building_no: Optional[str] = None
+    building_name: Optional[str] = None
     extra_fees_data: Optional[str] = None
     install_detail: Optional[InstallDetailCreate] = None
     return_detail: Optional[ReturnDetailCreate] = None
@@ -119,6 +120,7 @@ class TicketOut(BaseModel):
     assigned_engineer_staff_code: Optional[str] = None
     customer_no: Optional[str] = None
     building_no: Optional[str] = None
+    building_name: Optional[str] = None
     description: Optional[str]
     internal_note: Optional[str]
     completion_note: Optional[str]

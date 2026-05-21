@@ -63,6 +63,30 @@ def _dispatch_building_col(join_enabled: bool, building_cols: set[str], name: st
     return default_sql
 
 
+def _dispatch_building_join_sql(ticket_cols: set[str], building_cols: set[str]) -> str:
+    if not building_cols:
+        return ""
+
+    match_parts = []
+
+    if "service_address" in ticket_cols and "name" in building_cols:
+        match_parts.append(
+            "(COALESCE(b.name, '') <> '' AND instr(COALESCE(t.service_address, ''), b.name) > 0)"
+        )
+
+    if "service_address" in ticket_cols:
+        for address_col in ("address", "display_address", "raw_address"):
+            if address_col in building_cols:
+                match_parts.append(
+                    f"(COALESCE(b.{address_col}, '') <> '' AND instr(COALESCE(t.service_address, ''), b.{address_col}) > 0)"
+                )
+
+    if not match_parts:
+        return ""
+
+    return "LEFT JOIN buildings b ON (" + " OR ".join(match_parts) + ")"
+
+
 def _dispatch_plain_address(value) -> str:
     text = _safe_text(value).strip()
 
@@ -81,11 +105,9 @@ def _dispatch_navigation_address(raw: dict) -> tuple[str, str, str]:
         or _dispatch_plain_address(raw.get("building_raw_address"))
     )
     building_type = _safe_text(raw.get("building_type")).strip()
-    building_no = _safe_text(raw.get("building_no")).strip()
 
     is_house = (
-        building_no.upper() == "HOUSE"
-        or building_type in {"\u900f\u5929", "\u900f\u5929\u539d"}
+        building_type in {"\u900f\u5929", "\u900f\u5929\u539d"}
         or ("\u900f\u5929" in service_address and not building_address)
     )
 
@@ -281,19 +303,7 @@ def api_app_dispatch_tickets(request: _Request):
 
         join_install = "LEFT JOIN ticket_install_details i ON i.ticket_id = t.id" if install_cols else ""
         join_return = "LEFT JOIN ticket_return_details r ON r.ticket_id = t.id" if return_cols else ""
-        join_building = ""
-
-        if (
-            building_cols
-            and "building_no" in ticket_cols
-            and "building_no" in building_cols
-        ):
-            building_join_parts = ["COALESCE(b.building_no, '') = COALESCE(t.building_no, '')"]
-
-            if "dispatch_area" in ticket_cols and "area" in building_cols:
-                building_join_parts.append("COALESCE(b.area, '') = COALESCE(t.dispatch_area, '')")
-
-            join_building = "LEFT JOIN buildings b ON " + " AND ".join(building_join_parts)
+        join_building = _dispatch_building_join_sql(ticket_cols, building_cols)
 
         has_building_join = bool(join_building)
 
@@ -345,6 +355,7 @@ def api_app_dispatch_tickets(request: _Request):
                 {_col("t", ticket_cols, "completed_at")} AS completed_at,
                 {_col("t", ticket_cols, "customer_no")} AS customer_no,
                 {_col("t", ticket_cols, "building_no")} AS building_no,
+                {_dispatch_building_col(has_building_join, building_cols, "name")} AS building_name,
                 {_dispatch_building_col(has_building_join, building_cols, "address")} AS building_address,
                 {_dispatch_building_col(has_building_join, building_cols, "raw_address")} AS building_raw_address,
                 {_dispatch_building_col(has_building_join, building_cols, "display_address")} AS building_display_address,
@@ -450,6 +461,12 @@ def api_app_dispatch_tickets(request: _Request):
             }
 
         navigation_address, building_address, building_type = _dispatch_navigation_address(raw)
+        building_name = _safe_text(raw.get("building_name")).strip()
+        raw_building_value = _safe_text(raw.get("building_no")).strip()
+        if not building_name and raw_building_value and not raw_building_value.upper().startswith("B"):
+            building_name = "\u900f\u5929" if raw_building_value.upper() == "HOUSE" else raw_building_value
+        if not building_name and "\u900f\u5929" in _safe_text(raw.get("service_address")):
+            building_name = "\u900f\u5929"
 
         items.append({
             "id": raw.get("id"),
@@ -472,7 +489,8 @@ def api_app_dispatch_tickets(request: _Request):
             "arrived_at": _safe_text(raw.get("arrived_at")),
             "completed_at": _safe_text(raw.get("completed_at")),
             "customer_no": _safe_text(raw.get("customer_no")),
-            "building_no": _safe_text(raw.get("building_no")),
+            "building_no": building_name,
+            "building_name": building_name,
             "building_address": building_address,
             "building_type": building_type,
             "navigation_address": navigation_address,

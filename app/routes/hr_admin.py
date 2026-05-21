@@ -464,6 +464,7 @@ max-height: calc(100vh - 120px); }}
 
   </style>
   <link rel="stylesheet" href="/static/hr_sidebar_gold_glass_v2.css?v=cl15n43b">
+  <link rel="stylesheet" href="/static/hr_admin_gold_glass_final.css?v=cl15n44">
 </head>
 <body>
   <div class="layout">
@@ -558,28 +559,30 @@ def hr_home_page(request: Request):
 
       <section class="dashboard-grid">
 
-        <!-- 第一排：部門長條圖（全寬） -->
-        <div class="dash-panel">
-          <div class="dash-panel-title">📊 各部門人數分布</div>
-          <canvas id="deptChart" height="60"></canvas>
+        <!-- CL15N45_TOP_ANALYTICS_START -->
+        <div class="dash-row hr-home-top-analytics">
+          <div class="dash-panel hr-home-dept-panel">
+            <div class="dash-panel-title">&#x1F4CA; &#x5404;&#x90E8;&#x9580;&#x4EBA;&#x6578;&#x5206;&#x5E03;</div>
+            <canvas id="deptChart" height="90"></canvas>
+          </div>
+          <div class="dash-panel hr-home-role-panel">
+            <div class="dash-panel-title">&#x1F4BC; &#x8077;&#x52D9;&#x985E;&#x578B;&#x5206;&#x5E03;</div>
+            <canvas id="roleChart" height="130"></canvas>
+          </div>
         </div>
 
-        <!-- 第二排：3個圓餅圖 -->
-        <div class="dash-row col-1-1-1">
+        <div class="dash-row col-1-1">
           <div class="dash-panel">
-            <div class="dash-panel-title">👤 在職狀況</div>
+            <div class="dash-panel-title">&#x1F464; &#x5728;&#x8077;&#x72C0;&#x6CC1;</div>
             <canvas id="statusChart" height="120"></canvas>
           </div>
           <div class="dash-panel">
-            <div class="dash-panel-title">🔑 帳號狀態</div>
+            <div class="dash-panel-title">&#x1F511; &#x5E33;&#x865F;&#x72C0;&#x614B;</div>
             <canvas id="accountChart" height="120"></canvas>
-          </div>
-          <div class="dash-panel">
-            <div class="dash-panel-title">💼 職務類型分布</div>
-            <canvas id="roleChart" height="120"></canvas>
           </div>
         </div>
 
+        <!-- CL15N45_TOP_ANALYTICS_END -->
         <!-- 第三排：待辦 + 薪資概況 -->
         <div class="dash-row col-1-1">
           <div class="dash-panel">
@@ -607,7 +610,7 @@ def hr_home_page(request: Request):
         data: {{
           labels: {dept_labels},
           datasets: [{{ label: '人數', data: {dept_values},
-            backgroundColor: 'rgba(29,78,216,0.75)', borderRadius: 6 }}]
+            backgroundColor: 'rgba(245,215,110,0.78)', borderRadius: 6 }}]
         }},
         options: {{ plugins: {{ legend: {{ display: false }} }}, scales: {{ y: {{ beginAtZero: true, ticks: {{ stepSize: 1 }} }} }} }}
       }});
@@ -618,7 +621,7 @@ def hr_home_page(request: Request):
         data: {{
           labels: ['在職', '離職'],
           datasets: [{{ data: [{active}, {inactive}],
-            backgroundColor: ['#16a34a','#e5e7eb'], borderWidth: 0 }}]
+            backgroundColor: ['#16a34a','#475569'], borderWidth: 0 }}]
         }},
         options: {{ plugins: {{ legend: {{ position: 'bottom' }} }}, cutout: '65%' }}
       }});
@@ -629,7 +632,7 @@ def hr_home_page(request: Request):
         data: {{
           labels: ['啟用', '停用'],
           datasets: [{{ data: [{enabled}, {disabled}],
-            backgroundColor: ['#1d4ed8','#f87171'], borderWidth: 0 }}]
+            backgroundColor: ['#f5d76e','#cf3b2f'], borderWidth: 0 }}]
         }},
         options: {{ plugins: {{ legend: {{ position: 'bottom' }} }}, cutout: '65%' }}
       }});
@@ -640,7 +643,7 @@ def hr_home_page(request: Request):
         data: {{
           labels: {role_labels},
           datasets: [{{ data: {role_values},
-            backgroundColor: ['#7c3aed','#0891b2','#d97706','#16a34a','#dc2626','#64748b'], borderWidth: 0 }}]
+            backgroundColor: ['#f5d76e','#22c55e','#38bdf8','#d6a93d','#cf3b2f','#94a3b8'], borderWidth: 0 }}]
         }},
         options: {{ plugins: {{ legend: {{ position: 'bottom' }} }}, cutout: '65%' }}
       }});
@@ -652,7 +655,7 @@ def hr_home_page(request: Request):
         data: {{
           labels: salaryData.labels,
           datasets: [{{ label: '平均月薪', data: salaryData.values,
-            backgroundColor: 'rgba(16,163,74,0.75)', borderRadius: 6 }}]
+            backgroundColor: 'rgba(34,197,94,0.70)', borderRadius: 6 }}]
         }},
         options: {{ plugins: {{ legend: {{ display: false }} }},
           scales: {{ y: {{ beginAtZero: true, ticks: {{ callback: v => '$' + v.toLocaleString() }} }} }} }}

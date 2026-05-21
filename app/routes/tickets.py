@@ -194,6 +194,59 @@ def calculate_install_total(detail: TicketInstallDetail) -> None:
     )
 
 
+def _xunnan_building_name_from_value(db: Session, value: str | None, fallback_address: str | None = "") -> str:
+    raw = str(value or "").strip()
+    if raw.upper() == "HOUSE" or raw in {"透天", "透天厝"}:
+        return "透天"
+
+    if raw:
+        row = db.execute(
+            text("""
+                SELECT name
+                FROM buildings
+                WHERE TRIM(CAST(building_no AS TEXT)) = TRIM(CAST(:value AS TEXT))
+                   OR TRIM(CAST(name AS TEXT)) = TRIM(CAST(:value AS TEXT))
+                ORDER BY CASE WHEN TRIM(CAST(name AS TEXT)) = TRIM(CAST(:value AS TEXT)) THEN 0 ELSE 1 END
+                LIMIT 1
+            """),
+            {"value": raw},
+        ).mappings().first()
+        if row and str(row.get("name") or "").strip():
+            return str(row.get("name") or "").strip()
+
+    address = str(fallback_address or "").strip()
+    if address:
+        row = db.execute(
+            text("""
+                SELECT name
+                FROM buildings
+                WHERE (
+                    COALESCE(name, '') <> ''
+                    AND instr(:service_address, name) > 0
+                )
+                OR (
+                    COALESCE(address, '') <> ''
+                    AND instr(:service_address, address) > 0
+                )
+                OR (
+                    COALESCE(display_address, '') <> ''
+                    AND instr(:service_address, display_address) > 0
+                )
+                OR (
+                    COALESCE(raw_address, '') <> ''
+                    AND instr(:service_address, raw_address) > 0
+                )
+                ORDER BY LENGTH(COALESCE(name, '')) DESC
+                LIMIT 1
+            """),
+            {"service_address": address},
+        ).mappings().first()
+        if row and str(row.get("name") or "").strip():
+            return str(row.get("name") or "").strip()
+
+    return raw
+
+
 def calculate_return_total(detail: TicketReturnDetail) -> None:
     detail.total_amount = (
         _number(getattr(detail, "deposit_amount", 0))
@@ -261,6 +314,11 @@ def create_ticket(payload: TicketCreate, db: Session = Depends(get_db)):
 
     assigned_engineer = (payload.assigned_engineer or "").strip() or None
     assigned_engineer_staff_code = resolve_staff_code_by_name(db, assigned_engineer)
+    building_name = _xunnan_building_name_from_value(
+        db,
+        payload.building_name or payload.building_no,
+        payload.service_address,
+    )
 
     ticket = Ticket(
         ticket_no=generate_ticket_no(db),
@@ -277,7 +335,7 @@ def create_ticket(payload: TicketCreate, db: Session = Depends(get_db)):
         description=payload.description,
         internal_note=payload.internal_note,
         customer_no=payload.customer_no or "",
-        building_no=payload.building_no or "",
+        building_no=building_name,
         extra_fees_data=payload.extra_fees_data,
     )
 
@@ -313,20 +371,34 @@ def create_ticket(payload: TicketCreate, db: Session = Depends(get_db)):
 
 def _xunnan_ticket_building_row(db, ticket):
     try:
-        area = str(getattr(ticket, "dispatch_area", "") or "").strip()
-        bno = str(getattr(ticket, "building_no", "") or "").strip()
-        if not area or not bno:
+        service_address = str(getattr(ticket, "service_address", "") or "").strip()
+        if not service_address:
             return None
 
         row = db.execute(
             text("""
-                SELECT address, building_type
+                SELECT address, display_address, raw_address, building_type, name
                 FROM buildings
-                WHERE TRIM(CAST(area AS TEXT)) = TRIM(CAST(:area AS TEXT))
-                  AND TRIM(CAST(building_no AS TEXT)) = TRIM(CAST(:bno AS TEXT))
+                WHERE (
+                    COALESCE(name, '') <> ''
+                    AND instr(:service_address, name) > 0
+                )
+                OR (
+                    COALESCE(address, '') <> ''
+                    AND instr(:service_address, address) > 0
+                )
+                OR (
+                    COALESCE(display_address, '') <> ''
+                    AND instr(:service_address, display_address) > 0
+                )
+                OR (
+                    COALESCE(raw_address, '') <> ''
+                    AND instr(:service_address, raw_address) > 0
+                )
+                ORDER BY LENGTH(COALESCE(name, '')) DESC
                 LIMIT 1
             """),
-            {"area": area, "bno": bno},
+            {"service_address": service_address},
         ).mappings().first()
         return row
     except Exception:
@@ -337,7 +409,11 @@ def _xunnan_ticket_building_address(db, ticket):
     row = _xunnan_ticket_building_row(db, ticket)
     if not row:
         return ""
-    return str(row.get("address") or "").strip()
+    return (
+        str(row.get("address") or "").strip()
+        or str(row.get("display_address") or "").strip()
+        or str(row.get("raw_address") or "").strip()
+    )
 
 
 def _xunnan_ticket_building_type(db, ticket):
@@ -347,19 +423,38 @@ def _xunnan_ticket_building_type(db, ticket):
     return str(row.get("building_type") or "").strip()
 
 
+def _xunnan_ticket_building_name(db, ticket):
+    service_address = str(getattr(ticket, "service_address", "") or "").strip()
+    if "透天" in service_address:
+        return "透天"
+
+    row = _xunnan_ticket_building_row(db, ticket)
+    if row and str(row.get("name") or "").strip():
+        return str(row.get("name") or "").strip()
+
+    return _xunnan_building_name_from_value(
+        db,
+        getattr(ticket, "building_no", "") or "",
+        service_address,
+    )
+
+
 def _xunnan_ticket_navigation_address(db, ticket):
     service_address = str(getattr(ticket, "service_address", "") or "").strip()
-    building_no = str(getattr(ticket, "building_no", "") or "").strip()
 
     row = _xunnan_ticket_building_row(db, ticket)
     building_address = ""
     building_type = ""
 
     if row:
-        building_address = str(row.get("address") or "").strip()
+        building_address = (
+            str(row.get("address") or "").strip()
+            or str(row.get("display_address") or "").strip()
+            or str(row.get("raw_address") or "").strip()
+        )
         building_type = str(row.get("building_type") or "").strip()
 
-    if building_no.upper() == "HOUSE" or building_type == "\u900f\u5929":
+    if building_type in {"\u900f\u5929", "\u900f\u5929\u539d"} or "\u900f\u5929" in service_address:
         return service_address
 
     return building_address or service_address
@@ -391,8 +486,6 @@ def _xunnan_json_dict(value):
 def _xunnan_ticket_customer_billing_row(db, ticket):
     try:
         customer_no = str(getattr(ticket, "customer_no", "") or "").strip()
-        area = str(getattr(ticket, "dispatch_area", "") or "").strip()
-        building_no = str(getattr(ticket, "building_no", "") or "").strip()
 
         if not customer_no:
             return {}
@@ -416,16 +509,12 @@ def _xunnan_ticket_customer_billing_row(db, ticket):
 
         row = db.execute(text(base_select + """
             WHERE TRIM(CAST(customer_no AS TEXT)) = TRIM(CAST(:customer_no AS TEXT))
-              AND (:area = '' OR TRIM(CAST(area AS TEXT)) = TRIM(CAST(:area AS TEXT)))
-              AND (:building_no = '' OR TRIM(CAST(building_no AS TEXT)) = TRIM(CAST(:building_no AS TEXT)))
             ORDER BY
               CASE WHEN COALESCE(service_status,'') IN ('\u6b63\u5e38','\u5f85\u5fa9\u6a5f') THEN 0 ELSE 1 END,
               id DESC
             LIMIT 1
         """), {
             "customer_no": customer_no,
-            "area": area,
-            "building_no": building_no,
         }).mappings().first()
 
         if row:
@@ -560,6 +649,7 @@ def list_tickets(db: Session = Depends(get_db)):
     items = []
 
     for ticket in tickets:
+        building_name = _xunnan_ticket_building_name(db, ticket)
         items.append({
             "id": ticket.id,
             "ticket_no": ticket.ticket_no or "",
@@ -578,7 +668,8 @@ def list_tickets(db: Session = Depends(get_db)):
             "assigned_engineer": ticket.assigned_engineer or "",
             "assigned_engineer_staff_code": getattr(ticket, "assigned_engineer_staff_code", "") or "",
             "customer_no": getattr(ticket, "customer_no", "") or "",
-            "building_no": getattr(ticket, "building_no", "") or "",
+            "building_no": building_name,
+            "building_name": building_name,
             **_xunnan_ticket_billing_payload(db, ticket),
             "description": ticket.description or "",
             "internal_note": ticket.internal_note or "",

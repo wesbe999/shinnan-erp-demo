@@ -779,36 +779,30 @@ def admin_buildings_page(request: Request):
       min-width: 360px !important;
     }
 
-    /* 管理公司 */
-    th:nth-child(5), td:nth-child(5) {
-      width: 120px !important;
-    }
-
     /* 用戶數量 */
-    th:nth-child(6), td:nth-child(6) {
+    th:nth-child(5), td:nth-child(5) {
       width: 70px !important;
       text-align: center !important;
     }
 
     /* 住戶總數 */
-    th:nth-child(7), td:nth-child(7) {
+    th:nth-child(6), td:nth-child(6) {
       width: 70px !important;
       text-align: center !important;
     }
 
+    /* 管理室電話 */
+    th:nth-child(7), td:nth-child(7) {
+      width: 120px !important;
+    }
+
     /* IP */
     th:nth-child(8), td:nth-child(8) {
-      width: 135px !important;
+      width: 160px !important;
     }
 
-    /* 主機 */
+    /* 刪除 */
     th:nth-child(9), td:nth-child(9) {
-      width: 72px !important;
-      text-align: center !important;
-    }
-
-    /* 選擇 */
-    th:nth-child(10), td:nth-child(10) {
       width: 72px !important;
       text-align: center !important;
     }
@@ -849,6 +843,77 @@ def admin_buildings_page(request: Request):
       
       
   </style>
+
+<style id="buildings_unified_style_v1">
+/* 底色統一：所有列同色，去除斑馬紋 */
+body table tbody tr {
+  background: #fff !important;
+}
+body table tbody tr:hover {
+  background: #f0f7f3 !important;
+}
+/* 全局字體縮小 */
+body table th, body table td {
+  font-size: 13px !important;
+  padding: 6px 8px !important;
+  line-height: 1.3 !important;
+}
+body table td[data-field="address"],
+body td[data-field="address"] {
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+}
+body button, body select, body input {
+  font-size: 13px !important;
+}
+/* 管理室電話可編輯樣式 */
+body table tbody td[data-field="management_phone"] {
+  cursor: text !important;
+  min-width: 90px !important;
+}
+body table tbody td[data-field="management_phone"]:focus {
+  outline: 2px solid #0f6b3b !important;
+  border-radius: 4px !important;
+}
+/* 詳細按鈕 */
+body table .btn-detail, body table button.btn-small.btn-detail {
+  background: #1a5276 !important;
+  border: 1.5px solid #e0c977 !important;
+  box-shadow: 0 0 0 1px rgba(224,201,119,0.5) !important;
+  min-width: 46px !important;
+  width: 46px !important;
+  height: 26px !important;
+  font-size: 12px !important;
+  border-radius: 7px !important;
+  padding: 0 6px !important;
+  color: #fff !important;
+  margin-right: 4px !important;
+}
+body table .btn-detail:hover {
+  background: #154360 !important;
+  border-color: #f0d060 !important;
+}
+/* 最後一欄（詳細+刪除）加寬 */
+body table th:nth-child(9), body table td:nth-child(9) {
+  width: 105px !important;
+  text-align: center !important;
+}
+body table .btn-danger, body table button.btn-small.btn-danger {
+  background: #b91c1c !important;
+  border: 1.5px solid #e0c977 !important;
+  box-shadow: 0 0 0 1px rgba(224,201,119,0.5) !important;
+  min-width: 46px !important;
+  width: 46px !important;
+  height: 26px !important;
+  font-size: 12px !important;
+  border-radius: 7px !important;
+  padding: 0 6px !important;
+}
+body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
+  background: #991b1b !important;
+  border-color: #f0d060 !important;
+}
+</style>
 
 <style id="buildings_button_center_fix_v1">
   /* 大樓名錄：所有按鈕文字垂直置中，修正手機/電腦版字體偏下 */
@@ -1116,12 +1181,11 @@ def admin_buildings_page(request: Request):
             <th onclick="sortBy('name')" style="cursor:pointer;user-select:none">大樓名稱 <span id="sort_name"></span></th>
             <th onclick="sortBy('area')" style="cursor:pointer;user-select:none">區域 <span id="sort_area"></span></th>
             <th onclick="sortBy('address')" style="cursor:pointer;user-select:none">地址 <span id="sort_address"></span></th>
-            <th onclick="sortBy('management_company')" style="cursor:pointer;user-select:none">管理公司 <span id="sort_management_company"></span></th>
             <th onclick="sortBy('active_users')" style="cursor:pointer;user-select:none">用戶數量 <span id="sort_active_users"></span></th>
             <th onclick="sortBy('total_households')" style="cursor:pointer;user-select:none">住戶總數 <span id="sort_total_households"></span></th>
             <th onclick="sortBy('management_phone')" style="cursor:pointer;user-select:none">管理室電話 <span id="sort_management_phone"></span></th>
-            <th>IP</th>
-            <th>刪除</th>
+            <th onclick="sortBy('ip')" style="cursor:pointer;user-select:none">IP <span id="sort_ip"></span></th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody id="rows">__INITIAL_BUILDING_ROWS__</tbody>
@@ -1308,7 +1372,7 @@ def admin_buildings_page(request: Request):
     }
 
     function updateSortIcons() {
-      const fields = ['building_no','name','area','address','management_company','active_users','total_households','management_phone'];
+      const fields = ['building_no','name','area','address','active_users','total_households','management_phone','ip'];
       fields.forEach(function (f) {
         const el = document.getElementById('sort_' + f);
         if (!el) return;
@@ -1328,10 +1392,11 @@ def admin_buildings_page(request: Request):
       updateSortIcons();
 
       rows.innerHTML = data.map(function (b) {
+        const bJson = escapeHtml(JSON.stringify(b));
         return `
           <tr data-building-no="${escapeHtml(b.building_no)}">
             <td>${escapeHtml(b.building_no)}</td>
-            <td contenteditable="true" data-field="name">${escapeHtml(b.name)}</td>
+            <td data-field="name">${escapeHtml(b.name)}</td>
             <td data-field="area" data-building-no="${escapeHtml(b.building_no)}">
               <select class="area-select" data-building-no="${escapeHtml(b.building_no)}" onchange="saveAreaChange(this)">
                 <option value="">－ 未分區</option>
@@ -1344,10 +1409,9 @@ def admin_buildings_page(request: Request):
               </select>
             </td>
             <td contenteditable="true" data-field="address">${escapeHtml(b.address)}</td>
-            <td contenteditable="true" data-field="management_company">${escapeHtml(b.management_company)}</td>
             <td contenteditable="true" data-field="active_users">${escapeHtml(b.active_users)}</td>
             <td contenteditable="true" data-field="total_households">${escapeHtml(b.total_households)}</td>
-            <td>${escapeHtml(b.management_phone || '')}</td>
+            <td contenteditable="true" data-field="management_phone">${escapeHtml(b.management_phone || '')}</td>
             <td>
               <input class="ip-input" type="text"
                 value="${escapeHtml(b.ip || '')}"
@@ -1355,7 +1419,10 @@ def admin_buildings_page(request: Request):
                 data-building-no="${escapeHtml(b.building_no)}"
                 onchange="saveIpChange(this)">
             </td>
-            <td><button class="btn-small btn-danger" type="button" onclick="deleteBuilding('${escapeHtml(b.building_no)}', '${escapeHtml(b.name)}')">刪除</button></td>
+            <td style="white-space:nowrap">
+              <button class="btn-small btn-detail" type="button" onclick='window.openBuildingDetailModal(${bJson})'>詳細</button>
+              <button class="btn-small btn-danger" type="button" onclick="deleteBuilding('${escapeHtml(b.building_no)}', '${escapeHtml(b.name)}')">刪除</button>
+            </td>
           </tr>
         `;
       }).join("");
@@ -1991,45 +2058,6 @@ def admin_buildings_page(request: Request):
     mask.classList.add("active");
   };
 
-  function bindExistingBuildingNameCells() {
-    const rows = Array.from(document.querySelectorAll("tbody tr"));
-
-    rows.forEach(function (row) {
-      const cells = row.querySelectorAll("td");
-      if (cells.length < 2) return;
-
-      const nameCell = cells[1];
-      if (nameCell.querySelector(".building-name-link")) return;
-
-      const name = nameCell.textContent.trim();
-      if (!name) return;
-
-      const building = {
-        building_no: cells[0] ? cells[0].textContent.trim() : "",
-        name: name,
-        area: cells[2] ? (cells[2].querySelector('select') ? cells[2].querySelector('select').value : cells[2].textContent.trim()) : "",
-        address: cells[3] ? cells[3].textContent.trim() : "",
-        raw_address: cells[3] ? cells[3].textContent.trim() : "",
-        management_company: cells[4] ? cells[4].textContent.trim() : "",
-        active_users: cells[5] ? cells[5].textContent.trim() : "",
-        total_households: cells[6] ? cells[6].textContent.trim() : "",
-        phone: cells[7] ? cells[7].textContent.trim() : "",
-        ip: cells[8] ? (cells[8].querySelector('input') ? cells[8].querySelector('input').value : cells[8].textContent.trim()) : "",
-        host: ""
-      };
-
-      nameCell.innerHTML = "";
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "building-name-link";
-      btn.textContent = name;
-      btn.onclick = function () {
-        window.openBuildingDetailModal(building);
-      };
-      nameCell.appendChild(btn);
-    });
-  }
-
   document.addEventListener("click", function (event) {
     const mask = document.getElementById("building_detail_mask");
     if (event.target === mask) {
@@ -2037,14 +2065,6 @@ def admin_buildings_page(request: Request):
     }
   });
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bindExistingBuildingNameCells);
-  } else {
-    bindExistingBuildingNameCells();
-  }
-
-  setTimeout(bindExistingBuildingNameCells, 500);
-  setTimeout(bindExistingBuildingNameCells, 1000);
 })();
 </script>
 

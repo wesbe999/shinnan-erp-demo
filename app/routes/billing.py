@@ -8,14 +8,12 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 from app.config import data_file
 from app.routes.employee_auth import _employee_current_user_from_request
-from sqlalchemy import create_engine, text as _sql
-from app.config import PROJECT_ROOT
+from sqlalchemy import text as _sql
 
 router = APIRouter(tags=["帳務系統"])
 
-# DB 連線
-_billing_db_path = PROJECT_ROOT / "xunnan_dispatch.db"
-_billing_engine = create_engine(f"sqlite:///{_billing_db_path}", connect_args={"check_same_thread": False})
+# DB 連線：統一使用 config.database_url()，與主程式共用同一個 DB
+from app.db import engine as _billing_engine
 
 _BILLING_NOTICES_FILE = data_file("billing_notices.json")
 

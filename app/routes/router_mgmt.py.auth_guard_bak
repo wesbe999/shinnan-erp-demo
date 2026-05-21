@@ -1,0 +1,264 @@
+from fastapi import APIRouter
+from fastapi.responses import HTMLResponse, JSONResponse
+from sqlalchemy import text as _sql
+from app.db import engine as _engine
+
+router = APIRouter(tags=["router-mgmt"])
+
+
+def _fetch_router_buildings():
+    with _engine.begin() as conn:
+        rows = conn.execute(_sql("""
+            SELECT building_no, name, area, ip
+            FROM buildings
+            WHERE ip IS NOT NULL AND ip != ''
+            ORDER BY area, CAST(substr(building_no, 2) AS INTEGER)
+        """)).mappings().fetchall()
+    return [dict(r) for r in rows]
+
+
+@router.get("/api/router-mgmt/buildings")
+def api_router_buildings():
+    return JSONResponse(_fetch_router_buildings())
+
+
+
+_ROUTER_MGMT_HTML = r"""<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>路由管理 | Shinnan ERP</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:"Microsoft JhengHei","Segoe UI",sans-serif;min-height:100vh}
+
+/* ── Header ── */
+.top-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 24px;background:#161b22;border-bottom:1px solid #30363d;
+  position:sticky;top:0;z-index:100;
+}
+.top-bar .title{font-size:17px;font-weight:700;color:#d4af37;letter-spacing:.04em}
+.top-bar .subtitle{font-size:12px;color:#8b949e;margin-top:2px}
+.header-btn{
+  height:28px;min-height:28px;max-height:28px;padding:0 12px;
+  border-radius:6px;border:1px solid #30363d;background:#21262d;
+  color:#c9d1d9;font-size:12px;cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.header-btn:hover{background:#30363d;color:#fff}
+.header-btns{display:flex;gap:8px}
+
+/* ── Tabs ── */
+.tabs-wrap{
+  background:#161b22;border-bottom:1px solid #21262d;
+  padding:0 24px;display:flex;gap:4px;overflow-x:auto;
+}
+.tab-btn{
+  padding:10px 16px;font-size:13px;font-weight:600;color:#8b949e;
+  background:transparent;border:none;border-bottom:2px solid transparent;
+  cursor:pointer;white-space:nowrap;transition:.15s;
+}
+.tab-btn:hover{color:#e6edf3}
+.tab-btn.active{color:#d4af37;border-bottom-color:#d4af37}
+.tab-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:#21262d;border-radius:10px;padding:1px 7px;
+  font-size:11px;margin-left:5px;
+}
+
+/* ── Search ── */
+.toolbar{
+  padding:14px 24px;display:flex;align-items:center;gap:12px;
+  background:#0d1117;border-bottom:1px solid #21262d;
+}
+.search-box{
+  flex:1;max-width:320px;height:32px;padding:0 12px;
+  background:#161b22;border:1px solid #30363d;border-radius:6px;
+  color:#e6edf3;font-size:13px;outline:none;
+}
+.search-box:focus{border-color:#d4af37}
+.search-box::placeholder{color:#484f58}
+.total-label{font-size:12px;color:#8b949e;margin-left:auto}
+
+/* ── Grid ── */
+.grid-wrap{padding:20px 24px}
+.buildings-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:12px;
+}
+.bcard{
+  background:#161b22;border:1px solid #30363d;border-radius:10px;
+  padding:14px;transition:.15s;cursor:default;
+}
+.bcard:hover{border-color:#d4af3770;background:#1c2128}
+.bcard .bno{font-size:11px;color:#8b949e;margin-bottom:4px}
+.bcard .bname{font-size:14px;font-weight:700;color:#e6edf3;margin-bottom:8px;line-height:1.3}
+.bcard .bip{
+  font-size:12px;font-family:"Courier New",monospace;
+  color:#58a6ff;background:#0d1117;
+  border-radius:4px;padding:3px 7px;display:inline-block;margin-bottom:10px;
+}
+.bcard .bip.no-ip{color:#484f58;font-family:inherit}
+.btn-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.conn-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  height:26px;padding:0 9px;border-radius:5px;
+  font-size:11px;font-weight:600;
+  text-decoration:none;cursor:pointer;transition:.15s;border:1px solid;
+}
+.conn-btn.green{background:#1f3a2a;border-color:#2ea04326;color:#3fb950}
+.conn-btn.green:hover{background:#2ea04320;border-color:#3fb950;color:#7ee787}
+.conn-btn.blue{background:#0d2136;border-color:#1f6feb40;color:#58a6ff}
+.conn-btn.blue:hover{background:#1f6feb20;border-color:#58a6ff;color:#79c0ff}
+.conn-btn.orange{background:#2d1f0a;border-color:#e3b34126;color:#e3b341}
+.conn-btn.orange:hover{background:#e3b34115;border-color:#e3b341;color:#f0c050}
+.conn-btn.red{background:#2d0f0f;border-color:#f8514926;color:#f85149}
+.conn-btn.red:hover{background:#f8514915;border-color:#f85149;color:#ff7b72}
+.conn-btn.disabled{color:#484f58;background:#161b22;border-color:#30363d;cursor:not-allowed;pointer-events:none}
+.area-badge{
+  display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;
+  background:#21262d;color:#8b949e;margin-left:6px;vertical-align:middle;
+}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:60px 0;color:#484f58;font-size:14px}
+
+/* ── Responsive ── */
+@media(max-width:600px){
+  .buildings-grid{grid-template-columns:1fr 1fr}
+  .grid-wrap{padding:12px}
+  .toolbar{padding:10px 12px}
+  .tabs-wrap{padding:0 12px}
+  .top-bar{padding:8px 12px}
+}
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+  <div>
+    <div class="title">&#x8def;&#x7531;&#x7ba1;&#x7406;</div>
+    <div class="subtitle">Router Management</div>
+  </div>
+  <div class="header-btns">
+    <a class="header-btn" href="/">&#x8fd4;&#x56de;&#x9996;&#x9801;</a>
+    <a class="header-btn" href="/employee/logout" onclick="localStorage.removeItem('xunnan_admin_token');localStorage.removeItem('xunnan_auth_token');localStorage.removeItem('xunnan_admin_role');localStorage.removeItem('xunnan_login_role')">&#x767b;&#x51fa;</a>
+  </div>
+</header>
+
+<nav class="tabs-wrap" id="tabs"></nav>
+
+<div class="toolbar">
+  <input class="search-box" id="searchInput" type="text" placeholder="&#x641c;&#x5c0b;&#x5927;&#x6a13;&#x540d;&#x7a31; / IP...">
+  <span class="total-label" id="totalLabel"></span>
+</div>
+
+<div class="grid-wrap">
+  <div class="buildings-grid" id="grid"></div>
+</div>
+
+<script>
+const AREAS_ORDER = ['東區','北區','安平','永康','高雄','北台南',''];
+const AREA_LABEL = {'':'未分區'};
+
+let allData = [];
+let currentArea = '__ALL__';
+let searchVal = '';
+
+async function loadData(){
+  const res = await fetch('/api/router-mgmt/buildings');
+  allData = await res.json();
+  buildTabs();
+  render();
+}
+
+function buildTabs(){
+  const counts = {};
+  counts['__ALL__'] = allData.length;
+  for(const b of allData){
+    const a = b.area ?? '';
+    counts[a] = (counts[a]||0)+1;
+  }
+  const areas = [...AREAS_ORDER.filter(a=>counts[a]>0)];
+  for(const a of Object.keys(counts)){
+    if(!areas.includes(a) && a!=='__ALL__') areas.push(a);
+  }
+
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML='';
+
+  // 全部 tab
+  tabs.innerHTML += tabHTML('__ALL__','全部',counts['__ALL__']);
+  for(const a of areas){
+    if(a==='__ALL__') continue;
+    tabs.innerHTML += tabHTML(a, AREA_LABEL[a]||a, counts[a]||0);
+  }
+  tabs.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      currentArea=btn.dataset.area;
+      tabs.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    });
+  });
+  tabs.querySelector('[data-area="__ALL__"]').classList.add('active');
+}
+
+function tabHTML(area,label,count){
+  return `<button class="tab-btn" data-area="${area}">${label}<span class="tab-count">${count}</span></button>`;
+}
+
+function render(){
+  const q = searchVal.trim().toLowerCase();
+  let list = allData;
+  if(currentArea!=='__ALL__') list = list.filter(b=>(b.area??'')=== currentArea);
+  if(q) list = list.filter(b=> b.name.toLowerCase().includes(q)||b.ip.toLowerCase().includes(q)||b.building_no.toLowerCase().includes(q));
+
+  document.getElementById('totalLabel').textContent = `共 ${list.length} 棟`;
+
+  const grid = document.getElementById('grid');
+  if(list.length===0){
+    grid.innerHTML='<div class="empty" style="grid-column:1/-1">無符合資料</div>';
+    return;
+  }
+  grid.innerHTML = list.map(b=>{
+    const ip = b.ip||'';
+    const base = ip ? `http://${ip}:9000` : '';
+    const areaBadge = (currentArea==='__ALL__' && b.area) ? `<span class="area-badge">${b.area}</span>` : '';
+    const btn = (label, hash, cls) => base
+      ? `<a class="conn-btn ${cls}" href="${base}/webfig/#${hash}" target="_blank" rel="noopener">${label}</a>`
+      : `<span class="conn-btn disabled">${label}</span>`;
+    return `<div class="bcard">
+  <div class="bno">${b.building_no}${areaBadge}</div>
+  <div class="bname">${b.name}</div>
+  ${ip ? `<div class="bip">${ip}</div>` : '<div class="bip no-ip">無 IP</div>'}
+  <div class="btn-row">
+    ${btn('🖥️ 主頁','', 'green')}
+    ${btn('🔗 IP綁定','ip-binding','blue')}
+    ${btn('📋 LOG','log','orange')}
+    ${btn('🔒 封鎖','ip-firewall/address-lists','red')}
+  </div>
+  <div class="btn-row">
+    ${btn('📡 DHCP','dhcp-server/leases','blue')}
+  </div>
+</div>`;
+  }).join('');
+}
+
+document.getElementById('searchInput').addEventListener('input', e=>{
+  searchVal = e.target.value;
+  render();
+});
+
+loadData();
+</script>
+</body>
+</html>"""
+
+
+@router.get("/router-mgmt", response_class=HTMLResponse)
+def router_mgmt_page():
+    return HTMLResponse(_ROUTER_MGMT_HTML)

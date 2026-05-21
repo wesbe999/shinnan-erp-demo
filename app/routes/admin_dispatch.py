@@ -1368,11 +1368,16 @@ function zh(hexText) {
   }
 
   function buildingNameText(item) {
-    const no = String(item.building_no || "").trim();
-    if (!no) return "";
-    if (no.indexOf("HOUSE") === 0 || String(item.site_type || "") === "house") return "透天";
-    const found = buildingDirectory.find(b => String(b.building_no || "").trim() === no);
-    return found ? String(found.name || no) : no;
+    const name = String(item.building_name || "").trim();
+    const raw = String(item.building_no || "").trim();
+    const value = name || raw;
+    if (!value) return "";
+    if (value.indexOf("HOUSE") === 0 || value === "透天" || String(item.site_type || "") === "house") return "透天";
+    const found = buildingDirectory.find(function (b) {
+      return String(b.name || b.building_name || "").trim() === value ||
+        String(b.building_no || "").trim() === value;
+    });
+    return found ? String(found.name || value) : value;
   }
 
   function mergedAddressText(item) {
@@ -2137,7 +2142,7 @@ function updateCreateBuildingOptions(clearCurrent) {
     }
 
     const house = document.createElement("option");
-    house.value = "HOUSE";
+    house.value = "\u900f\u5929";
     house.textContent = "\u900f\u5929";
     house.dataset.buildingName = "\u900f\u5929";
     house.dataset.area = area || "";
@@ -2153,9 +2158,10 @@ function updateCreateBuildingOptions(clearCurrent) {
       if (!no && !name) return;
 
       const opt = document.createElement("option");
-      opt.value = no || name;
+      opt.value = name || no;
       opt.dataset.buildingName = name;
       opt.dataset.name = name;
+      opt.dataset.buildingNo = no;
       opt.dataset.area = bArea;
       opt.dataset.address = addr;
 
@@ -2517,14 +2523,14 @@ function updateCreateCustomerAddressOptions(clearCurrent) {
 
       if (area && itemArea && itemArea !== area) return;
 
-      if (buildingValue && buildingValue !== "HOUSE") {
+      if (buildingValue && buildingName !== "\u900f\u5929") {
         const matchByNo = bno && bno === buildingValue;
         const matchByName = buildingName && (rawAddress.indexOf(buildingName) >= 0 || bname === buildingName);
         if (!matchByNo && !matchByName) return;
       }
 
-      if (buildingValue === "HOUSE") {
-        const looksHouse = !bno || bno === "HOUSE" || rawAddress.indexOf("\u900f\u5929") >= 0;
+      if (buildingName === "\u900f\u5929") {
+        const looksHouse = !bno || bno === "HOUSE" || bno === "\u900f\u5929" || rawAddress.indexOf("\u900f\u5929") >= 0;
         if (!looksHouse) return;
       }
 
@@ -2718,9 +2724,10 @@ async function createTicket() {
       appointment_date: val("new_date") || null,
       appointment_time: val("new_time") || null,
       assigned_engineer: val("new_engineer") || null,
-      building_no: val("new_building_no") || "",
+      building_no: selectedCreateBuildingName() || val("new_building_no") || "",
+      building_name: selectedCreateBuildingName() || val("new_building_no") || "",
       description: val("new_description"),
-      internal_note: val("new_building_no") ? ("\u5927\u6a13\u7de8\u865f\uff1a" + val("new_building_no")) : ""
+      internal_note: selectedCreateBuildingName() ? ("\u5927\u6a13\uff1a" + selectedCreateBuildingName()) : ""
     };
 
     if (caseType === "\u88dd\u6a5f") {

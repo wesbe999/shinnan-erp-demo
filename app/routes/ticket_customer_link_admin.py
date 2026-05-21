@@ -212,9 +212,12 @@ async def api_admin_ticket_customer_candidates_confirm(request: _TicketLinkReque
 
         customer = conn.execute(
             _ticket_link_sql_text("""
-                SELECT customer_no, building_no
-                FROM customer_accounts
-                WHERE customer_no = :customer_no
+                SELECT
+                    c.customer_no,
+                    COALESCE(NULLIF(c.building_name, ''), NULLIF(b.name, ''), CASE WHEN c.building_no = 'HOUSE' THEN '透天' ELSE c.building_no END, '') AS building_name
+                FROM customer_accounts c
+                LEFT JOIN buildings b ON b.building_no = c.building_no
+                WHERE c.customer_no = :customer_no
                 LIMIT 1
             """),
             {"customer_no": customer_no},
@@ -231,12 +234,12 @@ async def api_admin_ticket_customer_candidates_confirm(request: _TicketLinkReque
             _ticket_link_sql_text("""
                 UPDATE tickets
                 SET customer_no = :customer_no,
-                    building_no = :building_no
+                    building_no = :building_name
                 WHERE id = :ticket_id
             """),
             {
                 "customer_no": customer["customer_no"],
-                "building_no": customer["building_no"],
+                "building_name": customer["building_name"],
                 "ticket_id": candidate["ticket_id"],
             },
         )
@@ -245,7 +248,7 @@ async def api_admin_ticket_customer_candidates_confirm(request: _TicketLinkReque
             _ticket_link_sql_text("""
                 UPDATE ticket_customer_candidates
                 SET candidate_customer_no = :customer_no,
-                    candidate_building_no = :building_no,
+                    candidate_building_no = :building_name,
                     match_type = 'manual_confirmed',
                     match_score = 100,
                     review_status = '已確認',
@@ -255,7 +258,7 @@ async def api_admin_ticket_customer_candidates_confirm(request: _TicketLinkReque
             """),
             {
                 "customer_no": customer["customer_no"],
-                "building_no": customer["building_no"],
+                "building_name": customer["building_name"],
                 "review_note": review_note or "人工確認關聯",
                 "candidate_id": candidate_id,
             },
@@ -404,7 +407,7 @@ async def api_admin_ticket_customer_create_customer_and_confirm(request: _Ticket
             _ticket_link_sql_text("""
                 UPDATE tickets
                 SET customer_no = :customer_no,
-                    building_no = 'HOUSE'
+                    building_no = '透天'
                 WHERE id = :ticket_id
             """),
             {
@@ -417,7 +420,7 @@ async def api_admin_ticket_customer_create_customer_and_confirm(request: _Ticket
             _ticket_link_sql_text("""
                 UPDATE ticket_customer_candidates
                 SET candidate_customer_no = :customer_no,
-                    candidate_building_no = 'HOUSE',
+                    candidate_building_no = '透天',
                     match_type = 'manual_created_customer',
                     match_score = 100,
                     review_status = '已確認',

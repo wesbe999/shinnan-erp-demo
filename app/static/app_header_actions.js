@@ -90,6 +90,48 @@
     return btn;
   }
 
+  function makeSaveAllBtn() {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'xn-save-all-btn';
+    btn.textContent = '💾 儲存';
+    btn.style.cssText = 'background:#1a6b3a !important; border-color:rgba(100,220,130,0.8) !important;';
+    btn.onclick = async function () {
+      btn.textContent = '儲存中…';
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/admin/buildings?ts=' + Date.now());
+        const buildings = await res.json();
+        const STORAGE_KEY = 'xunnan_buildings_overrides';
+        const overrides = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        let count = 0;
+        for (const b of buildings) {
+          const ov = overrides[b.building_no];
+          if (!ov || !b.id) continue;
+          await fetch('/api/admin/buildings/' + b.id, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(ov)
+          });
+          count++;
+        }
+        localStorage.removeItem('xunnan_buildings_overrides');
+        btn.textContent = count > 0 ? ('✓ 已儲存' + count + '筆') : '✓ 已是最新';
+        btn.style.background = '#0d4a27 !important';
+        setTimeout(function () {
+          btn.textContent = '💾 儲存';
+          btn.disabled = false;
+          btn.style.background = '#1a6b3a !important';
+        }, 2500);
+      } catch (e) {
+        btn.textContent = '❌ 失敗';
+        btn.disabled = false;
+        setTimeout(function () { btn.textContent = '💾 儲存'; }, 2500);
+      }
+    };
+    return btn;
+  }
+
   function inject() {
     const header = document.querySelector(
       '.web-title.web-title-tech, .web-title, .app-standard-hero, .hero, header, .site-header, .app-header'
@@ -102,7 +144,14 @@
       '.web-title-actions, .cl15i10-header-actions, [class*="header-actions"]'
     );
     if (existingActions) {
-      if (header.querySelector('.xn-header-actions')) return;
+      if (header.querySelector('.xn-header-actions')) {
+        // 大樓頁面補儲存按鈕（若尚未加入）
+        const box = header.querySelector('.xn-header-actions');
+        if (window.location.pathname.startsWith('/admin/buildings') && !box.querySelector('#xn-save-all-btn')) {
+          box.insertBefore(makeSaveAllBtn(), box.firstChild);
+        }
+        return;
+      }
       const hasLogout = [...existingActions.querySelectorAll('button')]
         .some(b => b.textContent.trim() === '登出');
       if (!hasLogout) existingActions.appendChild(makeLogoutBtn());
@@ -119,6 +168,11 @@
 
     const box = document.createElement('div');
     box.className = 'xn-header-actions';
+
+    // 大樓名錄頁面：加儲存按鈕
+    if (window.location.pathname.startsWith('/admin/buildings')) {
+      box.appendChild(makeSaveAllBtn());
+    }
 
     const backBtn = document.createElement('button');
     backBtn.type = 'button';
