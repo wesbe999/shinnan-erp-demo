@@ -45,3 +45,40 @@ _sales_user_no_department_v1.py
 
 *.txt
 !data/*.json
+
+# 一次性除錯腳本
+check_*.py
+find_*.py
+fix_*.py
+test_*.py
+_cl15*.py
+_debug_*/
+
+# 根目錄工具腳本
+renumber*.py
+sync_*.py
+fetch_*.py
+update_*.py
+add_*.py
+clear_*.py
+compare_*.py
+
+# 資料匯出/匯入檔
+*.csv
+*.xlsx
+*.xls
+*.json
+!app/static/*.json
+!data/*.json
+
+# 網頁存檔
+*.html
+*_files/
+
+# 備份DB
+*.before_*.db
+xunnan_dispatch.before_*.db
+
+# 暫存腳本（D槽根目錄）
+/D:/*.py
+/D:/*.bat
