@@ -233,8 +233,31 @@ def billing_page(request: Request):
 <!doctype html>
 <html lang="zh-Hant">
 <head>
+
+<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>\u5e33\u52d9\u7cfb\u7d71\uff5c\u4e2d\u592e\u63a7\u7ba1\u7cfb\u7d71</title>
+
   
+
+
+
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
+<link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
+<link rel="stylesheet" href="/static/billing.css?v=xn_v1">
+<link rel="stylesheet" href="/static/billing_notice.css?v=xn_v1">
+
+
+
   
+
+
+
+
+</head>
+
+<body>
+
   <div id="customer_detail_modal" class="customer-detail-mask">
     <div class="customer-detail-modal">
       <div class="customer-detail-header">
@@ -397,29 +420,6 @@ def billing_page(request: Request):
 
     </div>
   </div>
-<meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>\u5e33\u52d9\u7cfb\u7d71\uff5c\u4e2d\u592e\u63a7\u7ba1\u7cfb\u7d71</title>
-
-  
-
-
-
-  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
-<link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
-<link rel="stylesheet" href="/static/billing.css?v=xn_v1">
-<link rel="stylesheet" href="/static/billing_notice.css?v=xn_v1">
-
-
-
-  
-
-
-
-
-</head>
-
-<body>
 <section class="web-title web-title-tech" id="xn-page-header">
   <img class="web-title-watermark" src="/static/shinnan_logo_outline_white.png" alt="">
   <div class="web-title-map"></div>
