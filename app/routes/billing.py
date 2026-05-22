@@ -346,9 +346,9 @@ def billing_page(request: Request):
         <div class="fee-note">安裝費與押金僅供顯示，不列入帳單金額；帳單金額 =（月租費1 + 月租費2 + 月租費3）× 繳費月數。</div>
 
         <div style="margin-top:12px;display:flex;gap:10px;align-items:center;">
-          <button type="button" onclick="confirmPaymentToDb()" style="height:38px;padding:0 20px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">✅ 登記收費</button>
-          <button type="button" onclick="markOverdueToDb()" style="height:38px;padding:0 20px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">⚠️ 標記逾期</button>
-          <span id="billing_save_status" style="font-size:13px;color:#16a34a;"></span>
+          <button type="button" onclick="confirmPaymentToDb()" class="btn-green">✅ 登記收費</button>
+          <button type="button" onclick="markOverdueToDb()" class="btn-danger">⚠️ 標記逾期</button>
+          <span id="billing_save_status" style="font-size:13px;color:#1a6b3a;"></span>
         </div>
       </div>
       <!-- SHINNAN_MODAL_FEE_CALC_BLOCK_END -->
