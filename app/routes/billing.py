@@ -436,10 +436,10 @@ def billing_page(request: Request):
     </div>
   </div>
   <div class="xn-header-actions">
-    <button type="button" style="background:#1a6b3a !important;border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important" onclick="document.getElementById('create_customer_button') && document.getElementById('create_customer_button').click()">＋ 建立資料</button>
-    <button type="button" style="background:#b45309 !important;border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important" onclick="alert('開立發票功能下一步串接')">🧾 開立發票</button>
-    <button type="button" style="background:#6b3fa0 !important;border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important" onclick="window.location.href='/'">🏠 首頁</button>
-    <button type="button" class="danger" style="border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important" onclick="window.location.href='/employee/logout?next=/'">登出</button>
+    <button type="button" style="background:#1a6b3a !important;border:1.5px solid #d4af37 !important" onclick="document.getElementById('create_customer_button') && document.getElementById('create_customer_button').click()">＋ 建立資料</button>
+    <button type="button" style="background:#b45309 !important;border:1.5px solid #d4af37 !important" onclick="alert('開立發票功能下一步串接')">🧾 開立發票</button>
+    <button type="button" style="background:#6b3fa0 !important;border:1.5px solid #d4af37 !important" onclick="window.location.href='/'">🏠 首頁</button>
+    <button type="button" class="danger" style="border:1.5px solid #d4af37 !important" onclick="window.location.href='/employee/logout?next=/'">登出</button>
   </div>
 </section>
 

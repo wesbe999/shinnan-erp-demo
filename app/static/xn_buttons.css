@@ -254,6 +254,6 @@ button.building-detail-save, .building-detail-save {
   padding: 0 12px !important;
   font-size: 12px !important;
   border-radius: 9px !important;
-  border: 2px solid #d4af37 !important;
-  box-shadow: 0 0 0 1px rgba(212,175,55,0.3) !important;
+  border: 1.5px solid #d4af37 !important;
+  box-shadow: none !important;
 }
