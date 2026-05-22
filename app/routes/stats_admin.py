@@ -740,6 +740,11 @@ body{margin:0;background:#edf3ef;color:#102018;font-family:"Microsoft JhengHei",
       </div>
     </div>
   </div>
+  <div class="xn-header-actions">
+    <button type="button" style="background:#b45309 !important;border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important" onclick="loadStats()">🔄 重新整理</button>
+    <button type="button" style="background:#6b3fa0 !important;border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important" onclick="window.location.href='/'">🏠 首頁</button>
+    <button type="button" class="danger" style="border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important" onclick="window.location.href='/employee/logout?next=/'">登出</button>
+  </div>
 </section>
 
 <main class="page">

@@ -1091,6 +1091,12 @@ CLEAN_ADMIN_HTML = r'''
       </div>
     </div>
   </div>
+  <div class="xn-header-actions">
+    <button type="button" style="background:#1a6b3a !important;border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important" onclick="openCreateModal()">＋ 新增案件</button>
+    <button type="button" style="background:#b45309 !important;border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important" onclick="loadAll()">🔄 重新整理</button>
+    <button type="button" style="background:#6b3fa0 !important;border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important" onclick="window.location.href='/'">🏠 首頁</button>
+    <button type="button" class="danger" style="border:2px solid #d4af37 !important;box-shadow:0 0 0 1px rgba(212,175,55,0.4) !important" onclick="logout()">登出</button>
+  </div>
 </section>
 
   <main class="page">
@@ -1112,11 +1118,7 @@ CLEAN_ADMIN_HTML = r'''
     <section class="toolbar">
       <div class="top-filter"><label for="top_filter_area">區域選擇</label><select id="top_filter_area"></select></div>
       <div class="top-filter"><label for="top_filter_engineer">工程師狀態</label><select id="top_filter_engineer"></select></div>
-      <button class="btn-blue" type="button" onclick="location.href='/'">返回上一頁</button>
-      <button class="btn-blue" type="button" onclick="loadAll()">重新整理</button>
-      <button class="btn-green" type="button" onclick="openCreateModal()">新增案件</button>
       <button class="btn-gray" type="button" onclick="clearFilters()">清除篩選</button>
-      <button class="btn-red" type="button" onclick="logout()">登出</button>
       <span id="sync_status" class="sync-status">尚未同步</span>
     </section>
 
