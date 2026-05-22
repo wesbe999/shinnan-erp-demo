@@ -134,6 +134,76 @@ button[disabled], .btn[disabled] {
   cursor: not-allowed !important;
 }
 
+/* ── 各頁面特定 class 統一 ── */
+
+/* 刪除類 */
+button.delete-button, .delete-button,
+button.billing-notice-delete, .billing-notice-delete {
+  background: #b91c1c !important;
+  border-color: #d4af37 !important;
+  color: #fff !important;
+}
+
+/* 送出/查詢類（綠色） */
+button.billing-notice-send, .billing-notice-send {
+  background: #1a6b3a !important;
+  border-color: #d4af37 !important;
+  color: #fff !important;
+}
+
+/* 清除/取消類（灰色） */
+button.billing-notice-clear, .billing-notice-clear,
+button.modal-close, .modal-close,
+button.customer-detail-close, .customer-detail-close,
+button.building-detail-close, .building-detail-close,
+button.sales-manager-modal-close, .sales-manager-modal-close {
+  background: #374151 !important;
+  border-color: #d4af37 !important;
+  color: #e5e7eb !important;
+}
+
+/* 列印（藍色） */
+button.print-list-button, .print-list-button {
+  background: #1a4a8a !important;
+  border-color: #d4af37 !important;
+  color: #fff !important;
+}
+
+/* 詳細/switch 類（藍色） */
+button.detail-switch-button, .detail-switch-button {
+  background: #1a4a8a !important;
+  border-color: #d4af37 !important;
+  color: #fff !important;
+  height: 34px !important;
+  font-size: 13px !important;
+}
+button.detail-switch-button.active, .detail-switch-button.active {
+  background: #1a6b3a !important;
+  border-color: #d4af37 !important;
+}
+
+/* 大樓連結按鈕（藍色，非紫色）*/
+button.btn-purple.sales-building-btn,
+button.btn-purple[onclick*="building"],
+button.btn-purple[onclick*="Building"] {
+  background: #1a4a8a !important;
+  border-color: #d4af37 !important;
+}
+
+/* btn-detail（深藍） */
+button.btn-detail, .btn-detail {
+  background: #1a4a8a !important;
+  border-color: #d4af37 !important;
+  color: #fff !important;
+}
+
+/* building-detail-save（綠） */
+button.building-detail-save, .building-detail-save {
+  background: #1a6b3a !important;
+  border-color: #d4af37 !important;
+  color: #fff !important;
+}
+
 /* ── tab 按鈕 ── */
 .tab-button {
   font-family: "Microsoft JhengHei", "Segoe UI", Arial, sans-serif !important;
