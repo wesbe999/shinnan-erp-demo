@@ -1732,20 +1732,20 @@ def billing_page(request: Request):
     }
 
     .create-tab-button {
-      background: #1a6b3a !important;
-      color: #fff !important;
+      background: #10361f !important;
+      color: #fff7d6 !important;
       border: 1.5px solid #d4af37 !important;
     }
 
     .invoice-tab-button {
-      background: #b45309 !important;
-      color: #fff !important;
+      background: #10361f !important;
+      color: #fff7d6 !important;
       border: 1.5px solid #d4af37 !important;
     }
 
     .tab-button[data-tab="customers"] {
-      background: #1a4a8a !important;
-      color: #fff !important;
+      background: #10361f !important;
+      color: #fff7d6 !important;
       border: 1.5px solid #d4af37 !important;
     }
 
@@ -1777,20 +1777,20 @@ def billing_page(request: Request):
     }
 
     .tabs #create_customer_button {
-      background: #1a6b3a !important;
-      color: #fff !important;
+      background: #10361f !important;
+      color: #fff7d6 !important;
       border: 1.5px solid #d4af37 !important;
     }
 
     .tabs .invoice-tab-button {
-      background: #b45309 !important;
-      color: #fff !important;
+      background: #10361f !important;
+      color: #fff7d6 !important;
       border: 1.5px solid #d4af37 !important;
     }
 
     .tabs .tab-button[data-tab="customers"] {
-      background: #1a4a8a !important;
-      color: #fff !important;
+      background: #10361f !important;
+      color: #fff7d6 !important;
       border: 1.5px solid #d4af37 !important;
     }
 

@@ -228,8 +228,8 @@ button.building-detail-save, .building-detail-save {
 .tab-button.create-tab-button.active,
 .tab-button.invoice-tab-button.active,
 .tab-button[data-tab="customers"].active {
-  background: #1a5276 !important;
-  border-color: #d4af37 !important;
+  border: 2px solid #d4af37 !important;
+  box-shadow: 0 0 0 2px rgba(212,175,55,0.5) !important;
 }
 
 /* ── Header 右上角按鈕區 ── */
