@@ -88,3 +88,13 @@ xunnan_dispatch.before_*.db
 data/xunnan_dispatch.db
 data/*.db
 _debug_buildings_scripts/
+
+# 根目錄暫存腳本
+enhance_globe.py
+init_db_dump.sql
+inspect_apps.py
+list_mobile_routes.py
+rb_ssh.py
+shrink_charts.py
+shrink_panel.py
+unify_apps.py
