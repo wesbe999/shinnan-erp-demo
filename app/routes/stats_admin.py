@@ -754,10 +754,6 @@ body{margin:0;background:#edf3ef;color:#102018;font-family:"Microsoft JhengHei",
       <p>&#x4ee5;&#x9010;&#x6708;&#x5c0d;&#x6bd4;&#x70ba;&#x4e3b;&#xff1a;&#x6298;&#x7dda;&#x5716;&#x770b;&#x6210;&#x9577;&#x8207;&#x8870;&#x9000;&#xff0c;&#x5713;&#x9905;&#x5716;&#x770b;&#x4f54;&#x6bd4;&#xff0c;&#x9577;&#x689d;&#x5716;&#x770b;&#x7cbe;&#x78ba;&#x6578;&#x5b57;&#x6392;&#x884c;&#x3002;</p>
       <div id="meta_line" class="note"></div>
     </div>
-    <div class="actions">
-      <a class="btn btn-home" href="/">&#x8fd4;&#x56de;&#x9996;&#x9801;</a>
-      <button class="btn btn-refresh" onclick="loadStats()">&#x91cd;&#x65b0;&#x6574;&#x7406;</button>
-    </div>
   </div>
 
   <section class="kpi-grid" id="kpi_grid"></section>

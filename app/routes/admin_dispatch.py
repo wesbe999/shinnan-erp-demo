@@ -1118,7 +1118,7 @@ CLEAN_ADMIN_HTML = r'''
     <section class="toolbar">
       <div class="top-filter"><label for="top_filter_area">區域選擇</label><select id="top_filter_area"></select></div>
       <div class="top-filter"><label for="top_filter_engineer">工程師狀態</label><select id="top_filter_engineer"></select></div>
-      <button class="btn-gray" type="button" onclick="clearFilters()">清除篩選</button>
+      <button type="button" onclick="clearFilters()">清除篩選</button>
       <span id="sync_status" class="sync-status">尚未同步</span>
     </section>
 

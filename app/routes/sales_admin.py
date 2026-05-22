@@ -949,7 +949,6 @@ def shinnan_admin_sales_page(request: Request):
           <div class="schedule-title">今日行程</div>
           <div class="schedule-sub">重要行程會固定排在最上方；有拜訪日期或事件日期的案件也會顯示。</div>
         </div>
-        <button class="btn-green" type="button" onclick="openCreateSalesModal()">新增行程</button>
       </div>
       <div id="today_schedule_rows" class="schedule-list">
         <div class="schedule-empty">目前沒有今日行程。</div>

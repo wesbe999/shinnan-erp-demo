@@ -494,24 +494,23 @@ def billing_page(request: Request):
 
     .tabs {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 10px;
       margin: 10px 0 14px;
     }
 
     .tab-button {
-      background: white;
-      color: var(--text);
-      border: 1px solid var(--line);
+      background: #10361f;
+      color: #fff7d6;
+      border: 1.5px solid #d4af37;
       box-shadow: none;
-      min-width: 120px;
-      min-height: 42px;
+      min-width: 80px;
+      height: 34px;
     }
 
     .tab-button.active {
-      background: var(--blue);
-      color: white;
-      border-color: var(--blue);
+      border: 2px solid #d4af37;
+      box-shadow: 0 0 0 2px rgba(212,175,55,0.4);
     }
 
     .card {
@@ -1707,84 +1706,70 @@ def billing_page(request: Request):
       flex-direction: row !important;
       align-items: center !important;
       justify-content: flex-start !important;
-      gap: 12px !important;
+      gap: 10px !important;
       margin: 12px 0 14px !important;
       flex-wrap: nowrap !important;
     }
 
     .tabs .tab-button {
-      width: 180px !important;
-      min-width: 180px !important;
-      max-width: 180px !important;
-      height: 58px !important;
-      min-height: 58px !important;
-      padding: 0 18px !important;
-      border-radius: 18px !important;
-      font-size: 22px !important;
+      width: auto !important;
+      min-width: 80px !important;
+      max-width: none !important;
+      height: 34px !important;
+      min-height: 34px !important;
+      padding: 0 16px !important;
+      border-radius: 9px !important;
+      font-size: 13px !important;
       font-weight: 1000 !important;
+      border: 1.5px solid #d4af37 !important;
+      background: #10361f !important;
+      color: #fff7d6 !important;
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
       white-space: nowrap !important;
-      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.10) !important;
+      box-shadow: 0 2px 6px rgba(0,0,0,.12) !important;
     }
 
     .create-tab-button {
-      background: #7c3aed !important;
-      color: #ffffff !important;
-      border: 0 !important;
+      background: #1a6b3a !important;
+      color: #fff !important;
+      border: 1.5px solid #d4af37 !important;
     }
 
     .invoice-tab-button {
-      background: #ea580c !important;
-      color: #ffffff !important;
-      border: 0 !important;
+      background: #b45309 !important;
+      color: #fff !important;
+      border: 1.5px solid #d4af37 !important;
     }
 
     .tab-button[data-tab="customers"] {
-      background: #2f80ed !important;
-      color: #ffffff !important;
-      border: 0 !important;
+      background: #1a4a8a !important;
+      color: #fff !important;
+      border: 1.5px solid #d4af37 !important;
     }
 
-    @media (max-width: 1200px) {
-      .toolbar {
-        grid-template-columns: 120px 170px minmax(420px, 1fr) 70px 70px !important;
-      }
+    .tab-button.active {
+      border: 2px solid #d4af37 !important;
+      box-shadow: 0 0 0 2px rgba(212,175,55,0.4) !important;
     }
 
     /* SHINNAN_BILLING_ACTION_TABS_FIXED_ROW_END */
 
       /* SHINNAN_BILLING_ACTION_BUTTONS_TRUE_EQUAL_START */
 
-    .tabs {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: flex-start !important;
-      gap: 16px !important;
-      flex-wrap: nowrap !important;
-      width: auto !important;
-    }
-
     .tabs #create_customer_button,
     .tabs .invoice-tab-button,
     .tabs .tab-button[data-tab="customers"] {
-      width: 180px !important;
-      min-width: 180px !important;
-      max-width: 180px !important;
-      flex-grow: 0 !important;
-      flex-shrink: 0 !important;
-      flex-basis: 180px !important;
-      align-self: flex-start !important;
-
-      height: 58px !important;
-      min-height: 58px !important;
-      padding: 0 18px !important;
-      border-radius: 18px !important;
-      font-size: 22px !important;
+      width: auto !important;
+      min-width: 80px !important;
+      max-width: none !important;
+      height: 34px !important;
+      min-height: 34px !important;
+      padding: 0 16px !important;
+      border-radius: 9px !important;
+      font-size: 13px !important;
       font-weight: 1000 !important;
-
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
@@ -1792,29 +1777,21 @@ def billing_page(request: Request):
     }
 
     .tabs #create_customer_button {
-      background: #7c3aed !important;
-      color: #ffffff !important;
-      border: 0 !important;
+      background: #1a6b3a !important;
+      color: #fff !important;
+      border: 1.5px solid #d4af37 !important;
     }
 
     .tabs .invoice-tab-button {
-      background: #ea580c !important;
-      color: #ffffff !important;
-      border: 0 !important;
+      background: #b45309 !important;
+      color: #fff !important;
+      border: 1.5px solid #d4af37 !important;
     }
 
     .tabs .tab-button[data-tab="customers"] {
-      background: #2f80ed !important;
-      color: #ffffff !important;
-      border: 0 !important;
-    }
-
-    /* 防止舊樣式把第一顆按鈕拉滿 */
-    .tabs #create_customer_button.create-tab-button,
-    .tabs button#create_customer_button {
-      width: 180px !important;
-      max-width: 180px !important;
-      flex: 0 0 180px !important;
+      background: #1a4a8a !important;
+      color: #fff !important;
+      border: 1.5px solid #d4af37 !important;
     }
 
     /* SHINNAN_BILLING_ACTION_BUTTONS_TRUE_EQUAL_END */
