@@ -1,0 +1,51 @@
+/* stats_admin.css - 由 stats_admin.py 抽出 */
+
+.page{width:min(1480px,calc(100% - 38px));margin:24px auto 54px}
+.intro{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;margin:18px 0}
+.intro h2{margin:0;color:#143d24;font-size:30px;font-weight:1000}
+.intro p{margin:8px 0 0;color:#5b6b62;font-weight:800;line-height:1.6}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{height:38px;border:0;border-radius:11px;padding:0 16px;font-weight:1000;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid #dfe8e2;border-radius:20px;padding:17px 18px;box-shadow:0 12px 26px rgba(31,59,42,.08);min-height:132px}
+.kpi .label{font-size:14px;font-weight:1000;color:#607268}
+.kpi .value{margin-top:10px;font-size:32px;font-weight:1000;color:#123b24;letter-spacing:.02em}
+.kpi .hint{margin-top:8px;color:#7a8a80;font-size:13px;font-weight:800}
+.delta{display:inline-flex;align-items:center;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:1000;margin-top:10px}
+.delta.up{background:#dff5e6;color:#0f5132}
+.delta.down{background:#ffe5df;color:#9b2718}
+.delta.flat{background:#edf1ee;color:#65756c}
+.grid-main{display:grid;grid-template-columns:1.45fr .95fr;gap:16px;margin-bottom:16px}
+.grid-two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid-three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+.panel{background:#fff;border:1px solid #dfe8e2;border-radius:22px;padding:18px;box-shadow:0 12px 28px rgba(31,59,42,.08)}
+.panel h3{margin:0 0 12px;color:#143d24;font-size:21px;font-weight:1000}
+.panel-sub{margin-top:-6px;margin-bottom:12px;color:#718078;font-size:13px;font-weight:800}
+.svg-chart{width:100%;height:300px;display:block}
+.svg-chart.small{height:250px}
+.axis{stroke:#dfe8e2;stroke-width:1}
+.line-a{fill:none;stroke:#0f6b3b;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.line-b{fill:none;stroke:#d8a63f;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.point-a{fill:#0f6b3b;stroke:#fff;stroke-width:2}
+.point-b{fill:#d8a63f;stroke:#fff;stroke-width:2}
+.chart-label{fill:#607268;font-size:12px;font-weight:800}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;color:#5d6d64;font-weight:900;font-size:13px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:99px;margin-right:6px;vertical-align:-1px}
+.la{background:#0f6b3b}.lb{background:#d8a63f}
+.donut-wrap{display:grid;grid-template-columns:210px 1fr;gap:16px;align-items:center}
+.donut{width:210px;height:210px;border-radius:50%;background:conic-gradient(#0f6b3b 0deg,#0f6b3b 90deg,#d8a63f 90deg,#d8a63f 160deg,#2b8c66 160deg,#2b8c66 230deg,#b6872c 230deg,#b6872c 300deg,#93b0a0 300deg,#93b0a0 360deg);position:relative;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)}
+.donut:after{display:none}
+.donut-center{display:none}
+.pie-list{display:grid;gap:9px}
+.pie-item{display:grid;grid-template-columns:14px 1fr auto;gap:9px;align-items:center;font-weight:900;color:#33483b}
+.pie-color{width:12px;height:12px;border-radius:99px}
+.bar-list{display:grid;gap:10px}
+.bar-row{display:grid;grid-template-columns:150px 1fr 78px;gap:10px;align-items:center}
+.bar-label{font-size:13px;font-weight:900;color:#324a3b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{height:15px;border-radius:999px;background:#e8efe9;overflow:hidden}
+.bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#0f5132,#35a46a,#e1b64d);min-width:3px}
+.bar-value{text-align:right;font-size:13px;font-weight:1000;color:#21392b}
+.note{margin-top:12px;color:#738178;font-size:13px;font-weight:800;line-height:1.65}
+@media(max-width:1180px){.grid-main,.grid-three{grid-template-columns:1fr}.donut-wrap{grid-template-columns:1fr}.donut{margin:auto}}
+@media(max-width:680px){.grid-two{grid-template-columns:1fr}.page{width:min(100% - 22px,1480px)}.kpi-grid{grid-template-columns:repeat(2,1fr)}.bar-row{grid-template-columns:110px 1fr 58px}.intro{display:block}.actions{margin-top:12px}}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr}}
