@@ -1,7 +1,7 @@
 /* ============================================================
    app/static/xn_buttons.css
    訊南 ERP 公版按鈕樣式
-   v1 - cl_btn_v1
+   v2 - cl_btn_v2
    ============================================================ */
 
 /* ── 基礎重設 ── */
@@ -37,73 +37,57 @@ button:active, .btn:active {
   opacity: .85 !important;
 }
 
-/* ── 顏色變體 ── */
+/* ── 顏色變體（全部統一金邊 #d4af37）── */
 
-/* 藍色 */
-button.btn-blue, .btn-blue,
-button[class*="btn-blue"] {
+button.btn-blue, .btn-blue, button[class*="btn-blue"] {
   background: #1a3a6b !important;
-  border-color: rgba(212,175,55,.75) !important;
+  border-color: #d4af37 !important;
   color: #fff !important;
 }
-button.btn-blue:hover, .btn-blue:hover {
-  background: #142d56 !important;
-}
+button.btn-blue:hover, .btn-blue:hover { background: #142d56 !important; }
 
-/* 綠色 */
 button.btn-green, .btn-green {
   background: #0f5132 !important;
-  border-color: rgba(212,175,55,.75) !important;
+  border-color: #d4af37 !important;
   color: #fff !important;
 }
-button.btn-green:hover, .btn-green:hover {
-  background: #0a3d26 !important;
-}
+button.btn-green:hover, .btn-green:hover { background: #0a3d26 !important; }
 
-/* 橘色 */
 button.btn-orange, .btn-orange {
   background: #b45309 !important;
-  border-color: rgba(212,175,55,.75) !important;
+  border-color: #d4af37 !important;
   color: #fff !important;
 }
-button.btn-orange:hover, .btn-orange:hover {
-  background: #92400e !important;
-}
+button.btn-orange:hover, .btn-orange:hover { background: #92400e !important; }
 
-/* 灰色 */
 button.btn-gray, .btn-gray {
   background: #374151 !important;
-  border-color: rgba(212,175,55,.55) !important;
+  border-color: #d4af37 !important;
   color: #e5e7eb !important;
 }
-button.btn-gray:hover, .btn-gray:hover {
-  background: #1f2937 !important;
-}
+button.btn-gray:hover, .btn-gray:hover { background: #1f2937 !important; }
 
-/* 紫色 */
 button.btn-purple, .btn-purple {
   background: #4c1d95 !important;
-  border-color: rgba(212,175,55,.75) !important;
+  border-color: #d4af37 !important;
   color: #fff !important;
 }
-button.btn-purple:hover, .btn-purple:hover {
-  background: #3b1578 !important;
-}
+button.btn-purple:hover, .btn-purple:hover { background: #3b1578 !important; }
 
-/* 紅色 / 危險 */
 button.btn-red, .btn-red,
-button.btn-danger, .btn-danger {
+button.btn-danger, .btn-danger,
+button.danger, .danger {
   background: #b91c1c !important;
-  border-color: rgba(240,180,140,.85) !important;
+  border-color: #d4af37 !important;
   color: #fff !important;
 }
 button.btn-red:hover, .btn-red:hover,
-button.btn-danger:hover, .btn-danger:hover {
+button.btn-danger:hover, .btn-danger:hover,
+button.danger:hover, .danger:hover {
   background: #991b1b !important;
-  border-color: #f0a070 !important;
+  border-color: #e8c84a !important;
 }
 
-/* 金色 / 主要操作 */
 button.btn-gold, .btn-gold,
 button.btn-primary, .btn-primary {
   background: #92400e !important;
@@ -111,21 +95,17 @@ button.btn-primary, .btn-primary {
   color: #fff7d6 !important;
 }
 button.btn-gold:hover, .btn-gold:hover,
-button.btn-primary:hover, .btn-primary:hover {
-  background: #78350f !important;
-}
+button.btn-primary:hover, .btn-primary:hover { background: #78350f !important; }
 
-/* home 按鈕 */
 button.btn-home, .btn-home {
   background: #1a3a6b !important;
-  border-color: rgba(212,175,55,.75) !important;
+  border-color: #d4af37 !important;
   color: #fff !important;
 }
 
-/* refresh 按鈕 */
 button.btn-refresh, .btn-refresh {
   background: #b45309 !important;
-  border-color: rgba(212,175,55,.75) !important;
+  border-color: #d4af37 !important;
   color: #fff !important;
 }
 
@@ -154,14 +134,14 @@ button[disabled], .btn[disabled] {
   cursor: not-allowed !important;
 }
 
-/* ── tab 按鈕（不套金邊，保留原樣但統一字體）── */
+/* ── tab 按鈕 ── */
 .tab-button {
   font-family: "Microsoft JhengHei", "Segoe UI", Arial, sans-serif !important;
   font-size: 13px !important;
   font-weight: 1000 !important;
 }
 
-/* ── billing tab 按鈕統一（建立資料/開立發票/客戶清單）── */
+/* ── billing tab 按鈕（建立資料/開立發票/客戶清單）── */
 .tab-button.create-tab-button,
 .tab-button.invoice-tab-button,
 .tab-button[data-tab="customers"] {
@@ -182,7 +162,7 @@ button[disabled], .btn[disabled] {
   border-color: #d4af37 !important;
 }
 
-/* ── Header 右上角按鈕區（全域）── */
+/* ── Header 右上角按鈕區 ── */
 .web-title .xn-header-actions,
 #xn-page-header .xn-header-actions {
   position: absolute !important;
@@ -196,7 +176,7 @@ button[disabled], .btn[disabled] {
   z-index: 20 !important;
 }
 
-/* header 內的按鈕統一小尺寸 + 金邊 */
+/* header 按鈕小尺寸 + 金邊 */
 .web-title .xn-header-actions button,
 #xn-page-header .xn-header-actions button {
   height: 28px !important;
@@ -204,20 +184,6 @@ button[disabled], .btn[disabled] {
   padding: 0 12px !important;
   font-size: 12px !important;
   border-radius: 9px !important;
-  border: 1.5px solid #d4af37 !important;
+  border: 2px solid #d4af37 !important;
   box-shadow: 0 0 0 1px rgba(212,175,55,0.3) !important;
-}
-
-/* 登出按鈕紅色 */
-.web-title .xn-header-actions button.danger,
-#xn-page-header .xn-header-actions button.danger,
-.web-title .xn-header-actions .xn-logout,
-#xn-page-header .xn-header-actions .xn-logout {
-  background: #b91c1c !important;
-  border-color: rgba(240,180,140,.85) !important;
-  color: #fff !important;
-}
-.web-title .xn-header-actions button.danger:hover,
-#xn-page-header .xn-header-actions button.danger:hover {
-  background: #991b1b !important;
 }
