@@ -402,28 +402,11 @@ def billing_page(request: Request):
   <title>\u5e33\u52d9\u7cfb\u7d71\uff5c\u4e2d\u592e\u63a7\u7ba1\u7cfb\u7d71</title>
 
   <style>
-    :root {
-      --bg: #eef3f9;
-      --card: #ffffff;
-      --line: #d7e1ef;
-      --text: #102348;
-      --muted: #64748b;
-      --blue: #2f80ed;
-      --green: #16a34a;
-      --orange: #ea580c;
-      --red: #dc2626;
-      --purple: #7c3aed;
-      --gray: #64748b;
-    }
+    
 
-    * { box-sizing: border-box; }
+    
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: "Microsoft JhengHei", "Segoe UI", Arial, sans-serif;
-    }
+    
 
     .topbar {
       background: linear-gradient(120deg, #0f766e, #2563eb);
@@ -2181,8 +2164,8 @@ def billing_page(request: Request):
   }
 </style>
 
-  <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
-<link rel="stylesheet" href="/static/xn_buttons.css?v=cl_btn_v1">
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
+<link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
 
 
 

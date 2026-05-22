@@ -412,24 +412,11 @@ def admin_buildings_page(request: Request):
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>\u5927\u6a13\u540d\u9304\uff5c\u4e2d\u592e\u63a7\u7ba1\u7cfb\u7d71</title>
   <style>
-    :root {
-      --bg: #eef3f9;
-      --card: #ffffff;
-      --line: #d7e1ef;
-      --text: #102348;
-      --muted: #64748b;
-      --blue: #365ee8;
-      --purple: #7c3aed;
-    }
+    
 
-    * { box-sizing: border-box; }
+    
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: "Microsoft JhengHei", "Segoe UI", Arial, sans-serif;
-    }
+    
 
     .topbar {
       background: linear-gradient(120deg, #0f766e, #2563eb, #7c3aed);
@@ -1123,8 +1110,8 @@ body table .btn-danger:hover, body table button.btn-small.btn-danger:hover {
   }
 </style>
 
-  <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
-<link rel="stylesheet" href="/static/xn_buttons.css?v=cl_btn_v1">
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
+<link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
 </head>
 
 <body>

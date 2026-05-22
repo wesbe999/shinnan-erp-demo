@@ -261,29 +261,11 @@ CLEAN_ADMIN_HTML = r'''
   <title>\u8a0a\u5357\u79d1\u6280\u6d3e\u5de5\u7cfb\u7d71\uff5c\u4e2d\u592e\u63a7\u7ba1\u7cfb\u7d71</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    :root {
-      --blue:#365ee8;
-      --green:#43a047;
-      --orange:#d95f18;
-      --red:#c9332b;
-      --purple:#6f39df;
-      --teal:#2d766a;
-      --bg:#f3f6fb;
-      --card:#ffffff;
-      --line:#d7e1ef;
-      --text:#102348;
-      --muted:#64748b;
-      --sticky:#ffffff;
-    }
+    
 
-    * { box-sizing:border-box; }
+    
 
-    body {
-      margin:0;
-      background:var(--bg);
-      color:var(--text);
-      font-family:"Microsoft JhengHei","Segoe UI",Arial,sans-serif;
-    }
+    
 
     .admin-header {
       min-height:104px;
@@ -1068,8 +1050,8 @@ CLEAN_ADMIN_HTML = r'''
     }
 
 </style>
-  <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
-<link rel="stylesheet" href="/static/xn_buttons.css?v=cl_btn_v1">
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
+<link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
 
 
 

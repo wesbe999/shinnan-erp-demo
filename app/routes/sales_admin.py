@@ -20,28 +20,11 @@ def shinnan_admin_sales_page(request: Request):
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>\u696d\u52d9\u7ba1\u7406\u7cfb\u7d71\uff5c\u4e2d\u592e\u63a7\u7ba1\u7cfb\u7d71</title>
   <style>
-    :root {
-      --bg:#eef3f9;
-      --card:#ffffff;
-      --line:#d7e1ef;
-      --text:#102348;
-      --muted:#64748b;
-      --blue:#365ee8;
-      --green:#16a34a;
-      --orange:#ea580c;
-      --red:#dc2626;
-      --purple:#7c3aed;
-      --teal:#0f766e;
-    }
+    
 
-    * { box-sizing: border-box; }
+    
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
-    }
+    
 
     .wrap {
       max-width: 1460px;
@@ -904,8 +887,8 @@ def shinnan_admin_sales_page(request: Request):
   }
 </style>
 
-  <link rel="stylesheet" href="/static/web_title_unified.css?v=20260513_cl9b">
-<link rel="stylesheet" href="/static/xn_buttons.css?v=cl_btn_v1">
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
+<link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
 
 
 
