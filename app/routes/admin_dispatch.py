@@ -2101,6 +2101,7 @@ async function createTicket() {
 })();
 </script>
 
+<script src='/static/xn_theme.js?v=1'></script>
 </body>
 </html>
 '''

@@ -49,6 +49,7 @@ p{margin:0;color:rgba(255,255,255,.92);font-weight:850;line-height:1.7}
   </section>
   <section class="panel"><a class="btn" href="/">&#x8fd4;&#x56de;&#x9996;&#x9801;</a></section>
 </main>
+<script src='/static/xn_theme.js?v=1'></script>
 </body>
 </html>
 """)

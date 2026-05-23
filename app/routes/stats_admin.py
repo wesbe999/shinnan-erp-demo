@@ -910,6 +910,7 @@ window.addEventListener("resize",function(){clearTimeout(window.__statsResizeTim
 loadStats().catch(function(err){alert("stats load failed");console.error(err);});
 </script>
 
+<script src='/static/xn_theme.js?v=1'></script>
 </body>
 </html>
 """

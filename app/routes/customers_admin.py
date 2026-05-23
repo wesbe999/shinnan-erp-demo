@@ -1327,6 +1327,7 @@ def admin_customers_page(request: Request):
 </script>
 
   <script src="/static/app_header_actions.js?v=cl17p6"></script>
+<script src='/static/xn_theme.js?v=1'></script>
 </body>
 </html>
 """

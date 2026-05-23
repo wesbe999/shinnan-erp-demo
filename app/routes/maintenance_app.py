@@ -960,6 +960,8 @@ async function submitTransfer(){
 
 loadTickets();
 </script>
+
+
 </body>
 </html>
 """.replace("__USER_LINE__", user_line)

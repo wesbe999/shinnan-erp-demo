@@ -717,33 +717,9 @@ function openAdminModule(path) {
   return false;
 }
 
-// ── 主題套用 ──
-(function applyStoredTheme(){
-  const THEME_MAP = {
-    navy:    {hf:"#0d1f3c", ht:"#1a3a6b"},
-    purple:  {hf:"#1a0a2e", ht:"#3b1a6b"},
-    crimson: {hf:"#2a0a0a", ht:"#6b1a1a"},
-    slate:   {hf:"#0f172a", ht:"#1e293b"},
-    amber:   {hf:"#1c1004", ht:"#4a2c0a"},
-  };
-  const id = localStorage.getItem("xn_theme") || "default";
-  const t = THEME_MAP[id];
-  if (!t) return;
-  // 套用到 portal hero 背景
-  const portal = document.querySelector(".portal");
-  if (portal) {
-    portal.style.background = `radial-gradient(circle at 18% 20%,rgba(255,255,255,.045),transparent 22%),
-      radial-gradient(circle at 24% 82%,rgba(150,255,70,.085),transparent 34%),
-      radial-gradient(circle at 60% 18%,rgba(100,255,90,.055),transparent 38%),
-      linear-gradient(90deg,${t.hf}cc,${t.ht}99 46%,${t.hf}cc),
-      linear-gradient(180deg,rgba(255,255,255,.035),transparent 34%,rgba(0,0,0,.18))`;
-  }
-  // 套用到 body 背景
-  document.body.style.background = `radial-gradient(circle at 32% 80%,rgba(126,255,61,.06),transparent 26%),
-    radial-gradient(circle at 72% 18%,rgba(115,255,66,.06),transparent 28%),
-    linear-gradient(135deg,${t.hf} 0%,${t.ht} 46%,${t.hf}88 100%)`;
-})();
+
 </script>
+<script src="/static/xn_theme.js?v=1"></script>
 </body>
 </html>
 """

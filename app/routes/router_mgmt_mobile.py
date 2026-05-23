@@ -438,6 +438,7 @@ if ('serviceWorker' in navigator) {
       <button type="button" class="green" onclick="startPing && startPing()">🔄 Ping</button>
       <button type="button" class="danger" onclick="window.location.href='/employee/logout?next=/employee/login'">登出</button>
     </nav>
+<script src='/static/xn_theme.js?v=1'></script>
 </body>
 </html>"""
 

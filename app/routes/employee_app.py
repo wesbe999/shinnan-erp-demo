@@ -3617,6 +3617,7 @@ button {{ height: 50px; border: 0; border-radius: 16px; background: white; color
     </div>
   </main>
 </div>
+<script src='/static/xn_theme.js?v=1'></script>
 </body>
 </html>
 """)

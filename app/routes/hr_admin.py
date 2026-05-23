@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 def _role_label_zh(value) -> str:
     raw = str(value or "").strip()
@@ -479,6 +479,8 @@ max-height: calc(100vh - 120px); }}
   </div>
 
   <!-- app_header_actions 已移除 -->
+
+<script src='/static/xn_theme.js?v=1'></script>
 </body>
 </html>"""
 

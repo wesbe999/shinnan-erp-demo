@@ -1796,6 +1796,7 @@ def admin_buildings_page(request: Request):
 </script>
 
 
+<script src='/static/xn_theme.js?v=1'></script>
 </body>
 </html>
 """.replace("__INITIAL_BUILDING_ROWS__", "\n".join(initial_rows))

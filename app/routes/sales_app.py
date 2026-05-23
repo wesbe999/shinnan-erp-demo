@@ -3467,6 +3467,7 @@ def sales_v2_page(request: _EmpRequest):
 
 </div>
 <script src="/static/sales_v2.js?v=sv2_20260523"></script>
+<script src='/static/xn_theme.js?v=1'></script>
 </body></html>"""
 # SHINNAN_SALES_V2_PAGE_END
 

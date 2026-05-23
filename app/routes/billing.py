@@ -1594,6 +1594,7 @@ def billing_page(request: Request):
 </script>
 
 
+<script src='/static/xn_theme.js?v=1'></script>
 </body>
 </html>
 """

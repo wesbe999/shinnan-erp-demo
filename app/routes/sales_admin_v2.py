@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from app.routes.employee_auth import _employee_current_user_from_request
 
@@ -353,5 +353,7 @@ def sales_admin_v2_page(request: Request):
 </div>
 
 <script src="/static/sales_admin_v2.js?v=sv2_20260524a"></script>
+
+<script src='/static/xn_theme.js?v=1'></script>
 </body></html>"""
 # SHINNAN_SALES_ADMIN_V2_END

@@ -725,6 +725,7 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 // ─── 啟動 ───────────────────────────────────
 loadBuildings();
 </script>
+<script src='/static/xn_theme.js?v=1'></script>
 </body>
 </html>"""
 

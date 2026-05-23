@@ -1791,6 +1791,7 @@ def billing_mobile_app_page(request: _EmpRequest):
   </script>
 
   <!-- app_header_actions 已移除，返回首頁/登出按鈕移到底部 nav -->
+<script src='/static/xn_theme.js?v=1'></script>
 </body>
 </html>
 """

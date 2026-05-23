@@ -212,5 +212,6 @@ function apply(id){
 }
 render();
 </script>
+<script src='/static/xn_theme.js?v=1'></script>
 </body></html>""")
 # SHINNAN_THEME_PAGE_END
