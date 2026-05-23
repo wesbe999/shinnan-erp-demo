@@ -40,7 +40,7 @@ def sales_admin_v2_page(request: Request):
       <div class="web-title-actions">
         <a href="/app/sales/v2" class="xn-btn xn-btn-sm">📱 手機版</a>
         <a href="/admin/sales" class="xn-btn xn-btn-sm">舊版後台</a>
-        <a href="/app" class="xn-btn xn-btn-sm">首頁</a>
+        <a href="/" class="xn-btn xn-btn-sm">🏠 首頁</a>
       </div>
     </div>
   </section>
