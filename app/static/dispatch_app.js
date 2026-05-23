@@ -1,4 +1,6 @@
     let allTickets = [];
+    let allAreas = [];
+    let allCaseTypes = [];
     let currentFilter = "全部";
 
     function esc(value) {
@@ -233,8 +235,11 @@ async function loadTickets() {
         }
 
         allTickets = Array.isArray(data.items) ? data.items : [];
+        allAreas = Array.isArray(data.all_areas) ? data.all_areas : [];
+        allCaseTypes = Array.isArray(data.all_case_types) ? data.all_case_types : [];
 
         refreshAreaFilter();
+        refreshCaseTypeFilter();
         renderTickets();
 
       } catch (err) {
@@ -252,12 +257,16 @@ function filteredTickets() {
       const keyword = keywordEl ? keywordEl.value.trim().toLowerCase() : "";
 
       const areaEl = document.getElementById("area_filter");
-      const selectedArea = areaEl ? areaEl.value : "\u5168\u90e8";
+      const selectedArea = areaEl ? areaEl.value : "全部";
+
+      const caseTypeEl = document.getElementById("case_type_filter");
+      const selectedCaseType = caseTypeEl ? caseTypeEl.value : "全部";
 
       const today = todayText();
 
       return allTickets.filter(function (item) {
-        if (selectedArea && selectedArea !== "\u5168\u90e8" && String(item.dispatch_area || "") !== selectedArea) return false;
+        if (selectedArea && selectedArea !== "全部" && String(item.dispatch_area || "") !== selectedArea) return false;
+        if (selectedCaseType && selectedCaseType !== "全部" && String(item.case_type || "") !== selectedCaseType) return false;
         if (!xunnanIsBoardVisibleTicket(item)) return false;
 
         if (currentFilter === "\u4eca\u65e5" && ticketTodayValue(item) !== today) return false;
@@ -290,19 +299,42 @@ function refreshAreaFilter() {
       const areaEl = document.getElementById("area_filter");
       if (!areaEl) return;
 
-      const current = areaEl.value || "\u5168\u90e8";
+      const current = areaEl.value || "全部";
 
-      const areas = Array.from(new Set(
-        allTickets.map(function (item) {
-          return String(item.dispatch_area || "").trim();
-        }).filter(Boolean)
-      )).sort();
+      const areas = allAreas.length > 0
+        ? allAreas
+        : Array.from(new Set(
+            allTickets.map(function (item) {
+              return String(item.dispatch_area || "").trim();
+            }).filter(Boolean)
+          )).sort();
 
-      areaEl.innerHTML = '<option value="\\u5168\\u90e8">\\u5168\\u90e8\\u5340\\u57df</option>' + areas.map(function (area) {
+      areaEl.innerHTML = '<option value="全部">全部區域</option>' + areas.map(function (area) {
         return '<option value="' + esc(area) + '">' + esc(area) + '</option>';
       }).join("");
 
-      areaEl.value = areas.includes(current) ? current : "\u5168\u90e8";
+      areaEl.value = areas.includes(current) ? current : "全部";
+    }
+
+function refreshCaseTypeFilter() {
+      const el = document.getElementById("case_type_filter");
+      if (!el) return;
+
+      const current = el.value || "全部";
+
+      const types = allCaseTypes.length > 0
+        ? allCaseTypes
+        : Array.from(new Set(
+            allTickets.map(function (item) {
+              return String(item.case_type || "").trim();
+            }).filter(Boolean)
+          )).sort();
+
+      el.innerHTML = '<option value="全部">全部類別</option>' + types.map(function (t) {
+        return '<option value="' + esc(t) + '">' + esc(t) + '</option>';
+      }).join("");
+
+      el.value = types.includes(current) ? current : "全部";
     }
 
 
@@ -385,6 +417,7 @@ function renderTickets() {
 let currentTicketId = null;
 let signaturePadReady = false;
 let signatureHasInk = false;
+let signatureConfirmed = false;
 
 function currentTicket() {
       return allTickets.find(function (item) {
@@ -463,6 +496,7 @@ function showFinishPage() {
       if (create) create.classList.remove("active");
 
       renderFinishPage();
+      setTimeout(updateInstallTotal, 50);
       window.scrollTo({top: 0, behavior: "smooth"});
     }
 
@@ -581,6 +615,67 @@ function dispatchPriceHtml(item) {
       return '<div class="workflow-note">\u672c\u6848\u4ef6\u6c92\u6709\u6d3e\u5de5\u50f9\u683c\u3002</div>';
     }
 
+function dispatchBillingStatusHtml(item) {
+      // 只有維修類案件才顯示帳務狀況
+      const caseType = (item.case_type || "").trim();
+      const isRepair = caseType === "\u7dad\u4fee" || caseType.includes("\u7dad\u4fee");
+      if (!isRepair) return "";
+
+      const b = item.billing_info || null;
+      if (!b) return '<div class="billing-status-block"><div class="billing-row"><span class="billing-label">\u5e33\u52d9\u8cc7\u8a0a</span><span class="billing-value" style="color:#94a3b8">\u672a\u627e\u5230\u5ba2\u6236\u5e33\u52d9</span></div></div>';
+
+      const rows = [];
+
+      // 方案名稱
+      if (b.plan_name) rows.push(`<div class="billing-row"><span class="billing-label">\u670d\u52d9\u65b9\u6848</span><span class="billing-value">${esc(b.plan_name)}</span></div>`);
+
+      // 月費
+      if (b.monthly_fee) rows.push(`<div class="billing-row"><span class="billing-label">\u6708\u8cbb</span><span class="billing-value">NT$ ${b.monthly_fee}</span></div>`);
+
+      // 繳費狀態
+      if (b.payment_status) {
+        let psClass = "";
+        if (b.is_overdue || b.payment_status.includes("\u672a\u7e73") || b.payment_status.includes("\u6b20\u8cbb")) psClass = "billing-expired";
+        else if (b.payment_status.includes("\u5df2\u7e73") || b.payment_status.includes("\u6b63\u5e38")) psClass = "billing-ok";
+        rows.push(`<div class="billing-row"><span class="billing-label">\u7e73\u8cbb\u72c0\u614b</span><span class="billing-value ${psClass}">${esc(b.payment_status)}</span></div>`);
+      }
+
+      // 欠費月數
+      if (b.arrears_months > 0) {
+        rows.push(`<div class="billing-row"><span class="billing-label">\u6b20\u8cbb\u6708\u6578</span><span class="billing-value billing-expired">${b.arrears_months} \u6708</span></div>`);
+      }
+
+      // 欠費狀態
+      if (b.arrears_status) {
+        const aClass = b.is_overdue ? "billing-expired" : "";
+        rows.push(`<div class="billing-row"><span class="billing-label">\u6b20\u8cbb\u72c0\u614b</span><span class="billing-value ${aClass}">${esc(b.arrears_status)}</span></div>`);
+      }
+
+      // 上次繳費日
+      if (b.last_payment_date) rows.push(`<div class="billing-row"><span class="billing-label">\u4e0a\u6b21\u7e73\u8cbb</span><span class="billing-value">${esc(b.last_payment_date)}</span></div>`);
+
+      // 帳單到期日
+      if (b.billing_due_date) {
+        const today = new Date(); today.setHours(0,0,0,0);
+        const due = new Date(b.billing_due_date); due.setHours(0,0,0,0);
+        const diff = Math.ceil((due - today) / 86400000);
+        let dueClass = "billing-ok";
+        let dueNote = "";
+        if (diff < 0) { dueClass = "billing-expired"; dueNote = " (\u5df2\u903e " + Math.abs(diff) + " \u5929)"; }
+        else if (diff <= 7) { dueClass = "billing-warning"; dueNote = " (\u5269 " + diff + " \u5929)"; }
+        rows.push(`<div class="billing-row"><span class="billing-label">\u5e33\u55ae\u5230\u671f</span><span class="billing-value ${dueClass}">${esc(b.billing_due_date)}${dueNote}</span></div>`);
+      }
+
+      // 合約狀態
+      if (b.contract_status) {
+        const cClass = b.contract_status.includes("\u5c65\u884c") || b.contract_status.includes("\u6b63\u5e38") ? "billing-ok" : "";
+        rows.push(`<div class="billing-row"><span class="billing-label">\u5408\u7d04\u72c0\u614b</span><span class="billing-value ${cClass}">${esc(b.contract_status)}</span></div>`);
+      }
+
+      if (!rows.length) return "";
+      return `<div class="billing-status-block"><div class="billing-section-title">\u5e33\u52d9\u72c0\u6cc1</div>${rows.join("")}</div>`;
+    }
+
 
 
 function renderDetailPage(item) {
@@ -632,6 +727,7 @@ function renderDetailPage(item) {
           <summary>\u6d3e\u5de5\u50f9\u683c\uff08\u53ea\u8b80\uff09</summary>
           <div class="workflow-section-body">
             ${dispatchPriceHtml(item)}
+            ${dispatchBillingStatusHtml(item)}
           </div>
         </details>
 
@@ -986,6 +1082,7 @@ function actualPriceDefaults(item) {
           monthly_fee_1: Number(install.monthly_fee_1 || install.monthly_fee || 0),
           monthly_fee_2: Number(install.monthly_fee_2 || 0),
           monthly_fee_3: Number(install.monthly_fee_3 || 0),
+          month_count: Number(install.month_count || 1),
           total_amount: Number(install.total_amount || 0)
         };
       }
@@ -1005,6 +1102,24 @@ function actualPriceDefaults(item) {
       return { total_amount: 0 };
     }
 
+function updateInstallTotal() {
+  const get = function(id) {
+    const el = document.getElementById(id);
+    return el ? Number(el.value) || 0 : 0;
+  };
+  const months = Math.max(1, get("actual_monthly_months"));
+  const cf = get("actual_construction_fee");
+  const dep = get("actual_deposit_amount");
+  const o1 = get("actual_other_fee_1");
+  const o2 = get("actual_other_fee_2");
+  const m1 = get("actual_monthly_fee_1");
+  const m2 = get("actual_monthly_fee_2");
+  const m3 = get("actual_monthly_fee_3");
+  const total = cf + dep + o1 + o2 + (m1 + m2 + m3) * months;
+  const el = document.getElementById("actual_install_total");
+  if (el) el.textContent = "NT$ " + total.toLocaleString();
+}
+
 function renderFinishPriceForm(item) {
       const d = actualPriceDefaults(item);
       const isInstall = !!item.install_detail;
@@ -1012,23 +1127,26 @@ function renderFinishPriceForm(item) {
 
       if (isInstall) {
         return `
-          <div class="form-grid">
-            <div class="two-cols">
-              <div class="form-row"><label>\u5b89\u88dd\u8cbb</label><input id="actual_construction_fee" type="number" value="${d.construction_fee}"></div>
-              <div class="form-row"><label>\u62bc\u91d1</label><input id="actual_deposit_amount" type="number" value="${d.deposit_amount}"></div>
-            </div>
-            <div class="two-cols">
-              <div class="form-row"><label>\u5176\u4ed6\u8cbb\u7528 1</label><input id="actual_other_fee_1" type="number" value="${d.other_fee_1}"></div>
-              <div class="form-row"><label>\u5176\u4ed6\u8cbb\u7528 2</label><input id="actual_other_fee_2" type="number" value="${d.other_fee_2}"></div>
-            </div>
-            <div class="two-cols">
-              <div class="form-row"><label>\u6708\u79df\u8cbb 1</label><input id="actual_monthly_fee_1" type="number" value="${d.monthly_fee_1}"></div>
-              <div class="form-row"><label>\u6708\u79df\u8cbb 2</label><input id="actual_monthly_fee_2" type="number" value="${d.monthly_fee_2}"></div>
-            </div>
-            <div class="two-cols">
-              <div class="form-row"><label>\u6708\u79df\u8cbb 3</label><input id="actual_monthly_fee_3" type="number" value="${d.monthly_fee_3}"></div>
-              <div class="form-row"><label>\u81e8\u6642\u8ffd\u52a0\u8cbb\u7528</label><input id="actual_extra_fee" type="number" value="0"></div>
-            </div>
+          <div class="price-formula-row">
+            <div class="pf-item"><label>\u5b89\u88dd\u8cbb</label><input id="actual_construction_fee" type="number" value="${d.construction_fee}" oninput="updateInstallTotal()"></div>
+            <span class="pf-op">+</span>
+            <div class="pf-item"><label>\u62bc\u91d1</label><input id="actual_deposit_amount" type="number" value="${d.deposit_amount}" oninput="updateInstallTotal()"></div>
+            <span class="pf-op">+</span>
+            <span class="pf-paren">(</span>
+            <div class="pf-item"><label>\u6708\u79df 1</label><input id="actual_monthly_fee_1" type="number" value="${d.monthly_fee_1}" oninput="updateInstallTotal()"></div>
+            <span class="pf-op">+</span>
+            <div class="pf-item"><label>\u6708\u79df 2</label><input id="actual_monthly_fee_2" type="number" value="${d.monthly_fee_2}" oninput="updateInstallTotal()"></div>
+            <span class="pf-op">+</span>
+            <div class="pf-item"><label>\u6708\u79df 3</label><input id="actual_monthly_fee_3" type="number" value="${d.monthly_fee_3}" oninput="updateInstallTotal()"></div>
+            <span class="pf-paren">)</span>
+            <span class="pf-op">\u00d7</span>
+            <div class="pf-item"><label>\u6708\u6578</label><input id="actual_monthly_months" type="number" value="${item.install_detail ? (Number(item.install_detail.month_count) || 1) : 1}" oninput="updateInstallTotal()"></div>
+            <span class="pf-op">+</span>
+            <div class="pf-item"><label>\u5176\u4ed6 1</label><input id="actual_other_fee_1" type="number" value="${d.other_fee_1}" oninput="updateInstallTotal()"></div>
+            <span class="pf-op">+</span>
+            <div class="pf-item"><label>\u5176\u4ed6 2</label><input id="actual_other_fee_2" type="number" value="${d.other_fee_2}" oninput="updateInstallTotal()"></div>
+            <span class="pf-op">=</span>
+            <div class="pf-item pf-total"><label>\u5408\u8a08</label><div id="actual_install_total" class="pf-total-val">NT$ 0</div></div>
           </div>
         `;
       }
@@ -1107,26 +1225,24 @@ function renderFinishPage() {
                 <div class="form-row"><label>\u5230\u671f\u65e5</label><input id="service_end_date" type="date"></div>
               </div>
               <div class="work-date-time-row">
-                <div class="form-row"><label>\u7e3d\u5171\u6708\u6578</label><input id="service_months" type="number" min="0" value="1"></div>
-                <div class="form-row"><label>\u65bd\u5de5\u6642\u9593</label><input id="final_work_time" type="time" value="${esc(workTime)}"></div>
+                <div class="form-row"><label>\u7e3d\u5171\u6708\u6578</label><input id="service_months" type="number" min="0" value="${item.install_detail ? (Number(item.install_detail.month_count) || 1) : 1}"></div>
+                <div class="form-row"><label>\u65bd\u5de5\u65e5\u671f</label><input id="final_work_date" type="date" value="${esc(workDate)}"></div>
               </div>
-              <div class="form-row"><label>\u65bd\u5de5\u65e5\u671f</label><input id="final_work_date" type="date" value="${esc(workDate)}"></div>
               <div class="preview-text">\u5be6\u969b\u5b8c\u5de5\u6642\u9593\u6703\u5728\u4e00\u9375\u9001\u51fa\u6642\u7531\u7cfb\u7d71\u81ea\u52d5\u5beb\u5165\u3002</div>
             </div>
           </div>
         </details>
 
         <details class="workflow-section" open>
-          <summary>\u65bd\u5de5\u5099\u8a3b</summary>
+          <summary>\u5176\u4ed6\u5099\u8a3b</summary>
           <div class="workflow-section-body">
             <div class="form-row">
-              <label>\u5b8c\u5de5\u5099\u8a3b</label>
               <textarea id="completion_note" placeholder="\u8acb\u8f38\u5165\u5be6\u969b\u65bd\u5de5\u5167\u5bb9\u3001\u7570\u5e38\u72c0\u6cc1\u6216\u88dc\u5145\u8aaa\u660e"></textarea>
             </div>
           </div>
         </details>
 
-        <details class="workflow-section" open>
+        ${item.case_type === '\u7dad\u4fee' ? `<details class="workflow-section" open>
           <summary>\u5de5\u52d9\u7dad\u4fee\u5206\u6790</summary>
           <div class="workflow-section-body">
             <div class="form-grid">
@@ -1151,7 +1267,7 @@ function renderFinishPage() {
               <label class="check-row"><input id="is_non_general_repair" type="checkbox">\u5404\u5340\u5de5\u52d9\u7121\u6cd5\u89e3\u6c7a / \u975e\u4e00\u822c\u7dad\u4fee\uff08\u9700\u9644\u9644\u4ef6\u7d66\u8001\u95c6\uff09</label>
             </div>
           </div>
-        </details>
+        </details>` : ''}
 
         <details class="workflow-section" open>
           <summary>\u6750\u6599\u4f7f\u7528\u91cf</summary>
@@ -1193,18 +1309,24 @@ function renderFinishPage() {
 
 
         <details class="workflow-section" open>
-          <summary>\u65bd\u5de5\u7167\u7247</summary>
+          <summary>\u96d9\u8b49\u4ef6\u7167\u7247</summary>
           <div class="workflow-section-body">
             <div class="form-grid">
               <div class="photo-input">
-                <label>\u65bd\u5de5\u524d\u7167\u7247</label>
-                <input id="before_photos" type="file" accept="image/*" multiple>
-                <div class="preview-text">\u53ef\u4e0a\u50b3\u65bd\u5de5\u524d\u7167\u7247\u3002</div>
+                <label>\u96d9\u8b49\u4ef6\u7167\u7247 1</label>
+                <input id="before_photos" type="file" accept="image/*">
               </div>
               <div class="photo-input">
-                <label>\u65bd\u5de5\u5f8c\u7167\u7247</label>
-                <input id="after_photos" type="file" accept="image/*" multiple>
-                <div class="preview-text">\u53ef\u4e0a\u50b3\u65bd\u5de5\u5f8c\u7167\u7247\u3002</div>
+                <label>\u96d9\u8b49\u4ef6\u7167\u7247 2</label>
+                <input id="after_photos" type="file" accept="image/*">
+              </div>
+              <div class="photo-input">
+                <label>\u96d9\u8b49\u4ef6\u7167\u7247 3</label>
+                <input id="id_photo_3" type="file" accept="image/*">
+              </div>
+              <div class="photo-input">
+                <label>\u96d9\u8b49\u4ef6\u7167\u7247 4</label>
+                <input id="id_photo_4" type="file" accept="image/*">
               </div>
             </div>
           </div>
@@ -1294,6 +1416,9 @@ function clearSignature() {
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       signatureHasInk = false;
+      signatureConfirmed = false;
+      const btn = document.querySelector("button[onclick='confirmSignature()']");
+      if (btn) { btn.textContent = "\u78ba\u8a8d\u7c3d\u540d"; btn.style.background = ""; }
     }
 
 function confirmSignature() {
@@ -1301,6 +1426,9 @@ function confirmSignature() {
         alert("\u8acb\u5148\u8acb\u5ba2\u6236\u7c3d\u540d\u3002");
         return;
       }
+      signatureConfirmed = true;
+      const btn = document.querySelector("button[onclick='confirmSignature()']");
+      if (btn) { btn.textContent = "\u7c3d\u540d\u5df2\u78ba\u8a8d \u2714"; btn.style.background = "#15803d"; }
       alert("\u7c3d\u540d\u5df2\u78ba\u8a8d\u3002");
     }
 
@@ -1365,6 +1493,11 @@ async function submitFinishPreview() {
       const speedInput = document.getElementById("speedtest_photo");
       if (!speedInput || !speedInput.files || !speedInput.files.length) {
         alert("\u6240\u6709\u5b8c\u5de5\u6848\u4ef6\u90fd\u5fc5\u9808\u4e0a\u50b3\u6e2c\u901f\u7167\u7247\u3002");
+        return;
+      }
+
+      if (!signatureConfirmed) {
+        alert("\u8acb\u5ba2\u6236\u7c3d\u540d\u5f8c\u9ede\u300c\u78ba\u8a8d\u7c3d\u540d\u300d\uff0c\u624d\u80fd\u9001\u51fa\u3002");
         return;
       }
 
@@ -2171,6 +2304,10 @@ function openTicketPreview(id) {
     if (areaFilterEl) {
       areaFilterEl.addEventListener("change", renderTickets);
     }
+    const caseTypeFilterEl = document.getElementById("case_type_filter");
+    if (caseTypeFilterEl) {
+      caseTypeFilterEl.addEventListener("change", renderTickets);
+    }
 
     loadEmergencyNotices();
     loadTickets();
@@ -2212,12 +2349,16 @@ function filteredTickets() {
       const keyword = keywordEl ? keywordEl.value.trim().toLowerCase() : "";
 
       const areaEl = document.getElementById("area_filter");
-      const selectedArea = areaEl ? areaEl.value : "\u5168\u90e8";
+      const selectedArea = areaEl ? areaEl.value : "全部";
+
+      const caseTypeEl = document.getElementById("case_type_filter");
+      const selectedCaseType = caseTypeEl ? caseTypeEl.value : "全部";
 
       const today = typeof todayText === "function" ? todayText() : "";
 
       return allTickets.filter(function (item) {
-        if (selectedArea && selectedArea !== "\u5168\u90e8" && String(item.dispatch_area || "") !== selectedArea) return false;
+        if (selectedArea && selectedArea !== "全部" && String(item.dispatch_area || "") !== selectedArea) return false;
+        if (selectedCaseType && selectedCaseType !== "全部" && String(item.case_type || "") !== selectedCaseType) return false;
         if (!xunnanIsBoardVisibleTicket(item)) return false;
 
         if (currentFilter === "\u4eca\u65e5" && typeof ticketTodayValue === "function" && ticketTodayValue(item) !== today) return false;

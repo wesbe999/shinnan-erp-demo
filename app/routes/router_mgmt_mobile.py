@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sqlalchemy import text as _sql
+import json as _json
 from app.db import engine as _engine
 from app.routes.employee_auth import _employee_current_user_from_request
 
@@ -12,7 +13,6 @@ def _fetch_buildings():
         rows = conn.execute(_sql("""
             SELECT building_no, name, area, address, ip
             FROM buildings
-            WHERE ip IS NOT NULL AND ip != ''
             ORDER BY area, CAST(SUBSTR(building_no,2) AS INTEGER)
         """)).mappings().fetchall()
     return [dict(r) for r in rows]
@@ -259,13 +259,17 @@ let pingResults = {};
 
 // ── 初始化 ──
 async function init() {
+  document.getElementById('userLine').textContent = __USER_LINE__;
   // 取得使用者名稱
   try {
-    const ur = await fetch('/api/employee/me');
+    const ur = await fetch('/api/app/employee/profile?ts=' + Date.now(), {cache:'no-store', credentials:'same-origin'});
     if (ur.ok) {
       const u = await ur.json();
+      const p = u.profile || u;
+      const name = p.display_name || p.staff_code || document.getElementById('userLine').textContent || '';
+      const role = String(p.role || '').trim();
       document.getElementById('userLine').textContent =
-        (u.display_name || u.staff_code || '') + (u.role ? '｜' + u.role : '');
+        name + (role && role !== 'admin' ? '｜' + role : '');
     }
   } catch(e) {}
 
@@ -342,7 +346,7 @@ function render() {
   <div class="binfo">
     <div class="bname">${esc(b.name)}</div>
     <div class="bno">${esc(b.building_no)}${b.area ? '｜' + esc(b.area) : ''}</div>
-    ${ip ? `<div class="bip">${esc(ip)}</div>` : ''}
+    <div class="bip">${ip ? esc(ip) : '未設定 IP'}</div>
   </div>
   <div class="bactions">
     ${rbUrl
@@ -443,4 +447,8 @@ def router_mgmt_mobile_page(request: Request):
     user = _employee_current_user_from_request(request)
     if not user:
         return RedirectResponse("/employee/login/mobile?next=/router-mgmt-mobile", status_code=303)
-    return HTMLResponse(_MOBILE_HTML)
+    user_line = str(user.get("display_name") or user.get("staff_code") or "登入者")
+    role = str(user.get("role") or "").strip()
+    if role and role != "admin":
+        user_line = user_line + "｜" + role
+    return HTMLResponse(_MOBILE_HTML.replace("__USER_LINE__", _json.dumps(user_line, ensure_ascii=False)))

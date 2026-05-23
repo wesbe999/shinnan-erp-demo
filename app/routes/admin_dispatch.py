@@ -264,6 +264,7 @@ CLEAN_ADMIN_HTML = r'''
   <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
 <link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
 <link rel="stylesheet" href="/static/admin_dispatch.css?v=xn_v1">
+<link rel="stylesheet" href="/static/billing_notice.css?v=xn_v2">
 
 
 
@@ -294,19 +295,17 @@ CLEAN_ADMIN_HTML = r'''
 </section>
 
   <main class="page">
-    <section class="notice-panel">
+    <section class="notice-panel" id="dispatch_notice_panel">
       <div class="notice-head">
         <div class="notice-title">公司緊急通知</div>
         <div class="notice-subtitle">可連續送出多條通知；每條通知可個別刪除，手機板跑馬燈會依序連播。</div>
       </div>
-      <div class="notice-input-row">
+      <div class="billing-notice-input-box">
         <input id="notice_input" placeholder="輸入新的緊急通知，按送出後會加入通知清單。">
-        <div class="notice-actions">
-          <button class="btn-green" type="button" onclick="sendNotice()">送出</button>
-          <button class="btn-gray" type="button" onclick="clearNoticeInput()">清除</button>
-        </div>
+        <button class="billing-notice-send" type="button" onclick="sendNotice()">送出</button>
+        <button class="billing-notice-clear" type="button" onclick="clearNoticeInput()">清除</button>
       </div>
-      <div id="notice_list" class="notice-list"></div>
+      <div id="notice_list" class="billing-notice-list"></div>
     </section>
 
     <section class="toolbar">
@@ -344,11 +343,11 @@ CLEAN_ADMIN_HTML = r'''
             <col style="width:7%">
             <col style="width:22%">
             <col style="width:10%">
-            <col style="width:11%">
+            <col style="width:14%">
             <col style="width:7%">
             <col style="width:7%">
-            <col style="width:16%">
-            <col style="width:9%">
+            <col style="width:15%">
+            <col style="width:7%">
           </colgroup>
           <thead>
             <tr><th>區域</th><th>類型</th><th>客戶</th><th>住址</th><th>電話</th><th>約工時間</th><th>工程師</th><th>狀態</th><th>金額摘要</th><th>操作</th></tr>
@@ -772,15 +771,15 @@ function renderNoticeListFromItems(items) {
       : [];
 
     if (!list.length) {
-      box.innerHTML = "<div class='notice-row'><div class='notice-text'>\u76ee\u524d\u6c92\u6709\u7dca\u6025\u901a\u77e5\u3002</div><div></div></div>";
+      box.innerHTML = "<div class='billing-notice-row'><div class='billing-notice-text'>\u76ee\u524d\u6c92\u6709\u7dca\u6025\u901a\u77e5\u3002</div><div></div></div>";
       return;
     }
 
     box.innerHTML = list.map(function (text, index) {
       return `
-        <div class="notice-row">
-          <div class="notice-text">${escapeHtml((index + 1) + ". " + text)}</div>
-          <button type="button" onclick="deleteNotice(${index})">&#x522a;&#x9664;</button>
+        <div class="billing-notice-row">
+          <div class="billing-notice-text">${escapeHtml((index + 1) + ". " + text)}</div>
+          <button type="button" class="billing-notice-delete" onclick="deleteNotice(${index})">&#x522a;&#x9664;</button>
         </div>
       `;
     }).join("");

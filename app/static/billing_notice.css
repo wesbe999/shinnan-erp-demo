@@ -365,3 +365,149 @@ body #billing_notice_panel {
     opacity: 0.38 !important;
     transform: scale(1.15) !important;
   }
+
+/* ═══════════════════════════════════════════
+   派工系統緊急通知 — 完全對齊帳務通知面板
+   #dispatch_notice_panel scope
+   ═══════════════════════════════════════════ */
+
+body #dispatch_notice_panel {
+  box-sizing: border-box !important;
+  border: 1px solid #fdba74 !important;
+  background: #fff7ed !important;
+  border-radius: 12px !important;
+  padding: 7px 10px !important;
+  margin: 8px 0 12px !important;
+  box-shadow: none !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+body #dispatch_notice_panel .notice-title {
+  display: inline-flex !important;
+  align-items: center !important;
+  margin: 0 20px 5px 0 !important;
+  color: #c2410c !important;
+  font-size: 14px !important;
+  font-weight: 1000 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+body #dispatch_notice_panel .notice-subtitle {
+  display: inline-flex !important;
+  align-items: center !important;
+  margin: 0 0 5px 0 !important;
+  color: #9a3412 !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+body #dispatch_notice_panel .billing-notice-input-box {
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 52px 52px !important;
+  gap: 7px !important;
+  align-items: center !important;
+  height: 28px !important;
+  margin: 0 !important;
+  border: 1px solid #fdba74 !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  padding: 2px 4px 2px 8px !important;
+}
+
+body #dispatch_notice_panel #notice_input {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  height: 22px !important;
+  min-height: 22px !important;
+  max-height: 22px !important;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  color: #102348 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+body #dispatch_notice_panel .billing-notice-send,
+body #dispatch_notice_panel .billing-notice-clear {
+  box-sizing: border-box !important;
+  width: 52px !important;
+  min-width: 52px !important;
+  max-width: 52px !important;
+  height: 22px !important;
+  min-height: 22px !important;
+  max-height: 22px !important;
+  padding: 0 !important;
+  border-radius: 6px !important;
+  border: 0 !important;
+  color: #fff !important;
+  font-size: 11px !important;
+  font-weight: 1000 !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+}
+
+body #dispatch_notice_panel .billing-notice-send {
+  background: #16a34a !important;
+}
+
+body #dispatch_notice_panel .billing-notice-clear {
+  background: #64748b !important;
+}
+
+body #dispatch_notice_panel .billing-notice-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 44px !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: 28px !important;
+  padding: 3px 0 !important;
+  border-bottom: 1px solid #fed7aa !important;
+}
+
+body #dispatch_notice_panel .billing-notice-row:last-child {
+  border-bottom: 0 !important;
+}
+
+body #dispatch_notice_panel .billing-notice-text {
+  color: #7c2d12 !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  line-height: 1.35 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+body #dispatch_notice_panel .billing-notice-delete {
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 20px !important;
+  min-height: 20px !important;
+  max-height: 20px !important;
+  padding: 0 !important;
+  border-radius: 5px !important;
+  border: 0 !important;
+  background: #dc2626 !important;
+  color: #fff !important;
+  font-size: 11px !important;
+  font-weight: 1000 !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}

@@ -293,6 +293,7 @@ def api_app_dispatch_tickets(request: _Request):
         install_cols = _table_columns(conn, "ticket_install_details")
         return_cols = _table_columns(conn, "ticket_return_details")
         building_cols = _table_columns(conn, "buildings")
+        customer_cols = _table_columns(conn, "customer_accounts")
 
         if not ticket_cols:
             return _json_response({
@@ -304,6 +305,7 @@ def api_app_dispatch_tickets(request: _Request):
         join_install = "LEFT JOIN ticket_install_details i ON i.ticket_id = t.id" if install_cols else ""
         join_return = "LEFT JOIN ticket_return_details r ON r.ticket_id = t.id" if return_cols else ""
         join_building = _dispatch_building_join_sql(ticket_cols, building_cols)
+        join_customer = "LEFT JOIN customer_accounts ca ON ca.customer_no = t.customer_no" if (customer_cols and "customer_no" in ticket_cols) else ""
 
         has_building_join = bool(join_building)
 
@@ -380,6 +382,9 @@ def api_app_dispatch_tickets(request: _Request):
                 {_col("i", install_cols, "other_fee_2", "0")} AS i_other_fee_2,
                 {_col("i", install_cols, "rent_subtotal", "0")} AS i_rent_subtotal,
                 {_col("i", install_cols, "total_amount", "0")} AS i_total_amount,
+                {_col("i", install_cols, "usage_start_date")} AS i_usage_start_date,
+                {_col("i", install_cols, "usage_end_date")} AS i_usage_end_date,
+                {_col("i", install_cols, "usage_month_count", "0")} AS i_usage_month_count,
 
                 {_col("r", return_cols, "id", "NULL")} AS return_detail_id,
                 {_col("r", return_cols, "payment_record")} AS r_payment_record,
@@ -392,12 +397,24 @@ def api_app_dispatch_tickets(request: _Request):
                 {_col("r", return_cols, "total_amount", "0")} AS r_total_amount,
                 {_col("r", return_cols, "returned_device_status")} AS r_returned_device_status,
                 {_col("r", return_cols, "return_note")} AS r_return_note,
-                {_col("r", return_cols, "settlement_note")} AS r_settlement_note
+                {_col("r", return_cols, "settlement_note")} AS r_settlement_note,
+
+                COALESCE(ca.payment_status, '') AS ca_payment_status,
+                COALESCE(ca.is_overdue, 0) AS ca_is_overdue,
+                COALESCE(ca.arrears_status, '') AS ca_arrears_status,
+                COALESCE(ca.arrears_months, 0) AS ca_arrears_months,
+                COALESCE(ca.last_payment_date, '') AS ca_last_payment_date,
+                COALESCE(ca.billing_due_date, '') AS ca_billing_due_date,
+                COALESCE(ca.billing_month, '') AS ca_billing_month,
+                COALESCE(ca.contract_status, '') AS ca_contract_status,
+                COALESCE(ca.monthly_fee, 0) AS ca_monthly_fee,
+                COALESCE(ca.plan_name, '') AS ca_plan_name
 
             FROM tickets t
             {join_building}
             {join_install}
             {join_return}
+            {join_customer}
             {where_sql}
             ORDER BY
                 CASE COALESCE(t.status, '')
@@ -417,6 +434,27 @@ def api_app_dispatch_tickets(request: _Request):
         """
 
         rows = conn.execute(_sql_text(query), params).mappings().fetchall()
+
+        all_areas_rows = []
+        if "dispatch_area" in ticket_cols:
+            all_areas_rows = conn.execute(_sql_text("""
+                SELECT DISTINCT COALESCE(dispatch_area, '') AS dispatch_area
+                FROM tickets
+                WHERE COALESCE(dispatch_area, '') <> ''
+                ORDER BY dispatch_area
+            """)).mappings().fetchall()
+
+        all_case_types_rows = []
+        if "case_type" in ticket_cols:
+            all_case_types_rows = conn.execute(_sql_text("""
+                SELECT DISTINCT COALESCE(case_type, '') AS case_type
+                FROM tickets
+                WHERE COALESCE(case_type, '') <> ''
+                ORDER BY case_type
+            """)).mappings().fetchall()
+
+    all_areas = [str(r["dispatch_area"]) for r in all_areas_rows]
+    all_case_types = [str(r["case_type"]) for r in all_case_types_rows]
 
     items = []
 
@@ -442,6 +480,9 @@ def api_app_dispatch_tickets(request: _Request):
                 "other_fee_1": _safe_number(raw.get("i_other_fee_1")),
                 "other_fee_2": _safe_number(raw.get("i_other_fee_2")),
                 "total_amount": _safe_number(raw.get("i_total_amount")),
+                "usage_start_date": _safe_text(raw.get("i_usage_start_date")),
+                "usage_end_date": _safe_text(raw.get("i_usage_end_date")),
+                "usage_month_count": _safe_number(raw.get("i_usage_month_count")),
             }
 
         return_detail = None
@@ -502,12 +543,26 @@ def api_app_dispatch_tickets(request: _Request):
             "transfer_note": _safe_text(raw.get("transfer_note")),
             "install_detail": install_detail,
             "return_detail": return_detail,
+            "billing_info": {
+                "payment_status": _safe_text(raw.get("ca_payment_status")),
+                "is_overdue": bool(raw.get("ca_is_overdue")),
+                "arrears_status": _safe_text(raw.get("ca_arrears_status")),
+                "arrears_months": _safe_number(raw.get("ca_arrears_months")),
+                "last_payment_date": _safe_text(raw.get("ca_last_payment_date")),
+                "billing_due_date": _safe_text(raw.get("ca_billing_due_date")),
+                "billing_month": _safe_text(raw.get("ca_billing_month")),
+                "contract_status": _safe_text(raw.get("ca_contract_status")),
+                "monthly_fee": _safe_number(raw.get("ca_monthly_fee")),
+                "plan_name": _safe_text(raw.get("ca_plan_name")),
+            } if raw.get("ca_payment_status") is not None or raw.get("ca_billing_due_date") else None,
         })
 
     return _json_response({
         "ok": True,
         "source": "tickets",
         "linked_with_admin_ticket_api": True,
+        "all_areas": all_areas,
+        "all_case_types": all_case_types,
         "user": {
             "staff_code": staff_code,
             "display_name": staff_name,
@@ -913,7 +968,7 @@ def dispatch_mobile_app_page(request: _Request):
   <title>訊南派工系統｜訊南 ERP</title>
 
   <link rel="stylesheet" href="/static/app_common.css">
-  <link rel="stylesheet" href="/static/dispatch_app.css?v=cl15l4_20260515_024129">
+  <link rel="stylesheet" href="/static/dispatch_app.css?v=billing_status_20260523">
 
   <link rel="stylesheet" href="/static/app_header_unified.css?v=20260511_title_v1">
 
@@ -1047,6 +1102,16 @@ def dispatch_mobile_app_page(request: _Request):
   .bottom-nav button.primary{background:#4f63e8;border-color:#d4af37;color:#fff;}
   .bottom-nav button.green{background:#16a34a;border-color:#d4af37;color:#fff;}
   .bottom-nav button.danger{background:#cf3b2f;border-color:#d4af37;color:#fff;}
+
+  /* 計算式排版 */
+  .price-formula-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:4px 6px;padding:4px 0;}
+  .pf-item{display:flex;flex-direction:column;gap:2px;}
+  .pf-item label{font-size:10px;font-weight:1000;color:#64748b;text-align:center;white-space:nowrap;}
+  .pf-item input{width:60px;height:30px;border:1px solid #cbd5e1;border-radius:7px;padding:0 6px;font-size:12px;font-weight:900;font-family:inherit;color:#102348;background:#fff;outline:none;text-align:center;}
+  .pf-op{font-size:14px;font-weight:1000;color:#64748b;padding-bottom:4px;line-height:30px;}
+  .pf-paren{font-size:18px;font-weight:400;color:#94a3b8;padding-bottom:2px;line-height:30px;}
+  .pf-total input{display:none;}
+  .pf-total-val{width:80px;height:30px;line-height:30px;background:#fff9e6;border:1.5px solid #d4af37;border-radius:7px;text-align:center;font-size:12px;font-weight:1000;color:#92400e;}
   </style>
   <div class="app-shell">
     <section class="hero app-standard-hero">
@@ -1092,9 +1157,14 @@ def dispatch_mobile_app_page(request: _Request):
       <input id="keyword" class="search" placeholder="搜尋客戶、電話、地址、案件類型">
 
       
-      <select id="area_filter" class="area-select">
-        <option value="&#x5168;&#x90E8;">&#x5168;&#x90E8;&#x5340;&#x57DF;</option>
-      </select>
+      <div class="filter-selects">
+        <select id="area_filter" class="area-select">
+          <option value="全部">全部區域</option>
+        </select>
+        <select id="case_type_filter" class="case-type-select">
+          <option value="全部">全部類別</option>
+        </select>
+      </div>
 <div id="section_title" class="section-title">派工案件整理中...</div>
       <section id="list" class="list"></section>
 
@@ -1119,11 +1189,12 @@ def dispatch_mobile_app_page(request: _Request):
       <button class="gold" onclick="window.location.href='/app'">🏠 首頁</button>
       <button onclick="loadEmergencyNotices(); loadTickets();">🔄 整理</button>
       <button class="primary" onclick="showCreatePage()">➕ 新增</button>
+      <button onclick="window.location.href='/router-mgmt-mobile'">🌐 路由</button>
       <button class="danger" onclick="window.location.href='/employee/logout?next=/employee/login'">登出</button>
     </nav>
   </div>
 
-  <script src="/static/dispatch_app.js?v=cl15l4_20260515_024129"></script>
+  <script src="/static/dispatch_app.js?v=xn_v2"></script>
 
 </body>
 </html>

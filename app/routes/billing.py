@@ -244,7 +244,7 @@ def billing_page(request: Request):
 
   <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
 <link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
-<link rel="stylesheet" href="/static/billing.css?v=xn_v1">
+<link rel="stylesheet" href="/static/billing.css?v=xn_v4">
 <link rel="stylesheet" href="/static/billing_notice.css?v=xn_v1">
 
 

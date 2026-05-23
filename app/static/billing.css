@@ -27,8 +27,8 @@
     }
 
     .toolbar {
-      display: grid;
-      grid-template-columns: 120px 180px minmax(520px, 1fr) 90px 90px 120px 120px;
+      display: flex;
+      flex-direction: row;
       gap: 10px;
       align-items: center;
       margin-bottom: 14px;
@@ -1093,16 +1093,16 @@
 
     .summary-row {
       display: grid !important;
-      grid-template-columns: repeat(5, 150px) !important;
-      justify-content: start !important;
+      grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+      justify-content: stretch !important;
       gap: 10px !important;
       margin: 8px 0 12px !important;
     }
 
     .summary-box {
-      width: 150px !important;
-      min-width: 150px !important;
-      max-width: 150px !important;
+      width: auto !important;
+      min-width: 0 !important;
+      max-width: none !important;
       height: 78px !important;
       min-height: 78px !important;
       padding: 8px 12px !important;
@@ -1144,8 +1144,8 @@
       /* SHINNAN_BILLING_TOOLBAR_INLINE_SEARCH_BUTTONS_START */
 
     .toolbar {
-      display: grid !important;
-      grid-template-columns: 120px 180px minmax(520px, 1fr) 72px 72px 120px 120px !important;
+      display: flex !important;
+      flex-direction: row !important;
       gap: 8px !important;
       align-items: center !important;
       width: 100% !important;
@@ -1237,8 +1237,8 @@
     /* SHINNAN_BILLING_ACTION_TABS_FIXED_ROW_START */
 
     .toolbar {
-      display: grid !important;
-      grid-template-columns: 120px 170px minmax(760px, 1fr) 70px 70px !important;
+      display: flex !important;
+      flex-direction: row !important;
       gap: 8px !important;
       align-items: center !important;
       width: 100% !important;
@@ -1380,22 +1380,26 @@
     }
 
     .summary-box:hover {
-      transform: translateY(-2px) !important;
-      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12) !important;
+      transform: none !important;
+      box-shadow: inset 0 0 0 2px #93c5fd !important;
       border-color: #93c5fd !important;
       background: #f8fbff !important;
     }
 
     .summary-box.summary-filter-active {
-      border-color: #2f80ed !important;
+      outline: 2px solid #2f80ed !important;
+      outline-offset: -1px !important;
       background: #eef6ff !important;
-      box-shadow: 0 10px 22px rgba(47, 128, 237, 0.16) !important;
+      box-shadow: none !important;
+      border-color: #2f80ed !important;
     }
 
     .summary-box.summary-filter-abnormal-active {
-      border-color: #ff9aaa !important;
+      outline: 2px solid #dc2626 !important;
+      outline-offset: -1px !important;
       background: #fff1f2 !important;
-      box-shadow: 0 10px 22px rgba(220, 38, 38, 0.14) !important;
+      box-shadow: none !important;
+      border-color: #dc2626 !important;
     }
 
     /* SHINNAN_BILLING_SUMMARY_FILTER_CARDS_END */
@@ -1636,3 +1640,9 @@
       gap: 6px;
     }
     /* BILLING_HEADER_LOGO_FIX_END */
+
+/* ── toolbar flex 修正 (2026-05-22) ── */
+.toolbar #area_filter  { flex: 0 0 140px; }
+.toolbar #global_search { flex: 1 1 auto; }
+.toolbar #search_button,
+.toolbar #clear_button  { flex: 0 0 auto; }
