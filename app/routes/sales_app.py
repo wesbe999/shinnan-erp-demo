@@ -3220,5 +3220,255 @@ def sales_mobile_new_case_page(request: _EmpRequest):
 </body></html>""")
 # SHINNAN_SALES_MOBILE_NEW_CASE_END
 
+# SHINNAN_SALES_V2_PAGE_START
+@router.get("/app/sales/v2", response_class=HTMLResponse)
+def sales_v2_page(request: _EmpRequest):
+    user = _employee_current_user_from_request(request)
+    if not user:
+        return _EmpRedirectResponse("/employee/login?next=/app/sales/v2", status_code=303)
+
+    name = str(user.get("display_name") or "業務人員")
+    return f"""<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>訊南業務系統｜訊南 ERP</title>
+  <link rel="stylesheet" href="/static/sales_v2.css?v=sv2_20260523">
+</head>
+<body>
+<div class="sv2-app">
+
+  <!-- Hero -->
+  <div class="sv2-hero">
+    <div class="sv2-hero-left">
+      <div class="sv2-hero-logo">🏢</div>
+      <div>
+        <div class="sv2-hero-title">訊南業務系統</div>
+        <div class="sv2-hero-sub">{name}</div>
+      </div>
+    </div>
+    <div class="sv2-hero-date" id="sv2-today-str"></div>
+  </div>
+
+  <!-- Main Tabs -->
+  <div class="sv2-tabs">
+    <button class="sv2-tab active" onclick="SV2.switchTab('list',this)">📋 業務</button>
+    <button class="sv2-tab" onclick="SV2.switchTab('today',this)">📅 今日</button>
+    <button class="sv2-tab" onclick="SV2.switchTab('important',this)">⭐ 重要</button>
+    <button class="sv2-tab" onclick="SV2.switchTab('remind',this)">🔔 提醒</button>
+    <button class="sv2-tab" onclick="SV2.switchTab('calendar',this)">🗓 月曆</button>
+  </div>
+
+  <!-- ── 業務列表頁 ── -->
+  <div id="sv2-page-list" class="sv2-page active">
+    <div class="sv2-stats">
+      <div class="sv2-stat danger" onclick="SV2.setChip('逾期',document.querySelectorAll('.sv2-chip')[1])">
+        <div class="n" id="sv2-s-overdue">0</div><div class="l">逾期拜訪</div>
+      </div>
+      <div class="sv2-stat warn" onclick="SV2.setChip('今日',document.querySelectorAll('.sv2-chip')[2])">
+        <div class="n" id="sv2-s-today">0</div><div class="l">今日待訪</div>
+      </div>
+      <div class="sv2-stat" onclick="SV2.setChip('全部',document.querySelectorAll('.sv2-chip')[0])">
+        <div class="n" id="sv2-s-total">0</div><div class="l">全部</div>
+      </div>
+    </div>
+    <div class="sv2-chips">
+      <button class="sv2-chip active" onclick="SV2.setChip('全部',this)">全部</button>
+      <button class="sv2-chip" onclick="SV2.setChip('逾期',this)">逾期</button>
+      <button class="sv2-chip" onclick="SV2.setChip('今日',this)">今日</button>
+      <button class="sv2-chip" onclick="SV2.setChip('重要',this)">重要</button>
+      <button class="sv2-chip" onclick="SV2.setChip('待拜訪',this)">待拜訪</button>
+      <button class="sv2-chip" onclick="SV2.setChip('合約',this)">合約</button>
+      <button class="sv2-chip" onclick="SV2.setChip('事件',this)">事件</button>
+    </div>
+    <div class="sv2-search"><input id="sv2-kw" placeholder="搜尋大樓、總幹事、電話、負責業務" oninput="SV2.renderCards()"></div>
+    <div class="sv2-label" id="sv2-list-label">載入中...</div>
+    <div class="sv2-cards" id="sv2-card-list"></div>
+  </div>
+
+  <!-- ── 今日行程頁 ── -->
+  <div id="sv2-page-today" class="sv2-page">
+    <div class="sv2-section">
+      <div class="sv2-section-title">📅 今日拜訪</div>
+      <div id="sv2-today-list"></div>
+      <div class="sv2-section-title" style="margin-top:14px;color:var(--red)">⚠️ 逾期未拜訪</div>
+      <div id="sv2-overdue-list"></div>
+    </div>
+  </div>
+
+  <!-- ── 重要事項頁 ── -->
+  <div id="sv2-page-important" class="sv2-page">
+    <div class="sv2-section">
+      <div class="sv2-section-title">⭐ 重要標記</div>
+      <div id="sv2-imp-list"></div>
+      <div class="sv2-section-title" style="margin-top:14px;color:var(--orange)">📋 合約追蹤</div>
+      <div id="sv2-contract-list"></div>
+    </div>
+  </div>
+
+  <!-- ── 提醒頁 ── -->
+  <div id="sv2-page-remind" class="sv2-page">
+    <div class="sv2-section">
+      <div id="sv2-reminder-list"><div class="sv2-empty">載入中...</div></div>
+    </div>
+  </div>
+
+  <!-- ── 月曆頁 ── -->
+  <div id="sv2-page-calendar" class="sv2-page">
+    <div class="sv2-section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <button onclick="SV2.changeMonth(-1)" style="background:none;border:1px solid var(--line);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:14px;">◀</button>
+        <div style="font-size:15px;font-weight:1000;color:var(--text);" id="sv2-cal-title"></div>
+        <button onclick="SV2.changeMonth(1)" style="background:none;border:1px solid var(--line);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:14px;">▶</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:6px;">
+        <div style="text-align:center;font-size:11px;color:var(--muted);font-weight:1000;padding:4px 0;">日</div>
+        <div style="text-align:center;font-size:11px;color:var(--muted);font-weight:1000;padding:4px 0;">一</div>
+        <div style="text-align:center;font-size:11px;color:var(--muted);font-weight:1000;padding:4px 0;">二</div>
+        <div style="text-align:center;font-size:11px;color:var(--muted);font-weight:1000;padding:4px 0;">三</div>
+        <div style="text-align:center;font-size:11px;color:var(--muted);font-weight:1000;padding:4px 0;">四</div>
+        <div style="text-align:center;font-size:11px;color:var(--muted);font-weight:1000;padding:4px 0;">五</div>
+        <div style="text-align:center;font-size:11px;color:var(--muted);font-weight:1000;padding:4px 0;">六</div>
+      </div>
+      <div class="sv2-cal-grid" id="sv2-cal-grid"></div>
+      <div id="sv2-cal-events" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <!-- ── 大樓詳細頁 ── -->
+  <div id="sv2-detail" class="sv2-detail">
+    <div class="sv2-det-header">
+      <button class="sv2-det-back" onclick="SV2.closeDetail()">←</button>
+      <div class="sv2-det-title" id="sv2-det-title">-</div>
+      <div id="sv2-det-badge"></div>
+    </div>
+    <div class="sv2-det-tabs">
+      <button class="sv2-det-tab active" onclick="SV2.switchDetTab('info',this)">📋 資料</button>
+      <button class="sv2-det-tab" onclick="SV2.switchDetTab('visit',this)">📝 拜訪</button>
+      <button class="sv2-det-tab" onclick="SV2.switchDetTab('activity',this)">🎯 活動</button>
+      <button class="sv2-det-tab" onclick="SV2.switchDetTab('stats',this)">📊 統計</button>
+    </div>
+    <div class="sv2-det-body">
+      <!-- 資料頁 -->
+      <div id="sv2-det-page-info" class="sv2-det-page active">
+        <div id="sv2-det-body-info"></div>
+      </div>
+      <!-- 拜訪頁 -->
+      <div id="sv2-det-page-visit" class="sv2-det-page" id="sv2-det-body-visit">
+        <div class="sv2-det-section">
+          <div class="sv2-det-sec-title">本次拜訪結果</div>
+          <div class="sv2-qr-grid">
+            <div class="sv2-qr" onclick="SV2.selQR(this,'有人在')">有人在</div>
+            <div class="sv2-qr" onclick="SV2.selQR(this,'沒人')">沒人</div>
+            <div class="sv2-qr" onclick="SV2.selQR(this,'有進展')">有進展</div>
+            <div class="sv2-qr" onclick="SV2.selQR(this,'留資料')">留資料</div>
+            <div class="sv2-qr" onclick="SV2.selQR(this,'需再跟進')">需再跟進</div>
+            <div class="sv2-qr" onclick="SV2.selQR(this,'已簽約')">✅ 已簽約</div>
+          </div>
+        </div>
+        <div class="sv2-det-section">
+          <div class="sv2-det-sec-title">Memo 備忘</div>
+          <textarea class="sv2-ta" id="sv2-memo-ta" placeholder="快速記下本次拜訪重點、對方說的話、下次注意事項..."></textarea>
+          <button class="sv2-btn blue full" id="sv2-save-memo-btn" onclick="SV2.saveMemo()">💾 儲存本次拜訪</button>
+        </div>
+        <div class="sv2-det-section">
+          <div class="sv2-det-sec-title">歷史拜訪紀錄</div>
+          <div id="sv2-memo-hist"></div>
+        </div>
+      </div>
+      <!-- 活動頁 -->
+      <div id="sv2-det-page-activity" class="sv2-det-page">
+        <div class="sv2-det-section">
+          <div class="sv2-det-sec-title" style="display:flex;justify-content:space-between;">
+            活動歷史
+            <button onclick="SV2.openAddModal('activity')" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:1000;cursor:pointer;">+ 新增</button>
+          </div>
+          <div id="sv2-act-timeline"></div>
+        </div>
+      </div>
+      <!-- 統計頁 -->
+      <div id="sv2-det-page-stats" class="sv2-det-page">
+        <div id="sv2-det-stats"></div>
+      </div>
+    </div>
+    <!-- 詳細頁底部 -->
+    <div class="sv2-bottom cols-4" style="flex-shrink:0;">
+      <button class="sv2-bot-btn gold" onclick="SV2.closeDetail()">← 返回</button>
+      <button class="sv2-bot-btn primary" onclick="SV2.switchDetTab('visit',document.querySelectorAll('.sv2-det-tab')[1])">📝 拜訪</button>
+      <button class="sv2-bot-btn green" onclick="SV2.openAddModal('event')">📅 行程</button>
+      <button class="sv2-bot-btn danger" onclick="alert('確認完成此業務案件？')">✅ 完成</button>
+    </div>
+  </div>
+
+  <!-- ── 新增活動 Modal ── -->
+  <div id="sv2-add-modal" class="sv2-add-modal">
+    <div class="sv2-det-header">
+      <button class="sv2-det-back" onclick="SV2.closeAddModal()">←</button>
+      <div class="sv2-det-title" id="sv2-add-modal-title">新增活動記錄</div>
+    </div>
+    <div class="sv2-add-body">
+      <div class="sv2-field-label">活動類型</div>
+      <div class="sv2-type-grid">
+        <div class="sv2-type-btn sel" onclick="SV2.selType(this)" data-type="說明會" data-category="業務推廣">📢 說明會</div>
+        <div class="sv2-type-btn" onclick="SV2.selType(this)" data-type="DM投放" data-category="業務推廣">📰 DM投放</div>
+        <div class="sv2-type-btn" onclick="SV2.selType(this)" data-type="促銷活動" data-category="業務推廣">🎁 促銷</div>
+        <div class="sv2-type-btn" onclick="SV2.selType(this)" data-type="設備贈送" data-category="客戶服務">💻 設備贈送</div>
+        <div class="sv2-type-btn" onclick="SV2.selType(this)" data-type="設備出借" data-category="客戶服務">📱 設備出借</div>
+        <div class="sv2-type-btn" onclick="SV2.selType(this)" data-type="設備整修" data-category="客戶服務">🔧 設備整修</div>
+        <div class="sv2-type-btn" onclick="SV2.selType(this)" data-type="公設維護" data-category="客戶服務">🏗 公設維護</div>
+        <div class="sv2-type-btn" onclick="SV2.selType(this)" data-type="資金回饋" data-category="財務回饋">💰 資金回饋</div>
+        <div class="sv2-type-btn" onclick="SV2.selType(this)" data-type="管委會拜訪" data-category="關係維護">🏛 管委會</div>
+        <div class="sv2-type-btn" onclick="SV2.selType(this)" data-type="住戶大會" data-category="關係維護">🏠 住戶大會</div>
+        <div class="sv2-type-btn" onclick="SV2.selType(this)" data-type="客戶拜訪" data-category="關係維護">🤝 客戶拜訪</div>
+        <div class="sv2-type-btn" onclick="SV2.selType(this)" data-type="其他" data-category="其他">📋 其他</div>
+      </div>
+      <div class="sv2-field-label">大樓</div>
+      <input id="sv2-add-building" class="sv2-field" placeholder="輸入大樓編號或名稱">
+      <div class="sv2-field-grid">
+        <div>
+          <div class="sv2-field-label">活動日期</div>
+          <input type="date" id="sv2-add-date" class="sv2-field">
+        </div>
+        <div>
+          <div class="sv2-field-label">地點</div>
+          <input id="sv2-add-location" class="sv2-field" placeholder="管理室、交誼廳...">
+        </div>
+      </div>
+      <div class="sv2-field-grid">
+        <div>
+          <div class="sv2-field-label">出席人數</div>
+          <input type="number" id="sv2-add-participants" class="sv2-field" placeholder="0" min="0">
+        </div>
+        <div>
+          <div class="sv2-field-label">新增用戶</div>
+          <input type="number" id="sv2-add-new-users" class="sv2-field" placeholder="0" min="0">
+        </div>
+      </div>
+      <div class="sv2-field-label">結果</div>
+      <input id="sv2-add-result" class="sv2-field" placeholder="活動結果、成效...">
+      <div class="sv2-field-label">備註</div>
+      <textarea class="sv2-ta" id="sv2-add-note" placeholder="活動重點、議程、注意事項..." style="height:72px;"></textarea>
+      <div class="sv2-btn-row" style="margin-top:14px;">
+        <button class="sv2-btn gray" onclick="SV2.closeAddModal()">取消</button>
+        <button class="sv2-btn blue" onclick="SV2.saveActivity()">💾 儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 底部導覽 ── -->
+  <div class="sv2-bottom cols-5">
+    <button class="sv2-bot-btn gold" onclick="window.location.href='/app'">🏠 首頁</button>
+    <button class="sv2-bot-btn" onclick="window.location.href='/app/sales'">舊版</button>
+    <button class="sv2-bot-btn primary" onclick="SV2.openAddModal('activity')">+ 活動</button>
+    <button class="sv2-bot-btn green" onclick="window.location.href='/app/dispatch'">📋 派工</button>
+    <button class="sv2-bot-btn danger" onclick="window.location.href='/employee/logout?next=/employee/login'">登出</button>
+  </div>
+
+</div>
+<script src="/static/sales_v2.js?v=sv2_20260523"></script>
+</body></html>"""
+# SHINNAN_SALES_V2_PAGE_END
+
 
 # SHINNAN_EMPLOYEE_LOGIN_ROUTES_END
