@@ -1,4 +1,4 @@
-import json as _ticket_link_json
+﻿import json as _ticket_link_json
 from urllib.parse import parse_qs as _ticket_link_parse_qs
 
 from fastapi import APIRouter
@@ -888,7 +888,7 @@ def admin_ticket_customer_link_page():
   </script>
 
   <script src="/static/app_header_actions.js?v=cl17p6"></script>
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 """

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 from html import escape
@@ -833,7 +833,7 @@ def hr_employee_adjust_page(request: Request):
   </script>
 
   <script src="/static/app_header_actions.js?v=cl17p6"></script>
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 """

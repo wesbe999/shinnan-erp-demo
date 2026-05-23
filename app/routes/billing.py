@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 from datetime import datetime
@@ -242,7 +242,7 @@ def billing_page(request: Request):
 
 
 
-  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v2">
 <link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
 <link rel="stylesheet" href="/static/billing.css?v=xn_v4">
 <link rel="stylesheet" href="/static/billing_notice.css?v=xn_v1">
@@ -1594,7 +1594,7 @@ def billing_page(request: Request):
 </script>
 
 
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 """

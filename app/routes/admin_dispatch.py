@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import json
 
 from fastapi import APIRouter, Request
@@ -261,7 +261,7 @@ CLEAN_ADMIN_HTML = r'''
   <title>\u8a0a\u5357\u79d1\u6280\u6d3e\u5de5\u7cfb\u7d71\uff5c\u4e2d\u592e\u63a7\u7ba1\u7cfb\u7d71</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
-  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v2">
 <link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
 <link rel="stylesheet" href="/static/admin_dispatch.css?v=xn_v1">
 <link rel="stylesheet" href="/static/billing_notice.css?v=xn_v2">
@@ -2101,7 +2101,7 @@ async function createTicket() {
 })();
 </script>
 
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 '''

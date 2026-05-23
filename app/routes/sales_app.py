@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json as _sales_json
 import json as _managers_json
@@ -1054,7 +1054,7 @@ def sales_mobile_app_page(request: _EmpRequest):
 
 
 
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=xn_v2">
 
 <style id="cl15n1_sales_dispatch_card_modal_style_v1">
   .sales-action-card {
@@ -3234,7 +3234,7 @@ def sales_v2_page(request: _EmpRequest):
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>訊南業務系統｜訊南 ERP</title>
-  <link rel="stylesheet" href="/static/sales_v2.css?v=sv2_20260523">
+  <link rel="stylesheet" href="/static/sales_v2.css?v=sv2_20260524b">
 </head>
 <body>
 <div class="sv2-app">
@@ -3467,7 +3467,7 @@ def sales_v2_page(request: _EmpRequest):
 
 </div>
 <script src="/static/sales_v2.js?v=sv2_20260523"></script>
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body></html>"""
 # SHINNAN_SALES_V2_PAGE_END
 

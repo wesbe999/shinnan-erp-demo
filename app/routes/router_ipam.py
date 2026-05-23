@@ -1,4 +1,4 @@
-from fastapi.responses import RedirectResponse
+﻿from fastapi.responses import RedirectResponse
 from app.routes.employee_auth import _employee_current_user_from_request
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
@@ -49,7 +49,7 @@ p{margin:0;color:rgba(255,255,255,.92);font-weight:850;line-height:1.7}
   </section>
   <section class="panel"><a class="btn" href="/">&#x8fd4;&#x56de;&#x9996;&#x9801;</a></section>
 </main>
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 """)

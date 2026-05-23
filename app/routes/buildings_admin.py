@@ -1,4 +1,4 @@
-from fastapi.responses import RedirectResponse
+﻿from fastapi.responses import RedirectResponse
 from app.routes.employee_auth import _employee_current_user_from_request
 import json as _buildings_json
 
@@ -425,7 +425,7 @@ def admin_buildings_page(request: Request):
 
 
 
-  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v2">
 <link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
 <link rel="stylesheet" href="/static/buildings_admin.css?v=xn_v1">
 </head>
@@ -1796,7 +1796,7 @@ def admin_buildings_page(request: Request):
 </script>
 
 
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 """.replace("__INITIAL_BUILDING_ROWS__", "\n".join(initial_rows))

@@ -141,3 +141,14 @@ select.sv2-field{height:40px;}
 .sv2-page { display: none !important; }
 .sv2-page.active { display: block !important; }
 .sv2-cards { padding-bottom: 100px; }
+/* data-theme 主題覆蓋 */
+[data-theme="navy"] .sv2-hero{background:linear-gradient(135deg,#0a1828,#1a3a6b)!important}
+[data-theme="navy"] .sv2-det-header{background:linear-gradient(135deg,#0a1828,#1a3a6b)!important}
+[data-theme="purple"] .sv2-hero{background:linear-gradient(135deg,#14082a,#3b1a6b)!important}
+[data-theme="purple"] .sv2-det-header{background:linear-gradient(135deg,#14082a,#3b1a6b)!important}
+[data-theme="crimson"] .sv2-hero{background:linear-gradient(135deg,#220808,#6b1a1a)!important}
+[data-theme="crimson"] .sv2-det-header{background:linear-gradient(135deg,#220808,#6b1a1a)!important}
+[data-theme="slate"] .sv2-hero{background:linear-gradient(135deg,#0a1020,#1e293b)!important}
+[data-theme="slate"] .sv2-det-header{background:linear-gradient(135deg,#0a1020,#1e293b)!important}
+[data-theme="amber"] .sv2-hero{background:linear-gradient(135deg,#140c02,#4a2c0a)!important}
+[data-theme="amber"] .sv2-det-header{background:linear-gradient(135deg,#140c02,#4a2c0a)!important}

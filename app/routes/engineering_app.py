@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 from html import escape as _eng_escape
@@ -634,7 +634,7 @@ def engineering_mobile_app_page(request: _EmpRequest):
     .bottom-nav button.orange { background: #f97316; border-color: #d4af37; color: #fff; }
     .bottom-nav button.danger { background: #cf3b2f; border-color: #d4af37; color: #fff; }
   </style>
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=xn_v2">
 </head>
 
 <body>
@@ -1113,7 +1113,7 @@ def engineering_mobile_app_page(request: _EmpRequest):
 
     renderHome();
   </script>
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 """
@@ -1626,7 +1626,7 @@ def engineering_schedule_landscape_page(request: _EmpRequest):
 
     renderScheduleTable();
   </script>
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 """

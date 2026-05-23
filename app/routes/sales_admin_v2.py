@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+﻿from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from app.routes.employee_auth import _employee_current_user_from_request
 
@@ -18,7 +18,7 @@ def sales_admin_v2_page(request: Request):
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>業務管理後台｜訊南 ERP</title>
-  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v2">
   <link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
   <link rel="stylesheet" href="/static/sales_admin_v2.css?v=sv2_20260524a">
 </head>
@@ -354,6 +354,6 @@ def sales_admin_v2_page(request: Request):
 
 <script src="/static/sales_admin_v2.js?v=sv2_20260524a"></script>
 
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body></html>"""
 # SHINNAN_SALES_ADMIN_V2_END

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json as _billing_json
 import hashlib as _billing_hashlib
@@ -1362,7 +1362,7 @@ def billing_mobile_app_page(request: _EmpRequest):
       color: #fff;
     }
   </style>
-  <link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
+  <link rel="stylesheet" href="/static/app_header_unified.css?v=xn_v2">
 </head>
 
 <body>
@@ -1791,7 +1791,7 @@ def billing_mobile_app_page(request: _EmpRequest):
   </script>
 
   <!-- app_header_actions 已移除，返回首頁/登出按鈕移到底部 nav -->
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 """

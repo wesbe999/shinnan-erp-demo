@@ -719,7 +719,7 @@ function openAdminModule(path) {
 
 
 </script>
-<script src="/static/xn_theme.js?v=1"></script>
+<script src="/static/xn_theme.js?v=5"></script>
 </body>
 </html>
 """

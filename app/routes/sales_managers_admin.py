@@ -1,4 +1,4 @@
-import json as _managers_json
+﻿import json as _managers_json
 
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
@@ -299,7 +299,7 @@ def admin_sales_managers_page():
   </script>
 
   <script src="/static/app_header_actions.js?v=cl17p6"></script>
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 """

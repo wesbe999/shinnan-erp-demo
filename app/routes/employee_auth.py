@@ -1,4 +1,4 @@
-import hashlib as _emp_hashlib
+﻿import hashlib as _emp_hashlib
 import secrets as _emp_secrets
 from datetime import datetime as _emp_datetime, timedelta as _emp_timedelta
 from urllib.parse import parse_qs as _emp_parse_qs, quote as _emp_quote
@@ -353,7 +353,7 @@ def _employee_login_page(error: str = "", next_url: str = "/app", mobile: bool =
       else localStorage.removeItem("shinnan_remember_staff_code");
     }});
   </script>
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 """
@@ -577,7 +577,7 @@ def _employee_login_page_mobile(error: str = "", next_url: str = "/app"):
     }}
     document.addEventListener("keydown",e=>{{if(e.key==="Enter")doLogin();}});
   </script>
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 """
@@ -719,6 +719,6 @@ def employee_logout_clear():
   localStorage.removeItem("xunnan_login_role");
   window.location.replace("/");
 </script>
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body></html>"""
     return _EmpHTMLResponse(html)

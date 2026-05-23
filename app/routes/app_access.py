@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 from html import escape
@@ -146,6 +146,6 @@ def app_access_denied_html(app_key: str, back_url: str = "/"):
     <button class="btn" onclick="location.href='{escape(back_url)}'">返回首頁</button>
   </section>
 
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>"""

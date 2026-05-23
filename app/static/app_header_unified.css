@@ -165,3 +165,40 @@
     max-height: 82px !important;
   }
 }
+
+/* ── 主題覆蓋：各主題在 html 加 data-theme 屬性 ── */
+[data-theme="navy"] .hero,
+[data-theme="navy"] .hero.app-standard-hero {
+  background:
+    radial-gradient(circle at 50% 45%, rgba(60,130,220,.20) 0%, rgba(60,130,220,.08) 28%, transparent 60%),
+    linear-gradient(90deg, #0a1828 0%, #122d5c 38%, #1a3a6b 52%, #122d5c 68%, #0a1828 100%) !important;
+  border-color: rgba(96,165,250,.32) !important;
+}
+[data-theme="purple"] .hero,
+[data-theme="purple"] .hero.app-standard-hero {
+  background:
+    radial-gradient(circle at 50% 45%, rgba(160,80,255,.20) 0%, rgba(160,80,255,.08) 28%, transparent 60%),
+    linear-gradient(90deg, #14082a 0%, #2e1260 38%, #3b1a6b 52%, #2e1260 68%, #14082a 100%) !important;
+  border-color: rgba(192,132,252,.32) !important;
+}
+[data-theme="crimson"] .hero,
+[data-theme="crimson"] .hero.app-standard-hero {
+  background:
+    radial-gradient(circle at 50% 45%, rgba(220,60,60,.20) 0%, rgba(220,60,60,.08) 28%, transparent 60%),
+    linear-gradient(90deg, #220808 0%, #5a1212 38%, #6b1a1a 52%, #5a1212 68%, #220808 100%) !important;
+  border-color: rgba(248,113,113,.32) !important;
+}
+[data-theme="slate"] .hero,
+[data-theme="slate"] .hero.app-standard-hero {
+  background:
+    radial-gradient(circle at 50% 45%, rgba(100,130,160,.20) 0%, rgba(100,130,160,.08) 28%, transparent 60%),
+    linear-gradient(90deg, #0a1020 0%, #162030 38%, #1e293b 52%, #162030 68%, #0a1020 100%) !important;
+  border-color: rgba(148,163,184,.32) !important;
+}
+[data-theme="amber"] .hero,
+[data-theme="amber"] .hero.app-standard-hero {
+  background:
+    radial-gradient(circle at 50% 45%, rgba(220,160,30,.20) 0%, rgba(220,160,30,.08) 28%, transparent 60%),
+    linear-gradient(90deg, #140c02 0%, #3a2008 38%, #4a2c0a 52%, #3a2008 68%, #140c02 100%) !important;
+  border-color: rgba(251,191,36,.32) !important;
+}

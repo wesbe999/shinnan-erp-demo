@@ -1,4 +1,4 @@
-from fastapi.responses import RedirectResponse
+﻿from fastapi.responses import RedirectResponse
 from app.routes.employee_auth import _employee_current_user_from_request
 
 from fastapi import APIRouter, Request
@@ -667,7 +667,7 @@ STATS_HTML = r"""
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>&#x8cc7;&#x6599;&#x7d71;&#x8a08;&#xff5c;&#x4e2d;&#x592e;&#x63a7;&#x7ba1;&#x7cfb;&#x7d71;</title>
-<link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
+<link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v2">
 <link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
 <link rel="stylesheet" href="/static/stats_admin.css?v=xn_v1">
 
@@ -910,7 +910,7 @@ window.addEventListener("resize",function(){clearTimeout(window.__statsResizeTim
 loadStats().catch(function(err){alert("stats load failed");console.error(err);});
 </script>
 
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 """

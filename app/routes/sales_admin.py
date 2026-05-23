@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+﻿from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from app.routes.employee_auth import _employee_current_user_from_request
 
@@ -29,7 +29,7 @@ def shinnan_admin_sales_page(request: Request):
 
 
 
-  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
+  <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v2">
 <link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
 <link rel="stylesheet" href="/static/sales_admin.css?v=xn_v1">
 
@@ -1839,7 +1839,7 @@ def shinnan_admin_sales_page(request: Request):
 </script>
 
 
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>
 """

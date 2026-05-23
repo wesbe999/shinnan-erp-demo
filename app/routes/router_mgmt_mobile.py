@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+﻿from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sqlalchemy import text as _sql
 import json as _json
@@ -40,7 +40,7 @@ _MOBILE_HTML = """<!doctype html>
 <link rel="manifest" href="/static/router_mgmt_manifest.json">
 <link rel="apple-touch-icon" href="/static/pwa_icon_192.png">
 <title>路由管理｜訊南</title>
-<link rel="stylesheet" href="/static/app_header_unified.css?v=20260520_unified">
+<link rel="stylesheet" href="/static/app_header_unified.css?v=xn_v2">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#f0f2f5;font-family:"Microsoft JhengHei","Segoe UI",sans-serif;min-height:100vh;padding-bottom:32px}
@@ -438,7 +438,7 @@ if ('serviceWorker' in navigator) {
       <button type="button" class="green" onclick="startPing && startPing()">🔄 Ping</button>
       <button type="button" class="danger" onclick="window.location.href='/employee/logout?next=/employee/login'">登出</button>
     </nav>
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body>
 </html>"""
 

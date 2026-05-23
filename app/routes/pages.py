@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+﻿from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from app.routes.employee_auth import _employee_current_user_from_request
 
@@ -212,6 +212,6 @@ function apply(id){
 }
 render();
 </script>
-<script src='/static/xn_theme.js?v=1'></script>
+<script src='/static/xn_theme.js?v=5'></script>
 </body></html>""")
 # SHINNAN_THEME_PAGE_END

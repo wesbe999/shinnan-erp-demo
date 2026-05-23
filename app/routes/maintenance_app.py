@@ -1,4 +1,4 @@
-
+﻿
 from __future__ import annotations
 
 import json
@@ -645,7 +645,7 @@ def maintenance_app_page(request: Request):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>\u7dad\u4fee\u90e8\u7cfb\u7d71</title>
-<link rel="stylesheet" href="/static/app_header_unified.css?v=20260515_m1">
+<link rel="stylesheet" href="/static/app_header_unified.css?v=xn_v2">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:#eef3f9;color:#102348;font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;padding-bottom:30px}

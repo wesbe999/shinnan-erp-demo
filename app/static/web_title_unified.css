@@ -309,3 +309,15 @@ content: "";
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .75));
 }
+
+/* data-theme 主題覆蓋 */
+[data-theme="navy"] .web-title{background:radial-gradient(circle at 68% 58%,rgba(60,130,220,.30) 0,transparent 25%),linear-gradient(105deg,#0a1828 0%,#122d5c 38%,#1a3a6b 64%,#0a1828 100%)!important}
+[data-theme="purple"] .web-title{background:radial-gradient(circle at 68% 58%,rgba(160,80,255,.30) 0,transparent 25%),linear-gradient(105deg,#14082a 0%,#2e1260 38%,#3b1a6b 64%,#14082a 100%)!important}
+[data-theme="crimson"] .web-title{background:radial-gradient(circle at 68% 58%,rgba(220,60,60,.30) 0,transparent 25%),linear-gradient(105deg,#220808 0%,#5a1212 38%,#6b1a1a 64%,#220808 100%)!important}
+[data-theme="slate"] .web-title{background:radial-gradient(circle at 68% 58%,rgba(100,130,160,.30) 0,transparent 25%),linear-gradient(105deg,#0a1020 0%,#162030 38%,#1e293b 64%,#0a1020 100%)!important}
+[data-theme="amber"] .web-title{background:radial-gradient(circle at 68% 58%,rgba(220,160,30,.30) 0,transparent 25%),linear-gradient(105deg,#140c02 0%,#3a2008 38%,#4a2c0a 64%,#140c02 100%)!important}
+[data-theme="navy"] .sv2-hero,[data-theme="navy"] .sv2-det-header{background:linear-gradient(135deg,#0a1828,#1a3a6b)!important}
+[data-theme="purple"] .sv2-hero,[data-theme="purple"] .sv2-det-header{background:linear-gradient(135deg,#14082a,#3b1a6b)!important}
+[data-theme="crimson"] .sv2-hero,[data-theme="crimson"] .sv2-det-header{background:linear-gradient(135deg,#220808,#6b1a1a)!important}
+[data-theme="slate"] .sv2-hero,[data-theme="slate"] .sv2-det-header{background:linear-gradient(135deg,#0a1020,#1e293b)!important}
+[data-theme="amber"] .sv2-hero,[data-theme="amber"] .sv2-det-header{background:linear-gradient(135deg,#140c02,#4a2c0a)!important}
