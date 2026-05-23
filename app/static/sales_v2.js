@@ -126,7 +126,7 @@ function renderCards(){
     const cls = (r.important_schedule?'important ':'')+(od?'overdue':'');
     const vClass = od?'red':isToday(r.next_visit)?'orange':'';
     const memo = r.business_note||'';
-    return `<div class="sv2-card ${cls}" onclick="SV2.openDetail(${JSON.stringify(r.building_no)}, ${r.id||0})">
+    return `<div class="sv2-card ${cls}" data-bno="${esc(r.building_no)}" data-sid="${r.id||0}" onclick="SV2.openDetailByEl(this)">
       <div class="sv2-card-top">
         <div>
           <div class="sv2-bname">${esc(r.building_name||'-')}</div>
@@ -164,7 +164,7 @@ function renderTodayTab(){
   const el_t = document.getElementById('sv2-today-list');
   const el_o = document.getElementById('sv2-overdue-list');
   if(el_t) el_t.innerHTML = todays.length ? todays.map(r=>`
-    <div class="sv2-sched-card" onclick="SV2.openDetail(${JSON.stringify(r.building_no)}, ${r.id||0})">
+    <div class="sv2-sched-card" data-bno="${esc(r.building_no)}" data-sid="${r.id||0}" onclick="SV2.openDetailByEl(this)">
       <div class="sv2-sched-time"><div class="th">${r.visit_time?r.visit_time.split('-')[0]:'今日'}</div><div class="td">拜訪</div></div>
       <div class="sv2-sched-body">
         <div class="tn">${esc(r.building_name)}</div>
@@ -172,7 +172,7 @@ function renderTodayTab(){
       </div>
     </div>`).join('') : '<div class="sv2-empty">今日無排定拜訪 ✅</div>';
   if(el_o) el_o.innerHTML = overdues.length ? overdues.map(r=>`
-    <div class="sv2-sched-card overdue" onclick="SV2.openDetail(${JSON.stringify(r.building_no)}, ${r.id||0})">
+    <div class="sv2-sched-card overdue" data-bno="${esc(r.building_no)}" data-sid="${r.id||0}" onclick="SV2.openDetailByEl(this)">
       <div class="sv2-sched-time red"><div class="th">${esc(r.next_visit||'?')}</div><div class="td">逾期</div></div>
       <div class="sv2-sched-body">
         <div class="tn">${esc(r.building_name)}</div>
@@ -188,13 +188,13 @@ function renderImportantTab(){
   const el_i = document.getElementById('sv2-imp-list');
   const el_c = document.getElementById('sv2-contract-list');
   if(el_i) el_i.innerHTML = imps.length ? imps.map(r=>`
-    <div class="sv2-imp-card" onclick="SV2.openDetail(${JSON.stringify(r.building_no)}, ${r.id||0})">
+    <div class="sv2-imp-card" data-bno="${esc(r.building_no)}" data-sid="${r.id||0}" onclick="SV2.openDetailByEl(this)">
       <div class="sv2-imp-title">⭐ ${esc(r.building_name)}</div>
       <div class="sv2-imp-meta">${esc(r.area)} · 下次拜訪：${esc(r.next_visit||'-')}</div>
       <div class="sv2-imp-date ${isOverdue(r.next_visit)?'red':'orange'}">${isOverdue(r.next_visit)?'⚠ 已逾期':'📍 待拜訪'}</div>
     </div>`).join('') : '<div class="sv2-empty">無重要事項</div>';
   if(el_c) el_c.innerHTML = contracts.length ? contracts.map(r=>`
-    <div class="sv2-sched-card" onclick="SV2.openDetail(${JSON.stringify(r.building_no)}, ${r.id||0})">
+    <div class="sv2-sched-card" data-bno="${esc(r.building_no)}" data-sid="${r.id||0}" onclick="SV2.openDetailByEl(this)">
       <div class="sv2-sched-time ${r.contract_status==='待續約'?'red':'orange'}">
         <div class="th">${esc(r.contract_status)}</div>
       </div>
@@ -216,7 +216,7 @@ function renderRemindersTab(){
   if(urgent.length){
     html += `<div class="sv2-section-title" style="color:var(--red)">🚨 緊急（7天內）</div>`;
     html += urgent.map(r=>`
-      <div class="sv2-imp-card danger" onclick="SV2.openDetail(${JSON.stringify(r.building_no)}, 0)">
+      <div class="sv2-imp-card danger" data-bno="${esc(r.building_no)}" data-sid="0" onclick="SV2.openDetailByEl(this)">
         <div class="sv2-imp-title">${esc(r.reminder_type)} · ${esc(r.building_name||r.building_no)}</div>
         <div class="sv2-imp-meta">${esc(r.area||'')} · ${esc(r.note||'')}</div>
         <div class="sv2-imp-date red">⚠ ${esc(r.remind_date)}（剩 ${diffDays(r.remind_date)} 天）</div>
@@ -225,7 +225,7 @@ function renderRemindersTab(){
   if(warn.length){
     html += `<div class="sv2-section-title" style="color:var(--orange);margin-top:12px">⚠️ 注意（30天內）</div>`;
     html += warn.map(r=>`
-      <div class="sv2-imp-card" onclick="SV2.openDetail(${JSON.stringify(r.building_no)}, 0)">
+      <div class="sv2-imp-card" data-bno="${esc(r.building_no)}" data-sid="0" onclick="SV2.openDetailByEl(this)">
         <div class="sv2-imp-title">${esc(r.reminder_type)} · ${esc(r.building_name||r.building_no)}</div>
         <div class="sv2-imp-meta">${esc(r.note||'')}</div>
         <div class="sv2-imp-date orange">📋 ${esc(r.remind_date)}（剩 ${diffDays(r.remind_date)} 天）</div>
@@ -280,6 +280,22 @@ function changeMonth(d){
   if(calMonth>11){calMonth=0;calYear++;}
   if(calMonth<0){calMonth=11;calYear--;}
   loadEvents();
+}
+
+function openDetailByEl(el){
+  const bno = el.dataset.bno;
+  const sid = parseInt(el.dataset.sid)||0;
+  openDetail(bno, sid);
+}
+
+function openDetailByBno(bno, sales_id){
+  openDetail(bno, sales_id);
+}
+
+function openDetailByIdx(idx, sales_id){
+  const row = window._sv2Rows && window._sv2Rows[idx];
+  if(!row) return;
+  openDetail(row.building_no, sales_id);
 }
 
 /* ── Detail Page ── */
@@ -538,7 +554,8 @@ function init(){
 
 return {
   init, loadRecords, setChip, switchTab,
-  openDetail, closeDetail, switchDetTab, selQR, saveMemo,
+  openDetail, openDetailByEl, openDetailByIdx, openDetailByBno,
+  closeDetail, switchDetTab, selQR, saveMemo,
   openAddModal, closeAddModal, selType, saveActivity,
   changeMonth, showCalDay, renderCards,
 };

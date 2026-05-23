@@ -136,3 +136,8 @@ select.sv2-field{height:40px;}
 .sv2-progress-wrap{background:#f1f5f9;border-radius:999px;height:8px;overflow:hidden;}
 .sv2-progress-bar{height:100%;border-radius:999px;background:var(--blue);transition:width .3s;}
 .sv2-progress-bar.green{background:var(--green);} .sv2-progress-bar.orange{background:var(--orange);} .sv2-progress-bar.red{background:var(--red);}
+
+/* ── 頁籤切換修正 ── */
+.sv2-page { display: none !important; }
+.sv2-page.active { display: block !important; }
+.sv2-cards { padding-bottom: 100px; }
