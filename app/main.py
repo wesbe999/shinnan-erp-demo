@@ -34,6 +34,7 @@ from app.routes.hr_employee_adjust import router as hr_employee_adjust_router
 from app.routes.admin_dispatch import router as admin_dispatch_router
 from app.routes.buildings_admin import router as buildings_admin_router
 from app.routes.sales_admin import router as sales_admin_router
+from app.routes.sales_admin_v2 import router as sales_admin_v2_router
 from app.routes.sales_records_admin import router as sales_records_admin_router
 from app.routes.customers_admin import router as customers_admin_router
 from app.routes.sales_managers_admin import router as sales_managers_admin_router
@@ -106,6 +107,7 @@ app.include_router(hr_employee_adjust_router)
 app.include_router(admin_dispatch_router)
 app.include_router(buildings_admin_router)
 app.include_router(sales_admin_router)
+app.include_router(sales_admin_v2_router)
 app.include_router(sales_records_admin_router)
 app.include_router(customers_admin_router)
 app.include_router(sales_managers_admin_router)
