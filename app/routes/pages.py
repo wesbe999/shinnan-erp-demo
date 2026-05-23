@@ -133,3 +133,84 @@ def admin_import_page(request: Request):
 </body>
 </html>
     """)
+
+
+# SHINNAN_THEME_PAGE_START
+@router.get("/theme", response_class=HTMLResponse)
+def theme_page(request: Request):
+    return HTMLResponse("""<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>主題設定｜訊南 ERP</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"Microsoft JhengHei","Noto Sans TC",Arial,sans-serif;background:#0a1a10;color:#f0ead6;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px 60px;}
+h1{font-size:28px;font-weight:1000;letter-spacing:4px;color:#d4af37;margin-bottom:6px;text-align:center;}
+.sub{font-size:13px;color:#8aab8f;margin-bottom:30px;text-align:center;letter-spacing:1px;}
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;width:100%;max-width:920px;margin-bottom:36px;}
+.theme-card{position:relative;border-radius:18px;cursor:pointer;border:2px solid rgba(255,255,255,.08);transition:.2s;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.theme-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.5);}
+.theme-card.active{border-color:#d4af37;box-shadow:0 0 0 3px rgba(212,175,55,.35),0 16px 40px rgba(0,0,0,.5);}
+.theme-preview{height:110px;position:relative;}
+.theme-preview-bar{height:26px;display:flex;align-items:center;padding:0 12px;gap:6px;background:rgba(0,0,0,.25);}
+.theme-preview-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);}
+.theme-preview-ttl{font-size:11px;font-weight:1000;opacity:.9;letter-spacing:2px;}
+.theme-preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:7px 10px;}
+.theme-preview-card{border-radius:7px;height:28px;}
+.theme-info{padding:12px 14px;background:rgba(0,0,0,.25);}
+.theme-name{font-size:14px;font-weight:1000;color:#f0ead6;margin-bottom:3px;}
+.theme-desc{font-size:11px;color:#8aab8f;}
+.apply-btn{width:100%;padding:9px;border:none;font-size:12px;font-weight:1000;cursor:pointer;transition:.15s;letter-spacing:1px;}
+.current-badge{background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#d4af37;padding:5px 16px;border-radius:999px;font-size:12px;font-weight:1000;margin-bottom:28px;letter-spacing:1px;}
+.back-btn{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(212,175,55,.3);color:#d4af37;padding:10px 24px;border-radius:12px;font-size:14px;font-weight:1000;cursor:pointer;text-decoration:none;transition:.15s;letter-spacing:1px;}
+.back-btn:hover{background:rgba(212,175,55,.15);}
+</style>
+</head>
+<body>
+<h1>🎨 主題設定</h1>
+<div class="sub">選擇訊南 ERP 系統的視覺主題，套用後即時生效</div>
+<div class="current-badge" id="current-label">載入中...</div>
+<div class="theme-grid" id="theme-grid"></div>
+<a href="/" class="back-btn">← 返回首頁</a>
+<script>
+const THEMES=[
+  {id:"default",name:"深綠（預設）",desc:"訊南品牌色，沉穩專業",hf:"#0f3320",ht:"#1a5c38",ac:"#d4af37",c1:"#1e5c31",c2:"rgba(212,175,55,.25)",bb:"#1a5c38",bc:"#d4af37"},
+  {id:"navy",name:"深藍商務",desc:"科技感，數據導向工作首選",hf:"#0d1f3c",ht:"#1a3a6b",ac:"#60a5fa",c1:"#1e3a7a",c2:"rgba(96,165,250,.25)",bb:"#1a3a6b",bc:"#60a5fa"},
+  {id:"purple",name:"深紫典雅",desc:"優雅神秘，彰顯品味",hf:"#1a0a2e",ht:"#3b1a6b",ac:"#c084fc",c1:"#3b1a7a",c2:"rgba(192,132,252,.25)",bb:"#3b1a6b",bc:"#c084fc"},
+  {id:"crimson",name:"深紅熱情",desc:"熱情積極，強調行動力",hf:"#2a0a0a",ht:"#6b1a1a",ac:"#f87171",c1:"#7a1a1a",c2:"rgba(248,113,113,.25)",bb:"#6b1a1a",bc:"#f87171"},
+  {id:"slate",name:"深灰簡約",desc:"極簡現代，聚焦內容",hf:"#0f172a",ht:"#1e293b",ac:"#94a3b8",c1:"#1e293b",c2:"rgba(148,163,184,.25)",bb:"#1e293b",bc:"#94a3b8"},
+  {id:"amber",name:"深褐金曜",desc:"大地色系，溫暖可靠",hf:"#1c1004",ht:"#4a2c0a",ac:"#fbbf24",c1:"#4a2c0a",c2:"rgba(251,191,36,.25)",bb:"#4a2c0a",bc:"#fbbf24"},
+];
+let cur=localStorage.getItem("xn_theme")||"default";
+function render(){
+  const g=document.getElementById("theme-grid");
+  g.innerHTML=THEMES.map(t=>`
+    <div class="theme-card ${t.id===cur?"active":""}" onclick="apply('${t.id}')">
+      <div class="theme-preview" style="background:linear-gradient(135deg,${t.hf},${t.ht})">
+        <div class="theme-preview-bar"><div class="theme-preview-dot"></div><div class="theme-preview-dot"></div><div class="theme-preview-ttl" style="color:${t.ac}">ShinNan ERP</div></div>
+        <div class="theme-preview-grid">
+          <div class="theme-preview-card" style="background:${t.c1}"></div>
+          <div class="theme-preview-card" style="background:${t.c2};border:1px solid ${t.ac}44"></div>
+          <div class="theme-preview-card" style="background:${t.c1};opacity:.6"></div>
+          <div class="theme-preview-card" style="background:${t.c1};opacity:.3"></div>
+        </div>
+      </div>
+      <div class="theme-info"><div class="theme-name">${t.name}</div><div class="theme-desc">${t.desc}</div></div>
+      <button class="apply-btn" style="background:${t.bb};color:${t.bc}">${t.id===cur?"✓ 目前使用":"套用主題"}</button>
+    </div>`).join("");
+  const c=THEMES.find(t=>t.id===cur);
+  document.getElementById("current-label").textContent="目前使用：" + (c?c.name:"深綠（預設）");
+}
+function apply(id){
+  cur=id;
+  localStorage.setItem("xn_theme",id);
+  const t=THEMES.find(t=>t.id===id);
+  if(t) localStorage.setItem("xn_theme_data",JSON.stringify(t));
+  render();
+}
+render();
+</script>
+</body></html>""")
+# SHINNAN_THEME_PAGE_END

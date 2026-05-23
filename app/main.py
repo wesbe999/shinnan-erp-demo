@@ -679,11 +679,11 @@ position:absolute;
         <a class="module" href="/admin/customers"><div class="mi"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c1-4 11-4 12 0"/><circle cx="17" cy="10" r="2.5"/><path d="M15 20c.7-2.6 5.4-2.6 6 0"/></svg></div><div><div class="module-name">\u5ba2\u6236\u8cc7\u6599</div><div class="module-desc">\u5ba2\u6236\u8cc7\u6599\u3001\u670d\u52d9\u65b9\u6848\u3001\u5e33\u52d9\u72c0\u614b\u8207\u8a2d\u5099\u8cc7\u8a0a\u3002</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="#" onclick="return openAdminModule('/admin/stats')"><div class="mi"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div><div><div class="module-name">\u8cc7\u6599\u7d71\u8a08</div><div class="module-desc">營運資料彙整分析，產生統計與管理報告。</div></div><div class="arrow">&rsaquo;</div></a>
         <a class="module" href="#" onclick="return openAdminModule('/admin/import')"><div class="mi"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div><div class="module-name">\u532f\u5165\u8cc7\u6599</div><div class="module-desc">Excel/CSV/JSON\u3001\u5305\u62ecSQL\u8cc7\u6599\u532f\u5165\u3002</div></div><div class="arrow">&rsaquo;</div></a>
-      <div class="module module-wip">
-        <div class="mi"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
-        <div><div class="module-name">施工中</div><div class="module-desc">功能開發中，敬請期待。</div></div>
+      <a class="module" href="/theme" style="text-decoration:none">
+        <div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3m-3.22-8.78-2.12 2.12M7.1 16.9l-2.12 2.12m0-14.24 2.12 2.12M16.9 16.9l2.12 2.12"/></svg></div>
+        <div><div class="module-name">主题設定</div><div class="module-desc">切換系統外觀主题，深綠、深藍、深紫等六種風格。</div></div>
         <div class="arrow">&rsaquo;</div>
-      </div>
+      </a>
       <div class="module module-wip">
         <div class="mi"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
         <div><div class="module-name">施工中</div><div class="module-desc">功能開發中，敬請期待。</div></div>
@@ -716,6 +716,33 @@ function openAdminModule(path) {
   }
   return false;
 }
+
+// ── 主題套用 ──
+(function applyStoredTheme(){
+  const THEME_MAP = {
+    navy:    {hf:"#0d1f3c", ht:"#1a3a6b"},
+    purple:  {hf:"#1a0a2e", ht:"#3b1a6b"},
+    crimson: {hf:"#2a0a0a", ht:"#6b1a1a"},
+    slate:   {hf:"#0f172a", ht:"#1e293b"},
+    amber:   {hf:"#1c1004", ht:"#4a2c0a"},
+  };
+  const id = localStorage.getItem("xn_theme") || "default";
+  const t = THEME_MAP[id];
+  if (!t) return;
+  // 套用到 portal hero 背景
+  const portal = document.querySelector(".portal");
+  if (portal) {
+    portal.style.background = `radial-gradient(circle at 18% 20%,rgba(255,255,255,.045),transparent 22%),
+      radial-gradient(circle at 24% 82%,rgba(150,255,70,.085),transparent 34%),
+      radial-gradient(circle at 60% 18%,rgba(100,255,90,.055),transparent 38%),
+      linear-gradient(90deg,${t.hf}cc,${t.ht}99 46%,${t.hf}cc),
+      linear-gradient(180deg,rgba(255,255,255,.035),transparent 34%,rgba(0,0,0,.18))`;
+  }
+  // 套用到 body 背景
+  document.body.style.background = `radial-gradient(circle at 32% 80%,rgba(126,255,61,.06),transparent 26%),
+    radial-gradient(circle at 72% 18%,rgba(115,255,66,.06),transparent 28%),
+    linear-gradient(135deg,${t.hf} 0%,${t.ht} 46%,${t.hf}88 100%)`;
+})();
 </script>
 </body>
 </html>
