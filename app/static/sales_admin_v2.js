@@ -495,6 +495,7 @@ function init(){
 }
 
 return {
+  init,
   switchPage, loadDashboard, loadActivities, filterActivities, goPage,
   loadBuildings, filterBuildings, exportBuildingCSV,
   loadDevices, openDevModal, closeDevModal, saveDevice, returnDevice,

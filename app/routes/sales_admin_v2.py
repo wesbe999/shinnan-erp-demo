@@ -20,7 +20,6 @@ def sales_admin_v2_page(request: Request):
   <title>業務管理後台｜訊南 ERP</title>
   <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
   <link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
-  <link rel="stylesheet" href="/static/sales_admin.css?v=xn_v1">
   <link rel="stylesheet" href="/static/sales_admin_v2.css?v=sv2_20260523">
 </head>
 <body>
@@ -350,6 +349,6 @@ def sales_admin_v2_page(request: Request):
   </div>
 </div>
 
-<script src="/static/sales_admin_v2.js?v=sv2_20260523"></script>
+<script src="/static/sales_admin_v2.js?v=sv2_20260523b"></script>
 </body></html>"""
 # SHINNAN_SALES_ADMIN_V2_END

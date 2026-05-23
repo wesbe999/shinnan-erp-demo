@@ -3,8 +3,8 @@
 .sa2-nav{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;}
 .sa2-nav-btn{border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--muted);padding:7px 14px;font-size:13px;font-weight:900;cursor:pointer;}
 .sa2-nav-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
-.sa2-page{display:none;}
-.sa2-page.active{display:block;}
+.sa2-page{display:none !important;}
+.sa2-page.active{display:block !important;}
 .sa2-kpi-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:16px;}
 .sa2-kpi-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center;}
 .sa2-kpi-card.good .sa2-kpi-n{color:var(--green);}
@@ -65,3 +65,7 @@
 .sa2-field:focus{border-color:var(--blue);}
 @media(max-width:1200px){.sa2-kpi-grid{grid-template-columns:repeat(4,1fr);}}
 @media(max-width:900px){.sa2-two-col{grid-template-columns:1fr;}.sa2-kpi-grid{grid-template-columns:repeat(2,1fr);}}
+
+/* ── 補充 wrap 基礎樣式（取代 sales_admin.css 依賴）── */
+.wrap { max-width: 1460px; margin: 0 auto; padding: 22px; }
+body { margin: 0; background: #f0f4fa; color: #102348; font-family: "Noto Sans TC","Microsoft JhengHei",Arial,sans-serif; }
