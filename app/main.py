@@ -23,6 +23,7 @@ from app.routes.mobile import router as mobile_router
 from app.routes.employee_auth import router as employee_auth_router
 from app.routes.employee_app import router as employee_app_router
 from app.routes.sales_app import router as sales_app_router
+from app.routes.sales_v2_api import router as sales_v2_api_router
 from app.modules.dispatch.module import register as register_dispatch_module
 from app.routes.billing_app import router as billing_app_router
 from app.routes.engineering_app import router as engineering_app_router
@@ -93,6 +94,7 @@ app.include_router(mobile_router)
 app.include_router(employee_auth_router)
 app.include_router(employee_app_router)
 app.include_router(sales_app_router)
+app.include_router(sales_v2_api_router)
 register_dispatch_module(app)
 app.include_router(billing_router)
 app.include_router(billing_app_router)
