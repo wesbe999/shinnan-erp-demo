@@ -46,14 +46,23 @@ async function loadDashboard(){
 
   // 計算合約統計
   const contracts = data.contract_stats||[];
-  const signed = contracts.find(c=>c.contract_status==='簽約')?.cnt||0;
+  // 合約狀態對應：簽約/有效 都算已簽
+  const signed = contracts.filter(c=>c.contract_status==='簽約'||c.contract_status==='有效').reduce((s,c)=>s+(c.cnt||0),0);
   const nego   = contracts.find(c=>c.contract_status==='議約中')?.cnt||0;
   const renew  = contracts.find(c=>c.contract_status==='待續約')?.cnt||0;
+  const lost   = contracts.find(c=>c.contract_status==='已流失')?.cnt||0;
   const total  = contracts.reduce((s,c)=>s+(c.cnt||0),0);
 
   const actStats = data.activity_stats||[];
   const totalAct = actStats.reduce((s,a)=>s+(a.cnt||0),0);
   const totalNew = actStats.reduce((s,a)=>s+(a.new_users||0),0);
+
+  // 成長數據
+  const gr = data.growth||{};
+  const activeUsers = gr.current_users||0;
+  const totalHH = gr.total_households||0;
+  const monthlyRev = gr.monthly_revenue||0;
+  const penRate = totalHH>0 ? Math.round(activeUsers/totalHH*100) : 0;
 
   document.getElementById('kpi-total').textContent = total;
   document.getElementById('kpi-signed').textContent = signed;
@@ -63,6 +72,14 @@ async function loadDashboard(){
   document.getElementById('kpi-new-users').textContent = totalNew;
   document.getElementById('kpi-overdue').textContent = (data.overdue_visits||[]).length;
   document.getElementById('kpi-expiring').textContent = (data.expiring||[]).length;
+
+  // 額外成長指標
+  const elUsers = document.getElementById('kpi-active-users');
+  const elRev   = document.getElementById('kpi-revenue');
+  const elPen   = document.getElementById('kpi-penetration');
+  if(elUsers) elUsers.textContent = activeUsers.toLocaleString();
+  if(elRev)   elRev.textContent   = 'NT$' + Math.round(monthlyRev/10000) + '萬';
+  if(elPen)   elPen.textContent   = penRate + '%';
 
   // 業務員排行
   const owners = data.owner_stats||[];

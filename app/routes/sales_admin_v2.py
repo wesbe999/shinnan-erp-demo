@@ -20,7 +20,7 @@ def sales_admin_v2_page(request: Request):
   <title>業務管理後台｜訊南 ERP</title>
   <link rel="stylesheet" href="/static/web_title_unified.css?v=xn_v1">
   <link rel="stylesheet" href="/static/xn_buttons.css?v=xn_v1">
-  <link rel="stylesheet" href="/static/sales_admin_v2.css?v=sv2_20260523">
+  <link rel="stylesheet" href="/static/sales_admin_v2.css?v=sv2_20260523c">
 </head>
 <body>
 <div class="wrap">
@@ -79,6 +79,9 @@ def sales_admin_v2_page(request: Request):
       <div class="sa2-kpi-card good"><div class="sa2-kpi-n" id="kpi-new-users">-</div><div class="sa2-kpi-l">本月新用戶</div></div>
       <div class="sa2-kpi-card danger"><div class="sa2-kpi-n" id="kpi-overdue">-</div><div class="sa2-kpi-l">逾期拜訪</div></div>
       <div class="sa2-kpi-card warn"><div class="sa2-kpi-n" id="kpi-expiring">-</div><div class="sa2-kpi-l">60天到期合約</div></div>
+      <div class="sa2-kpi-card good"><div class="sa2-kpi-n" id="kpi-active-users">-</div><div class="sa2-kpi-l">有效用戶</div></div>
+      <div class="sa2-kpi-card good"><div class="sa2-kpi-n" id="kpi-revenue">-</div><div class="sa2-kpi-l">月費收入</div></div>
+      <div class="sa2-kpi-card"><div class="sa2-kpi-n" id="kpi-penetration">-</div><div class="sa2-kpi-l">整體滲透率</div></div>
     </div>
 
     <div class="sa2-two-col">
@@ -349,6 +352,6 @@ def sales_admin_v2_page(request: Request):
   </div>
 </div>
 
-<script src="/static/sales_admin_v2.js?v=sv2_20260523b"></script>
+<script src="/static/sales_admin_v2.js?v=sv2_20260523c"></script>
 </body></html>"""
 # SHINNAN_SALES_ADMIN_V2_END
