@@ -37,11 +37,11 @@ def sales_admin_v2_page(request: Request):
         <h1 class="web-title-system">業務管理後台</h1>
         <div class="web-title-sub">訊南科技 · {name} · 業務系統 v2</div>
       </div>
-    </div>
-    <div class="web-title-actions">
-      <a href="/app/sales/v2" class="xn-btn xn-btn-sm">📱 手機版</a>
-      <a href="/admin/sales" class="xn-btn xn-btn-sm">舊版後台</a>
-      <a href="/app" class="xn-btn xn-btn-sm">首頁</a>
+      <div class="web-title-actions">
+        <a href="/app/sales/v2" class="xn-btn xn-btn-sm">📱 手機版</a>
+        <a href="/admin/sales" class="xn-btn xn-btn-sm">舊版後台</a>
+        <a href="/app" class="xn-btn xn-btn-sm">首頁</a>
+      </div>
     </div>
   </section>
 
