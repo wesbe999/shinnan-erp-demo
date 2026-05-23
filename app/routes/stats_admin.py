@@ -390,8 +390,7 @@ def _build_report():
                 FROM dispatch_repair_analysis a
                 LEFT JOIN buildings b
                   ON b.building_no = a.building_no
-                 AND b.area = a.area
-                GROUP BY COALESCE(b.name, a.building_no, '\u672a\u6307\u5b9a')
+                GROUP BY a.building_no
                 ORDER BY repair_count DESC
                 LIMIT 20
             """)
