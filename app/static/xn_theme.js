@@ -64,6 +64,12 @@ var THEMES = {
     desc: '#d0e8ff',
     footerColor: 'rgba(96,165,250,.82)',
     footerShadow: 'rgba(60,130,246,.35)',
+    /* header（子頁面用） */
+    headerBg: 'url("/erp-static/themes/navy/header.png") center/cover no-repeat',
+    headerBorder: 'rgba(60,130,220,.6)',
+    headerText: '#e8f4ff',
+    headerShadow: '0 10px 24px rgba(0,30,80,.35)',
+    headerRadius: '18px',
     /* logo 用 CSS 顯示在文字左側 */
     logoBeforeContent: 'url("/erp-static/shinnan_home_logo.png")',
     logoBeforeSize: '72px',
@@ -135,6 +141,11 @@ function applyTheme() {
     '--xn-desc:' + (t.desc||'#e3f7e0'),
     '--xn-footer-color:' + (t.footerColor||'rgba(255,210,92,.82)'),
     '--xn-footer-shadow:' + (t.footerShadow||'rgba(255,210,92,.38)'),
+    '--xn-header-bg:' + (t.headerBg||'none'),
+    '--xn-header-border:' + (t.headerBorder||'#d4af37'),
+    '--xn-header-text:' + (t.headerText||'#f7e9ae'),
+    '--xn-header-shadow:' + (t.headerShadow||'0 10px 24px rgba(15,23,42,.20)'),
+    '--xn-header-radius:' + (t.headerRadius||'18px'),
   ];
 
   var extraCss = '';
