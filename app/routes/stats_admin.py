@@ -8,6 +8,26 @@ from app.db import engine
 
 router = APIRouter(tags=["Shinnan Stats Admin"])
 
+_XN_VALID_THEMES = {"default", "navy", "purple", "crimson", "slate", "amber"}
+
+def _xn_theme_html(html: str, request) -> str:
+    """Server端注入主題：加 data-theme 和主題 CSS link，無 JS 閃爍"""
+    theme = request.cookies.get("xn_theme", "default")
+    if not theme or theme not in _XN_VALID_THEMES or theme == "default":
+        return html
+    html = html.replace(
+        '<html lang="zh-Hant">',
+        f'<html lang="zh-Hant" data-theme="{theme}">',
+        1
+    )
+    for ver in ["xn_v2", "xn_v1", "cl_header_v1"]:
+        marker = f'href="/static/web_title_unified.css?v={ver}">'
+        if marker in html:
+            theme_css = f'<link rel="stylesheet" href="/static/themes/{theme}/theme.css?v={ver}">'
+            html = html.replace(marker, marker + f'\n  {theme_css}', 1)
+            break
+    return html
+
 
 def _one(conn, sql, params=None, default=0):
     try:
@@ -657,7 +677,8 @@ def admin_stats_page(request: Request):
     _user = _employee_current_user_from_request(request)
     if not _user:
         return RedirectResponse(f"/employee/login?next=/admin/stats", status_code=303)
-    return HTMLResponse(STATS_HTML)
+        _html_out = _xn_theme_html(STATS_HTML, request)
+    return HTMLResponse(_html_out)
 
 
 STATS_HTML = r"""

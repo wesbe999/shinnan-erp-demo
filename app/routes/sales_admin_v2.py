@@ -4,6 +4,21 @@ from app.routes.employee_auth import _employee_current_user_from_request
 
 router = APIRouter(tags=["sales-admin-v2"])
 
+_XN_VALID_THEMES = {"default", "navy", "purple", "crimson", "slate", "amber"}
+
+def _xn_theme_html(html: str, request) -> str:
+    theme = request.cookies.get("xn_theme", "default")
+    if not theme or theme not in _XN_VALID_THEMES or theme == "default":
+        return html
+    html = html.replace('<html lang="zh-Hant">', f'<html lang="zh-Hant" data-theme="{theme}">', 1)
+    for ver in ["xn_v2", "xn_v1", "cl_header_v1"]:
+        marker = f'href="/static/web_title_unified.css?v={ver}">'
+        if marker in html:
+            theme_css = f'<link rel="stylesheet" href="/static/themes/{theme}/theme.css?v={ver}">'
+            html = html.replace(marker, marker + f'\n  {theme_css}', 1)
+            break
+    return html
+
 # SHINNAN_SALES_ADMIN_V2_START
 @router.get("/admin/sales/v2", response_class=HTMLResponse)
 def sales_admin_v2_page(request: Request):
@@ -12,7 +27,7 @@ def sales_admin_v2_page(request: Request):
         return RedirectResponse("/employee/login?next=/admin/sales/v2", status_code=303)
     name = str(user.get("display_name") or "管理員")
     role = str(user.get("role") or "")
-    return f"""<!doctype html>
+    _page_html = f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
@@ -356,4 +371,5 @@ def sales_admin_v2_page(request: Request):
 
 <script src='/static/xn_theme.js?v=5'></script>
 </body></html>"""
+    return _xn_theme_html(_page_html, request)
 # SHINNAN_SALES_ADMIN_V2_END
