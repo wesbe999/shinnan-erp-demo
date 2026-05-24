@@ -404,7 +404,7 @@ def admin_buildings_page(request: Request):
           </tr>
         """)
 
-    _page_html = """
+    return """
 <!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -1800,5 +1800,4 @@ def admin_buildings_page(request: Request):
 </body>
 </html>
 """.replace("__INITIAL_BUILDING_ROWS__", "\n".join(initial_rows))
-    return _xn_theme_html(_page_html, request)
 # SHINNAN_BUILDINGS_PAGE_RESTORE_END
