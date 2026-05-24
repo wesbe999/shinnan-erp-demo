@@ -1,13 +1,17 @@
 /* themes/navy/theme.css - 深藍主題，無閃綠色 */
 
-/* header 底圖，移除綠色偽元素 */
+/* header 底圖，移除所有綠色裝飾元素和留白 */
 .web-title {
   background: url("/erp-static/themes/navy/header.png") center/cover no-repeat !important;
   border-color: rgba(60, 130, 220, .6) !important;
   color: #e8f4ff !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
 }
 .web-title::before,
-.web-title::after { display: none !important; }
+.web-title::after,
+.web-title-map,
+.web-title-radar { display: none !important; }
 
 /* body 背景 */
 html, body { background: #0a1828 !important; color: #e8f4ff; }

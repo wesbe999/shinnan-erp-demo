@@ -320,9 +320,13 @@ content: "";
   background: url("/erp-static/themes/navy/header.png") center/cover no-repeat !important;
   border-color: rgba(60,130,220,.6) !important;
   color: #e8f4ff !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
 }
 [data-theme="navy"] .web-title::before,
-[data-theme="navy"] .web-title::after { display: none !important; }
+[data-theme="navy"] .web-title::after,
+[data-theme="navy"] .web-title-map,
+[data-theme="navy"] .web-title-radar { display: none !important; }
 [data-theme="purple"] .sv2-hero,[data-theme="purple"] .sv2-det-header{background:linear-gradient(135deg,#14082a,#3b1a6b)!important}
 [data-theme="crimson"] .sv2-hero,[data-theme="crimson"] .sv2-det-header{background:linear-gradient(135deg,#220808,#6b1a1a)!important}
 [data-theme="slate"] .sv2-hero,[data-theme="slate"] .sv2-det-header{background:linear-gradient(135deg,#0a1020,#1e293b)!important}
