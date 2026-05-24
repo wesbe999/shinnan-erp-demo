@@ -141,16 +141,24 @@ def shinnan_erp_root_page():
 *{box-sizing:border-box}
 html,body{
 min-height:100vh;
-  font-family:"LXGW WenKai TC","FangSong","STFangsong","Microsoft JhengHei",serif;
+  font-family:"LXGW WenKai TC","FangSong","Microsoft JhengHei",serif;
   color:#f4fff4;
-  background:#000;
+  background:
+    radial-gradient(circle at 14% 18%,rgba(128,255,74,.10),transparent 24%),
+    radial-gradient(circle at 22% 78%,rgba(116,255,58,.16),transparent 30%),
+    radial-gradient(circle at 62% 42%,rgba(58,180,76,.12),transparent 34%),
+    radial-gradient(circle at 88% 14%,rgba(40,120,62,.22),transparent 28%),
+    linear-gradient(135deg,#0a2015 0%,#143d24 28%,#1e5f31 52%,#102f1d 74%,#07160f 100%);
   overflow:hidden;
 }
 body{
   min-height:100vh;
-  font-family:"LXGW WenKai TC","FangSong","STFangsong","Microsoft JhengHei",serif;
+  font-family:"LXGW WenKai TC","FangSong","Microsoft JhengHei",serif;
   color:#f4fff4;
-  background:#000;
+  background:
+    radial-gradient(circle at 32% 80%,rgba(126,255,61,.16),transparent 26%),
+    radial-gradient(circle at 72% 18%,rgba(115,255,66,.12),transparent 28%),
+    linear-gradient(135deg,#102e1d 0%,#1b5a2e 46%,#0b1f15 100%);
   overflow:hidden;
 }
 body:before{
