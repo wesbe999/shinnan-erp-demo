@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, Response as _Buildings
 from sqlalchemy import text as _buildings_sql_text
 
 from app.db import engine as _buildings_engine
-
+from app.components.theme_inject import apply_theme as _apply_theme
 
 router = APIRouter(tags=["buildings-admin"])
 
@@ -404,7 +404,7 @@ def admin_buildings_page(request: Request):
           </tr>
         """)
 
-    return """
+    _html = """
 <!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -1800,4 +1800,5 @@ def admin_buildings_page(request: Request):
 </body>
 </html>
 """.replace("__INITIAL_BUILDING_ROWS__", "\n".join(initial_rows))
+    return HTMLResponse(_apply_theme(_html, request))
 # SHINNAN_BUILDINGS_PAGE_RESTORE_END
