@@ -393,18 +393,17 @@ display:none;
 }
 .world-img{
   position:absolute;
-  left:-30px;
+  left:-94px;
   right:auto;
   top:auto;
-  bottom:-120px;
-  width:90%;
-  height:auto;
-  object-fit:contain;
-  object-position:left bottom;
+  bottom:-27px;
+  width:255%;
+  height:648px;
+  object-fit:fill;
   pointer-events:none;
-  opacity:.65;
+  opacity:.82;
   mix-blend-mode:screen;
-  filter:drop-shadow(0 0 12px rgba(255,255,255,.10));
+  filter:drop-shadow(0 0 16px rgba(255,255,255,.14));
   z-index:1;
 }
 .panel{
@@ -572,18 +571,17 @@ position:absolute;
   .status{font-size:12px;margin-top:20px}
   .world-img{
   position:absolute;
-  left:-20px;
+  left:-94px;
   right:auto;
   top:auto;
-  bottom:-100px;
-  width:85%;
-  height:auto;
-  object-fit:contain;
-  object-position:left bottom;
+  bottom:-27px;
+  width:255%;
+  height:648px;
+  object-fit:fill;
   pointer-events:none;
-  opacity:.65;
+  opacity:.82;
   mix-blend-mode:screen;
-  filter:drop-shadow(0 0 12px rgba(255,255,255,.10));
+  filter:drop-shadow(0 0 16px rgba(255,255,255,.14));
   z-index:1;
 }
   .panel{padding:0 0 8px 0}
@@ -667,7 +665,7 @@ position:absolute;
       <div class="desc">\u6574\u5408\u6d3e\u5de5\u3001\u5e33\u52d9\u3001\u5ba2\u6236\u3001\u5927\u6a13\u3001\u696d\u52d9\u8207\u5de5\u7a0b\u8cc7\u6599\uff0c\u8b93\u516c\u53f8\u7ba1\u7406\u8207\u73fe\u5834\u4f5c\u696d\u80fd\u5728\u540c\u4e00\u5957\u5e73\u53f0\u5feb\u901f\u8854\u63a5\u3002</div>
 
       <img class="star-overlay" src="/static/star_overlay_black_to_transparent.png" alt="">
-      <img class="world-img" src="/erp-static/home_globe_wire_white.png?v=20260512211904" alt="">
+      <img class="world-img" src="/erp-static/home_globe_wire_transparent_stronger.png" alt="">
 
     </section>
 
