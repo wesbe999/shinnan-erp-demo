@@ -85,6 +85,8 @@ if (!t) return;
 
 function applyTheme() {
   /* 移除舊 style */
+  document.documentElement.dataset.theme = id;
+
   var old = document.getElementById('xn-theme-v8');
   if (old) old.remove();
 

@@ -15,10 +15,18 @@ app/components/layout.py
 
 from __future__ import annotations
 import html as _html
+from fastapi import Request
 
 # ── 版本號（改這裡讓瀏覽器清快取）──────────────────────────────
 CSS_VERSION = "xn_v1"
 # ─────────────────────────────────────────────────────────────
+
+VALID_THEMES = {"default", "navy", "purple", "crimson", "slate", "amber"}
+
+def get_theme(request: Request) -> str:
+    """從 cookie 讀取主題，確保是合法值"""
+    t = request.cookies.get("xn_theme", "default")
+    return t if t in VALID_THEMES else "default"
 
 # 全域 CSS 變數（各頁面共用）
 GLOBAL_CSS_VARS = """
@@ -229,17 +237,23 @@ def render_head(
     title: str = "訊南 ERP",
     extra_css: str = "",
     extra_head: str = "",
+    theme: str = "default",
 ) -> str:
     """產生 <!doctype html><html><head>...</head> 區段"""
     safe_title = _html.escape(str(title or "訊南 ERP"))
+    theme_link = ""
+    if theme and theme != "default":
+        theme_link = f'<link rel="stylesheet" href="/static/themes/{theme}/theme.css?v={CSS_VERSION}">'
+    data_theme = f' data-theme="{theme}"' if theme and theme != "default" else ""
     return f"""<!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant"{data_theme}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{safe_title}｜中央控管系統</title>
 <link rel="stylesheet" href="/static/web_title_unified.css?v={CSS_VERSION}">
 <link rel="stylesheet" href="/static/xn_buttons.css?v={CSS_VERSION}">
+{theme_link}
 {GLOBAL_CSS_VARS}
 {extra_css}
 {extra_head}

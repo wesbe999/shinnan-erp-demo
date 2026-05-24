@@ -30,6 +30,13 @@ app/components/header.py
 
 from __future__ import annotations
 import html as _html
+from fastapi import Request
+
+VALID_THEMES = {"default", "navy", "purple", "crimson", "slate", "amber"}
+
+def get_theme(request: Request) -> str:
+    t = request.cookies.get("xn_theme", "default")
+    return t if t in VALID_THEMES else "default"
 
 # ── 設定區（換圖只需改這裡）──────────────────────────────────
 LOGO_MAIN      = "/static/shinnan_logo_gold_transparent.png?v=cl_header_v1"
@@ -46,15 +53,21 @@ def render_page_head(
     title: str = "訊南 ERP",
     extra_css: str = "",
     extra_head: str = "",
+    theme: str = "default",
 ) -> str:
     """產生 <html><head>...</head> 區段"""
+    theme_link = ""
+    if theme and theme != "default":
+        theme_link = f'<link rel="stylesheet" href="/static/themes/{theme}/theme.css?v={CSS_VERSION}">'
+    data_theme = f' data-theme="{theme}"' if theme and theme != "default" else ""
     return f"""<!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant"{data_theme}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{_esc(title)}｜訊南 ERP</title>
 <link rel="stylesheet" href="/static/web_title_unified.css?v={CSS_VERSION}">
+{theme_link}
 {extra_css}
 {extra_head}
 """

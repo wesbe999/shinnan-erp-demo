@@ -8,8 +8,24 @@ from sqlalchemy import text
 from app.db import engine
 from app.routes.employee_auth import _employee_current_user_from_request
 
-
 router = APIRouter(tags=["admin_dispatch"])
+
+VALID_THEMES = {"default", "navy", "purple", "crimson", "slate", "amber"}
+
+def _apply_theme_to_html(html: str, theme: str) -> str:
+    """在 HTML 的 <html> tag 加上 data-theme，並在 web_title CSS 後插入主題 CSS link"""
+    if not theme or theme not in VALID_THEMES or theme == "default":
+        return html
+    # 加 data-theme attribute
+    html = html.replace('<html lang="zh-Hant">', f'<html lang="zh-Hant" data-theme="{theme}">', 1)
+    # 在 web_title_unified.css link 後插入主題 CSS
+    theme_link = f'<link rel="stylesheet" href="/static/themes/{theme}/theme.css?v=xn_v2">'
+    html = html.replace(
+        'href="/static/web_title_unified.css?v=xn_v2">',
+        f'href="/static/web_title_unified.css?v=xn_v2">\n{theme_link}',
+        1
+    )
+    return html
 
 
 DISPATCH_DEPARTMENTS = (
@@ -31,7 +47,9 @@ def admin_page(request: Request):
     current_user = _employee_current_user_from_request(request)
     if not current_user:
         return RedirectResponse("/employee/login?next=/admin", status_code=303)
-    return HTMLResponse(CLEAN_ADMIN_HTML)
+    theme = request.cookies.get("xn_theme", "default")
+    html = _apply_theme_to_html(CLEAN_ADMIN_HTML, theme)
+    return HTMLResponse(html)
 
 
 @router.get("/admin/engineers", summary="工程師名錄已改由人資系統管理")

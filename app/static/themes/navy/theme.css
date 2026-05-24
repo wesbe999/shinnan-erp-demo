@@ -1,0 +1,40 @@
+/* themes/navy/theme.css
+   訊南 ERP 深藍主題 - 子頁面 CSS 變數置換
+   在 web_title_unified.css 之後載入，直接覆蓋 :root 變數
+   完全不依賴 JS，無閃綠色問題 */
+
+:root {
+  /* header */
+  --xn-header-bg: url("/erp-static/themes/navy/header.png") center/cover no-repeat;
+  --xn-header-border: rgba(60, 130, 220, .6);
+  --xn-header-text: #e8f4ff;
+  --xn-header-shadow: 0 10px 24px rgba(0, 30, 80, .35);
+  --xn-header-radius: 18px;
+
+  /* accent */
+  --xn-ac: #60a5fa;
+  --xn-ac-glow: rgba(60, 130, 246, .55);
+  --xn-ac-glow2: rgba(60, 130, 246, .18);
+  --xn-bd-glow: rgba(60, 130, 220, .45);
+  --xn-card-from: rgba(5, 15, 35, .55);
+  --xn-card-to: rgba(10, 25, 55, .65);
+  --xn-card-shine: rgba(60, 130, 220, .08);
+  --xn-desc: #d0e8ff;
+  --xn-footer-color: rgba(96, 165, 250, .82);
+  --xn-footer-shadow: rgba(60, 130, 246, .35);
+
+  /* 格線關閉 */
+  --xn-grid-display: none;
+  --xn-overlay-display: none;
+
+  /* body */
+  --xn-body-bg: #0a1828;
+  --xn-text: #e8f4ff;
+  --xn-font: "LXGW WenKai TC", "FangSong", "Microsoft JhengHei", serif;
+}
+
+html, body {
+  background: #0a1828 !important;
+  font-family: var(--xn-font);
+  color: var(--xn-text);
+}
