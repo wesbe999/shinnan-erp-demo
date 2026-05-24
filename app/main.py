@@ -134,28 +134,23 @@ def shinnan_erp_root_page():
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Shinnan ERP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
 html,body{
 min-height:100vh;
-  font-family:"Microsoft JhengHei","Segoe UI",Arial,sans-serif;
+  font-family:"LXGW WenKai TC","FangSong","STFangsong","Microsoft JhengHei",serif;
   color:#f4fff4;
-  background:
-    radial-gradient(circle at 14% 18%,rgba(128,255,74,.10),transparent 24%),
-    radial-gradient(circle at 22% 78%,rgba(116,255,58,.16),transparent 30%),
-    radial-gradient(circle at 62% 42%,rgba(58,180,76,.12),transparent 34%),
-    radial-gradient(circle at 88% 14%,rgba(40,120,62,.22),transparent 28%),
-    linear-gradient(135deg,#0a2015 0%,#143d24 28%,#1e5f31 52%,#102f1d 74%,#07160f 100%);
+  background:#000;
   overflow:hidden;
 }
 body{
   min-height:100vh;
-  font-family:"Microsoft JhengHei","Segoe UI",Arial,sans-serif;
+  font-family:"LXGW WenKai TC","FangSong","STFangsong","Microsoft JhengHei",serif;
   color:#f4fff4;
-  background:
-    radial-gradient(circle at 32% 80%,rgba(126,255,61,.16),transparent 26%),
-    radial-gradient(circle at 72% 18%,rgba(115,255,66,.12),transparent 28%),
-    linear-gradient(135deg,#102e1d 0%,#1b5a2e 46%,#0b1f15 100%);
+  background:#000;
   overflow:hidden;
 }
 body:before{
@@ -164,30 +159,32 @@ content:"";
   inset:0;
   pointer-events:none;
   background-image:
-    linear-gradient(rgba(164,255,92,.040) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(164,255,92,.032) 1px,transparent 1px),
-    radial-gradient(circle at 1px 1px,rgba(166,255,92,.18) 1px,transparent 0);
+    linear-gradient(var(--xn-grid-color,rgba(164,255,92,.040)) 1px,transparent 1px),
+    linear-gradient(90deg,var(--xn-grid-color,rgba(164,255,92,.032)) 1px,transparent 1px),
+    radial-gradient(circle at 1px 1px,var(--xn-grid-dot,rgba(166,255,92,.18)) 1px,transparent 0);
   background-size:64px 64px,64px 64px,20px 20px;
-  opacity:.72;
+  opacity:var(--xn-grid-opacity,.72);
+  display:var(--xn-grid-display,block);
 }
 body:after{
 content:"";
   position:fixed;
   inset:0;
   pointer-events:none;
-  background:
+  background:var(--xn-overlay-bg,
     linear-gradient(90deg,rgba(0,0,0,.28),transparent 22%,transparent 72%,rgba(0,0,0,.26)),
     linear-gradient(180deg,rgba(255,255,255,.035),transparent 22%,rgba(0,0,0,.16) 100%),
     radial-gradient(ellipse at 30% 105%,rgba(158,255,68,.16),transparent 42%),
-    radial-gradient(ellipse at 78% 0%,rgba(70,255,100,.07),transparent 36%);
-  opacity:.95;
+    radial-gradient(ellipse at 78% 0%,rgba(70,255,100,.07),transparent 36%));
+  opacity:var(--xn-overlay-opacity,.95);
+  display:var(--xn-overlay-display,block);
 }
 .shell{
 position:relative;
   z-index:1;
   width:100vw;
   height:100vh;
-  padding:16px 24px;
+  padding:var(--xn-shell-padding,16px 24px);
   overflow:hidden;
 }
 .portal{
@@ -199,19 +196,19 @@ position:relative;
   height:100%;
   gap:28px;
   padding:24px 34px;
-  border:1px solid rgba(143,255,73,.78);
+  border:1px solid var(--xn-portal-border, rgba(143,255,73,.78));
   border-radius:24px;
-  background:
+  background: var(--xn-portal-bg,
     radial-gradient(circle at 18% 20%,rgba(255,255,255,.045),transparent 22%),
     radial-gradient(circle at 24% 82%,rgba(150,255,70,.085),transparent 34%),
     radial-gradient(circle at 60% 18%,rgba(100,255,90,.055),transparent 38%),
     linear-gradient(90deg,rgba(5,24,15,.82),rgba(16,62,32,.62) 46%,rgba(7,28,18,.76)),
-    linear-gradient(180deg,rgba(255,255,255,.035),transparent 34%,rgba(0,0,0,.18));
-  box-shadow:
+    linear-gradient(180deg,rgba(255,255,255,.035),transparent 34%,rgba(0,0,0,.18)));
+  box-shadow: var(--xn-portal-shadow,
     0 22px 64px rgba(0,0,0,.34),
     inset 0 1px 0 rgba(225,255,210,.08),
     inset 0 0 90px rgba(143,255,73,.055),
-    0 0 24px rgba(143,255,73,.14);
+    0 0 24px rgba(143,255,73,.14));
   overflow:hidden;
 }
 .portal:before{
@@ -388,21 +385,20 @@ display:none;
 }
 .world-img{
   position:absolute;
-  left:-94px;
+  left:-30px;
   right:auto;
   top:auto;
-  bottom:-27px;
-  width:255%;
-  height:648px;
-  object-fit:fill;
+  bottom:-120px;
+  width:90%;
+  height:auto;
+  object-fit:contain;
+  object-position:left bottom;
   pointer-events:none;
-  opacity:.82;
+  opacity:.65;
   mix-blend-mode:screen;
-  filter:drop-shadow(0 0 16px rgba(255,255,255,.14));
+  filter:drop-shadow(0 0 12px rgba(255,255,255,.10));
   z-index:1;
 }
-
-
 .panel{
 min-width:0;
   display:flex;
@@ -418,7 +414,7 @@ display:flex;
   align-items:center;
   gap:15px;
   margin:0 0 14px;
-  color:#d4af37;
+  color:var(--xn-ac,#d4af37);
   font-size:23px;
   font-weight:1000;
   letter-spacing:5px;
@@ -429,14 +425,14 @@ display:flex;
   width:10px;
   height:10px;
   border-radius:50%;
-  background:#d4af37;
-  box-shadow:0 0 18px rgba(145,255,62,.75);
+  background:var(--xn-ac,#d4af37);
+  box-shadow:0 0 18px var(--xn-ac-glow,rgba(145,255,62,.75));
 }
 .panel-title:after{
   content:"";
   flex:1;
   height:2px;
-  background:linear-gradient(90deg,rgba(164,255,67,.72),rgba(164,255,67,.16),transparent);
+  background:linear-gradient(90deg,var(--xn-ac-glow,rgba(164,255,67,.72)),var(--xn-ac-glow2,rgba(164,255,67,.16)),transparent);
 }
 .grid{
 display:grid;
@@ -457,11 +453,11 @@ position:relative;
   padding:10px 36px 10px 16px;
   text-decoration:none;
   color:#fff;
-  border:1px solid rgba(152,255,77,.55);
+  border:1px solid var(--xn-bd-glow,rgba(152,255,77,.55));
   border-radius:14px;
   background:
-    linear-gradient(135deg,rgba(24,96,42,.40),rgba(8,34,20,.58)),
-    radial-gradient(circle at 18% 20%,rgba(164,255,67,.09),transparent 28%);
+    linear-gradient(135deg,var(--xn-card-from,rgba(24,96,42,.40)),var(--xn-card-to,rgba(8,34,20,.58))),
+    radial-gradient(circle at 18% 20%,var(--xn-card-shine,rgba(164,255,67,.09)),transparent 28%);
   box-shadow:
     inset 0 1px 0 rgba(235,255,225,.10),
     0 10px 20px rgba(0,0,0,.20);
@@ -493,11 +489,11 @@ position:relative;
 }
 .module:hover{
   transform:translateY(-3px);
-  border-color:#e8c84a;
+  border-color:var(--xn-ac,#e8c84a);
   box-shadow:
     0 20px 36px rgba(0,0,0,.30),
-    0 0 24px rgba(152,255,77,.18),
-    inset 0 0 18px rgba(152,255,77,.07);
+    0 0 24px var(--xn-ac-glow,rgba(152,255,77,.18)),
+    inset 0 0 18px var(--xn-card-shine,rgba(152,255,77,.07));
 }
 .mi{
 width:36px;
@@ -505,7 +501,7 @@ width:36px;
   display:flex;
   align-items:center;
   justify-content:flex-start;
-  color:#d4af37;
+  color:var(--xn-ac,#d4af37);
   margin-bottom:1px;
 }
 .mi svg{
@@ -525,7 +521,7 @@ font-size:18px;
   white-space:nowrap;
 }
 .module-desc{
-color:#e3f7e0;
+  color:var(--xn-desc,#e3f7e0);
   font-size:11.5px;
   font-weight:760;
   line-height:1.38;
@@ -537,7 +533,7 @@ position:absolute;
   right:16px;
   top:50%;
   transform:translateY(-50%);
-  color:#d4af37;
+  color:var(--xn-ac,#d4af37);
   font-size:26px;
   font-weight:700;
   line-height:1;
@@ -568,17 +564,18 @@ position:absolute;
   .status{font-size:12px;margin-top:20px}
   .world-img{
   position:absolute;
-  left:-94px;
+  left:-20px;
   right:auto;
   top:auto;
-  bottom:-27px;
-  width:255%;
-  height:648px;
-  object-fit:fill;
+  bottom:-100px;
+  width:85%;
+  height:auto;
+  object-fit:contain;
+  object-position:left bottom;
   pointer-events:none;
-  opacity:.82;
+  opacity:.65;
   mix-blend-mode:screen;
-  filter:drop-shadow(0 0 16px rgba(255,255,255,.14));
+  filter:drop-shadow(0 0 12px rgba(255,255,255,.10));
   z-index:1;
 }
   .panel{padding:0 0 8px 0}
@@ -662,7 +659,7 @@ position:absolute;
       <div class="desc">\u6574\u5408\u6d3e\u5de5\u3001\u5e33\u52d9\u3001\u5ba2\u6236\u3001\u5927\u6a13\u3001\u696d\u52d9\u8207\u5de5\u7a0b\u8cc7\u6599\uff0c\u8b93\u516c\u53f8\u7ba1\u7406\u8207\u73fe\u5834\u4f5c\u696d\u80fd\u5728\u540c\u4e00\u5957\u5e73\u53f0\u5feb\u901f\u8854\u63a5\u3002</div>
 
       <img class="star-overlay" src="/static/star_overlay_black_to_transparent.png" alt="">
-      <img class="world-img" src="/erp-static/home_globe_wire_transparent_stronger.png?v=20260512211904" alt="">
+      <img class="world-img" src="/erp-static/home_globe_wire_white.png?v=20260512211904" alt="">
 
     </section>
 
@@ -719,7 +716,7 @@ function openAdminModule(path) {
 
 
 </script>
-<script src="/static/xn_theme.js?v=5"></script>
+<script src="/static/xn_theme.js?v=10"></script>
 </body>
 </html>
 """
