@@ -1,4 +1,5 @@
-/* themes/navy/theme.css - 深藍主題，無閃綠色 */
+/* themes/navy/theme.css - 深藍主題，無閃綠色
+   這個 CSS 在 web_title_unified.css 之後載入，直接覆蓋，不依賴 data-theme */
 
 /* header 底圖，移除所有綠色裝飾元素和留白 */
 .web-title {
@@ -13,5 +14,6 @@
 .web-title-map,
 .web-title-radar { display: none !important; }
 
-/* body 背景 */
-html, body { background: #0a1828 !important; color: #e8f4ff; }
+/* body margin 清零 */
+body { margin: 0 !important; background: #0a1828 !important; color: #e8f4ff; }
+html { background: #0a1828 !important; }
